@@ -2,10 +2,7 @@
 -export([main/1, executor/0]).
 
 
--define(PORT, 22).
--define(TIMEOUT, 5000).
--define(SEPARATOR, [$- || _ <- lists:seq(1, 79)]).
--define(PATH_DIR__DATA_SSH, "../data/ssh").
+-include("commander_config.hrl").
 
 
 main(Args) ->
