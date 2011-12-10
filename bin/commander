@@ -21,7 +21,7 @@ PATH_DIR__BEAM = os.path.join(PATH_DIR__ROOT, 'ebin')
 def main():
     arguments = sys.argv[1:]
 
-    if len(arguments) < 3:
+    if not len(arguments) == 3:
         print "USAGE:"
         print "------"
         print "%s <hostname> <username> <command>" % __file__
