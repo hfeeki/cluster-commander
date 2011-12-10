@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+'''
+Copyright (c) 2011 Siraaj Khandkar
+Licensed under MIT license. See LICENSE file for details.
+
+File    : keygen
+Author  : Siraaj Khandkar <siraaj@khandkar.net>
+Purpose : Streamlines generation of a new password-less key pair.
+'''
 
 import os
 

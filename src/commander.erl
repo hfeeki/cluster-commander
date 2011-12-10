@@ -1,3 +1,12 @@
+%%%----------------------------------------------------------------------------
+%%% Copyright (c) 2011 Siraaj Khandkar
+%%% Licensed under MIT license. See LICENSE file for details.
+%%%
+%%% File    : commander.erl
+%%% Author  : Siraaj Khandkar <siraaj@khandkar.net>
+%%% Purpose : Executes a command on all available cluster nodes.
+%%%----------------------------------------------------------------------------
+
 -module(commander).
 -export([main/1, executor/0]).
 

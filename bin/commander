@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+'''
+Copyright (c) 2011 Siraaj Khandkar
+Licensed under MIT license. See LICENSE file for details.
+
+File    : commander
+Author  : Siraaj Khandkar <siraaj@khandkar.net>
+Purpose : Executable wrapper around the commander app.
+'''
 
 import os
 import sys
