@@ -45,7 +45,9 @@ executor() ->
         {ssh_cm, ConnRef, {data, _, _, Data}} ->
             NodeId = pid_to_list(ConnRef),
             NodeOutput = binary_to_list(Data),
-            StdOutput = string:join([NodeId, ?SEPARATOR, NodeOutput], "\n"),
+
+            StdOutput =
+                string:join(["\n", NodeId, ?SEPARATOR, NodeOutput], "\n"),
 
             io:format(StdOutput),
 
