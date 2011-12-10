@@ -4,7 +4,7 @@ SRC_DIR=./src
 
 compile:
 	mkdir -p $(BEAM_DIR)
-	erlc -o $(BEAM_DIR) $(SRC_DIR)/*
+	erlc -o $(BEAM_DIR) $(SRC_DIR)/*.erl
 
 
 clean:
