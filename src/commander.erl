@@ -4,7 +4,7 @@
 
 -define(PORT, 22).
 -define(TIMEOUT, 5000).
--define(SEPARATOR, ["+" | [$- || _ <- lists:seq(1, 78)]]).
+-define(SEPARATOR, [$- || _ <- lists:seq(1, 79)]).
 -define(PATH_DIR__DATA_SSH, "../data/ssh").
 
 
@@ -37,12 +37,12 @@ executor() ->
             executor();
 
         {ssh_cm, ConnRef, {data, _, _, Data}} ->
-            io:format(
-                string:join(
-                    [pid_to_list(ConnRef), ?SEPARATOR, binary_to_list(Data)],
-                    "\n"
-                )
-            ),
+            NodeId = pid_to_list(ConnRef),
+            NodeOutput = binary_to_list(Data),
+            StdOutput = string:join([NodeId, ?SEPARATOR, NodeOutput], "\n"),
+
+            io:format(StdOutput),
+
             executor_proc ! stop,
             executor();
 
