@@ -8,7 +8,7 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander).
--export([main/1, executor/0]).
+-export([main/1, executor/0, pbs_nodes/0]).
 
 
 -include("commander_config.hrl").
@@ -64,4 +64,39 @@ executor() ->
         Other ->
             io:format("WARNING! UNEXPECTED MSG: ~n~p~n", [Other]),
             executor()
+    end.
+
+
+%%-----------------------------------------------------------------------------
+%% Function : pbs_nodes/0
+%% Purpose  : Returns a list of TORQUE cluster nodes and their states.
+%%-----------------------------------------------------------------------------
+pbs_nodes() ->
+    {Tree, _} = xmerl_scan:string(os:cmd("pbsnodes -x"), [{validation, off}]),
+    {_, _, _, _, _, _, _, _, Nodes, _, _, _} = Tree,
+    PBSNodes = [pbs_node_data(Node) || Node <- Nodes],
+    PBSNodes.
+
+
+pbs_node_data(Node) ->
+    {_, _, _, _, _, _, _, _, Data, _, _, _} = Node,
+    pbs_node_data(Data, []).
+
+
+pbs_node_data([], ExtractedData) ->
+    list_to_tuple(ExtractedData);
+
+pbs_node_data(AllData, ExtractedData) ->
+    [Data|RemainingData] = AllData,
+    {_, _, _, _, _, _, _, _, [Datum], _, _, _} = Data,
+
+    case Datum of
+        {xmlText, [{name, _}, _, _], _, _, Hostname, text} ->
+            pbs_node_data(RemainingData, [{hostname, Hostname}|ExtractedData]);
+
+        {xmlText, [{state, _}, _, _], _, _, State, text} ->
+            pbs_node_data(RemainingData, [{state, State}|ExtractedData]);
+
+        _Else ->
+            pbs_node_data(RemainingData, ExtractedData)
     end.
