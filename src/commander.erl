@@ -15,19 +15,29 @@
 
 
 main(Args) ->
-    [Host, User, Command] = lists:map(fun(A) -> atom_to_list(A) end, Args),
+    [User, Command] = lists:map(fun(A) -> atom_to_list(A) end, Args),
 
     crypto:start(),
     ssh:start(),
 
-    register(executor_proc, spawn(commander, executor, [])),
+    Nodes = [Hostname || {{state, _}, {hostname, Hostname}} <- pbs_nodes()],
 
-    executor_proc ! {job, {Host, User, Command}}.
+    lists:foreach(
+        fun(Node) ->
+            ProcName = list_to_atom(Node),
+            register(
+                ProcName,
+                spawn(commander, executor, [])
+            ),
+            ProcName ! {job, {User, Node, Command}}
+        end,
+        Nodes
+    ).
 
 
 executor() ->
     receive
-        {job, {Host, User, Command}} ->
+        {job, {User, Host, Command}} ->
             ConnectOptions = [
                 {silently_accept_hosts, true},
                 {user_interaction, true},
@@ -42,24 +52,23 @@ executor() ->
             ssh_connection:exec(ConnRef, ChannId, Command, ?TIMEOUT),
             executor();
 
-        {ssh_cm, ConnRef, {data, _, _, Data}} ->
-            NodeId = pid_to_list(ConnRef),
+        {ssh_cm, _, {data, _, _, Data}} ->
+            {registered_name, ProcName} =
+                erlang:process_info(self(), registered_name),
+            NodeId = atom_to_list(ProcName),
             NodeOutput = binary_to_list(Data),
-
             StdOutput =
                 string:join(["\n", NodeId, ?SEPARATOR, NodeOutput], "\n"),
 
-            io:format(StdOutput),
-
-            executor_proc ! stop,
-            executor();
+            io:format(StdOutput);
 
         {ssh_cm, _, {eof, _}} -> executor();
         {ssh_cm, _, {exit_status, _, _}} -> executor();
         {ssh_cm, _, {closed, _}} -> executor();
 
         stop ->
-            init:stop();
+            void;
+            %init:stop();
 
         Other ->
             io:format("WARNING! UNEXPECTED MSG: ~n~p~n", [Other]),
