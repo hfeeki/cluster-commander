@@ -82,13 +82,13 @@ executor() ->
 %%-----------------------------------------------------------------------------
 pbs_nodes() ->
     {Tree, _} = xmerl_scan:string(os:cmd("pbsnodes -x"), [{validation, off}]),
-    Nodes = lists:nth(9, tuple_to_list(Tree)),
+    Nodes = nth_of_tuple(9, Tree),
     PBSNodes = [pbs_node_data(Node) || Node <- Nodes],
     PBSNodes.
 
 
 pbs_node_data(Node) ->
-    Data = lists:nth(9, tuple_to_list(Node)),
+    Data = nth_of_tuple(9, Node),
     pbs_node_data(Data, []).
 
 
@@ -97,7 +97,7 @@ pbs_node_data([], ExtractedData) ->
 
 pbs_node_data(AllData, ExtractedData) ->
     [Data|RemainingData] = AllData,
-    [Datum] = lists:nth(9, tuple_to_list(Data)),
+    [Datum] = nth_of_tuple(9, Data),
 
     case Datum of
         {xmlText, [{name, _}, _, _], _, _, Hostname, text} ->
@@ -109,3 +109,11 @@ pbs_node_data(AllData, ExtractedData) ->
         _Else ->
             pbs_node_data(RemainingData, ExtractedData)
     end.
+
+
+%%-----------------------------------------------------------------------------
+%% Function : nth_of_tuple/2
+%% Purpose  : Returns an Nth element of a tuple. Just a shortcut.
+%%-----------------------------------------------------------------------------
+nth_of_tuple(N, Tuple) ->
+    lists:nth(N, tuple_to_list(Tuple)).
