@@ -82,13 +82,13 @@ executor() ->
 %%-----------------------------------------------------------------------------
 pbs_nodes() ->
     {Tree, _} = xmerl_scan:string(os:cmd("pbsnodes -x"), [{validation, off}]),
-    {_, _, _, _, _, _, _, _, Nodes, _, _, _} = Tree,
+    Nodes = lists:nth(9, tuple_to_list(Tree)),
     PBSNodes = [pbs_node_data(Node) || Node <- Nodes],
     PBSNodes.
 
 
 pbs_node_data(Node) ->
-    {_, _, _, _, _, _, _, _, Data, _, _, _} = Node,
+    Data = lists:nth(9, tuple_to_list(Node)),
     pbs_node_data(Data, []).
 
 
@@ -97,7 +97,7 @@ pbs_node_data([], ExtractedData) ->
 
 pbs_node_data(AllData, ExtractedData) ->
     [Data|RemainingData] = AllData,
-    {_, _, _, _, _, _, _, _, [Datum], _, _, _} = Data,
+    [Datum] = lists:nth(9, tuple_to_list(Data)),
 
     case Datum of
         {xmlText, [{name, _}, _, _], _, _, Hostname, text} ->
