@@ -8,7 +8,7 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander).
--export([main/1, dispatcher/1, executor/0, printer/0]).
+-export([main/1, dispatcher/1, executor/1, printer/0]).
 
 -include("commander_config.hrl").
 
@@ -42,8 +42,8 @@ main(Args) ->
     lists:foreach(
         fun(Node) ->
             ProcName = list_to_atom(Node),
-            register(ProcName, spawn(commander, executor, [])),
-            ProcName ! {job, SshProvider, {User, Node, Command}}
+            register(ProcName, spawn(commander, executor, [Node])),
+            ProcName ! {job, SshProvider, {User, Command}}
         end,
         Nodes
     ).
@@ -71,14 +71,15 @@ dispatcher(Nodes) ->
 %% Purpose  : Executes and print output of a given SSH command.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-executor() ->
+executor(Node) ->
     receive
-        {job, os, {_, Host, Command}} ->
-            CmdStr = string:join([?OS_SSH_CMD, Host, Command], " "),
+        {job, os, {_, Command}} ->
+            CmdStr = string:join([?OS_SSH_CMD, Node, Command], " "),
             CmdOut = os:cmd(CmdStr),
-            printer_proc ! {print_req, Host, CmdOut};
+            printer_proc ! {print_req, Node, CmdOut},
+            dispatcher_proc ! {done, Node};
 
-        {job, otp, {User, Host, Command}} ->
+        {job, otp, {User, Command}} ->
             ConnectOptions = [
                 {silently_accept_hosts, true},
                 {user_interaction, true},
@@ -87,27 +88,26 @@ executor() ->
                 {user_dir, ?PATH_DIR__DATA_SSH}
             ],
 
-            {ok, ConnRef} = ssh:connect(Host, ?PORT, ConnectOptions),
+            {ok, ConnRef} = ssh:connect(Node, ?PORT, ConnectOptions),
             {ok, ChannId} = ssh_connection:session_channel(ConnRef, ?TIMEOUT),
 
             ssh_connection:exec(ConnRef, ChannId, Command, ?TIMEOUT),
-            executor();
+            executor(Node);
 
         {ssh_cm, _, {data, _, _, Data}} ->
-            {registered_name, ProcName} =
-                erlang:process_info(self(), registered_name),
-            NodeId = atom_to_list(ProcName),
             NodeOutput = binary_to_list(Data),
-            printer_proc ! {print_req, NodeId, NodeOutput},
-            executor();
+            printer_proc ! {print_req, Node, NodeOutput},
+            executor(Node);
 
-        {ssh_cm, _, {exit_status, _}} -> exit;
+        {ssh_cm, _, {exit_status, _}} ->
+            dispatcher_proc ! {done, Node};
 
-        {ssh_cm, _, _} -> executor();
+        {ssh_cm, _, _} ->
+            executor(Node);
 
         Other ->
             io:format("WARNING! UNEXPECTED MSG: ~n~p~n", [Other]),
-            executor()
+            executor(Node)
     end.
 
 
@@ -121,7 +121,6 @@ printer() ->
         {print_req, Host, Msg} ->
             Output = string:join(["\n", Host, ?SEPARATOR, Msg], "\n"),
             io:format(Output),
-            dispatcher_proc ! {done, Host},
             printer();
         stop ->
             void;
