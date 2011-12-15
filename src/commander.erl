@@ -19,7 +19,8 @@
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 main(Args) ->
-    [User, Command] = [atom_to_list(Arg) || Arg <- Args],
+    Command = string:join([atom_to_list(Arg) || Arg <- Args], " "),
+    User = string:strip(os:cmd("whoami"), both, $\n),
     SshProvider = os,
     %SshProvider = otp,
 
