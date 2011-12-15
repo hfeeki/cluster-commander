@@ -21,10 +21,8 @@
 start(Args) ->
     Command = string:join([atom_to_list(Arg) || Arg <- Args], " "),
     User = string:strip(os:cmd("whoami"), both, $\n),
-    %SshProvider = os,
-    SshProvider = otp,
 
-    case SshProvider of
+    case ?SSH_PROVIDER of
         otp ->
             crypto:start(),
             ssh:start();
@@ -41,7 +39,7 @@ start(Args) ->
     lists:foreach(
         fun(Node) ->
             Pid = spawn(commander, executor, [Node]),
-            Pid ! {job, SshProvider, {User, Command}}
+            Pid ! {job, ?SSH_PROVIDER, {User, Command}}
         end,
         Nodes
     ).
