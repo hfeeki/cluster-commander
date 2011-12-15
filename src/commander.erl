@@ -21,8 +21,8 @@
 main(Args) ->
     Command = string:join([atom_to_list(Arg) || Arg <- Args], " "),
     User = string:strip(os:cmd("whoami"), both, $\n),
-    SshProvider = os,
-    %SshProvider = otp,
+    %SshProvider = os,
+    SshProvider = otp,
 
     case SshProvider of
         otp ->
@@ -98,7 +98,10 @@ executor() ->
                 erlang:process_info(self(), registered_name),
             NodeId = atom_to_list(ProcName),
             NodeOutput = binary_to_list(Data),
-            printer_proc ! {print_req, NodeId, NodeOutput};
+            printer_proc ! {print_req, NodeId, NodeOutput},
+            executor();
+
+        {ssh_cm, _, {exit_status, _}} -> exit;
 
         {ssh_cm, _, _} -> executor();
 
