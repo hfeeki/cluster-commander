@@ -40,9 +40,8 @@ start(Args) ->
 
     lists:foreach(
         fun(Node) ->
-            ProcName = list_to_atom(Node),
-            register(ProcName, spawn(commander, executor, [Node])),
-            ProcName ! {job, SshProvider, {User, Command}}
+            Pid = spawn(commander, executor, [Node]),
+            Pid ! {job, SshProvider, {User, Command}}
         end,
         Nodes
     ).
