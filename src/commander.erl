@@ -84,14 +84,7 @@ executor(Node) ->
             dispatcher_proc ! {done, Node};
 
         {job, otp, {command, Command}} ->
-            ConnectOptions = [
-                {silently_accept_hosts, true},
-                {user_interaction, true},
-                {connect_timeout, ?TIMEOUT},
-                {user_dir, ?PATH_DIR__DATA_SSH}
-            ],
-
-            case ssh:connect(Node, ?PORT, ConnectOptions) of
+            case ssh:connect(Node, ?PORT, ?CONNECT_OPTIONS) of
                 {ok, ConnRef} ->
                     case ssh_connection:session_channel(ConnRef, ?TIMEOUT) of
                         {ok, ChannId} ->
