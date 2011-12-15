@@ -8,7 +8,7 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander).
--export([main/1, dispatcher/1, executor/0, printer/0, pbs_nodes/0]).
+-export([main/1, dispatcher/1, executor/0, printer/0]).
 
 -include("commander_config.hrl").
 
