@@ -18,8 +18,6 @@ PATH_DIR__THIS = os.path.abspath(os.path.dirname(__file__))
 PATH_DIR__ROOT = os.path.split(PATH_DIR__THIS)[0]
 PATH_DIR__BEAM = os.path.join(PATH_DIR__ROOT, 'ebin')
 
-USER = commands.getoutput('whoami')
-
 
 def main():
     arguments = sys.argv[1:]
@@ -31,8 +29,8 @@ def main():
     else:
         os.chdir(PATH_DIR__BEAM)
         os.system(
-            'erl -noshell -pa %s -s commander main %s %s' %
-            (PATH_DIR__BEAM, USER, ' '.join(arguments))
+            'erl -noshell -pa %s -s commander main %s' %
+            (PATH_DIR__BEAM, ' '.join(arguments))
         )
 
 
