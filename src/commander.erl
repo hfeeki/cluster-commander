@@ -65,9 +65,7 @@ executor() ->
 
             io:format(StdOutput);
 
-        {ssh_cm, _, {eof, _}} -> executor();
-        {ssh_cm, _, {exit_status, _, _}} -> executor();
-        {ssh_cm, _, {closed, _}} -> executor();
+        {ssh_cm, _, _} -> executor();
 
         stop ->
             void;
