@@ -78,7 +78,6 @@ executor() ->
 
         stop ->
             void;
-            %init:stop();
 
         Other ->
             io:format("WARNING! UNEXPECTED MSG: ~n~p~n", [Other]),
