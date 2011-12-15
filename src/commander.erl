@@ -50,8 +50,7 @@ executor() ->
             CmdStr = string:join([?OS_SSH_CMD, Host, Command], " "),
             CmdOut = os:cmd(CmdStr),
             StdOut = string:join(["\n", Host, ?SEPARATOR, CmdOut], "\n"),
-            io:format(StdOut),
-            self() ! stop;
+            io:format(StdOut);
 
         {job, otp, {User, Host, Command}} ->
             ConnectOptions = [
@@ -75,13 +74,9 @@ executor() ->
             NodeOutput = binary_to_list(Data),
             StdOutput =
                 string:join(["\n", NodeId, ?SEPARATOR, NodeOutput], "\n"),
-            io:format(StdOutput),
-            self() ! stop;
+            io:format(StdOutput);
 
         {ssh_cm, _, _} -> executor();
-
-        stop ->
-            void;
 
         Other ->
             io:format("WARNING! UNEXPECTED MSG: ~n~p~n", [Other]),
