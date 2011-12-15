@@ -19,8 +19,12 @@ main(Args) ->
     %SshProvider = os,
     SshProvider = otp,
 
-    crypto:start(),
-    ssh:start(),
+    case SshProvider of
+        otp ->
+            crypto:start(),
+            ssh:start();
+        os -> pass
+    end,
 
     Nodes = [
         Name || {{state, State}, {name, Name}} <- pbs_nodes(),
