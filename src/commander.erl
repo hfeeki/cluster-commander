@@ -8,7 +8,7 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander).
--export([main/1, dispatcher/1, executor/1, printer/0]).
+-export([main/1, dispatcher/1, executor/1]).
 
 -include("commander_config.hrl").
 
@@ -37,7 +37,6 @@ main(Args) ->
     ],
 
     register(dispatcher_proc, spawn(commander, dispatcher, [Nodes])),
-    register(printer_proc, spawn(commander, printer, [])),
 
     lists:foreach(
         fun(Node) ->
@@ -56,7 +55,6 @@ main(Args) ->
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 dispatcher([]) ->
-    printer_proc ! stop,
     init:stop();
 
 dispatcher(Nodes) ->
@@ -76,7 +74,7 @@ executor(Node) ->
         {job, os, {_, Command}} ->
             CmdStr = string:join([?OS_SSH_CMD, Node, Command], " "),
             CmdOut = os:cmd(CmdStr),
-            printer_proc ! {print_req, Node, CmdOut},
+            print(Node, CmdOut),
             dispatcher_proc ! {done, Node};
 
         {job, otp, {User, Command}} ->
@@ -95,8 +93,7 @@ executor(Node) ->
             executor(Node);
 
         {ssh_cm, _, {data, _, _, Data}} ->
-            NodeOutput = binary_to_list(Data),
-            printer_proc ! {print_req, Node, NodeOutput},
+            print(Node, binary_to_list(Data)),
             executor(Node);
 
         {ssh_cm, _, {exit_status, _}} ->
@@ -112,21 +109,13 @@ executor(Node) ->
 
 
 %%-----------------------------------------------------------------------------
-%% Function : printer/0
-%% Purpose  : Labels and prints received msg to stdout.
+%% Function : print/2
+%% Purpose  : Labels (with Node) and prints Msg to stdout.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-printer() ->
-    receive
-        {print_req, Host, Msg} ->
-            Output = string:join(["\n", Host, ?SEPARATOR, Msg], "\n"),
-            io:format(Output),
-            printer();
-        stop ->
-            void;
-        _Other ->
-            printer()
-    end.
+print(Node, Msg) ->
+    Output = string:join(["\n", Node, ?SEPARATOR, Msg], "\n"),
+    io:format(Output).
 
 
 %%-----------------------------------------------------------------------------
