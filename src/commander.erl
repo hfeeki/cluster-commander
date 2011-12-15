@@ -21,7 +21,7 @@ main(Args) ->
     ssh:start(),
 
     Nodes = [
-        Hostname || {{state, State}, {hostname, Hostname}} <- pbs_nodes(),
+        Name || {{state, State}, {name, Name}} <- pbs_nodes(),
         node_available(string:tokens(State, ","))
     ],
 
@@ -103,8 +103,8 @@ pbs_node_data(AllData, ExtractedData) ->
     [Datum] = nth_of_tuple(9, Data),
 
     case Datum of
-        {xmlText, [{name, _}, _, _], _, _, Hostname, text} ->
-            pbs_node_data(RemainingData, [{hostname, Hostname}|ExtractedData]);
+        {xmlText, [{name, _}, _, _], _, _, Name, text} ->
+            pbs_node_data(RemainingData, [{name, Name}|ExtractedData]);
 
         {xmlText, [{state, _}, _, _], _, _, State, text} ->
             pbs_node_data(RemainingData, [{state, State}|ExtractedData]);
