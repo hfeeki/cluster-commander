@@ -62,8 +62,8 @@ executor() ->
             NodeOutput = binary_to_list(Data),
             StdOutput =
                 string:join(["\n", NodeId, ?SEPARATOR, NodeOutput], "\n"),
-
-            io:format(StdOutput);
+            io:format(StdOutput),
+            ProcName ! stop;
 
         {ssh_cm, _, _} -> executor();
 
