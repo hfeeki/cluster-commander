@@ -8,17 +8,17 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander).
--export([main/1, dispatcher/1, executor/1]).
+-export([start/1, dispatcher/1, executor/1]).
 
 -include("commander_config.hrl").
 
 
 %%-----------------------------------------------------------------------------
-%% Function : main/0
+%% Function : start/1
 %% Purpose  : Entry point. Gets a list of nodes and spawns worker procs.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-main(Args) ->
+start(Args) ->
     Command = string:join([atom_to_list(Arg) || Arg <- Args], " "),
     User = string:strip(os:cmd("whoami"), both, $\n),
     %SshProvider = os,
@@ -49,13 +49,23 @@ main(Args) ->
 
 
 %%-----------------------------------------------------------------------------
+%% Function : stop/0
+%% Purpose  : Shuts-down BEAM.
+%% Type     : none()
+%%-----------------------------------------------------------------------------
+stop() ->
+    init:stop().
+
+
+%%-----------------------------------------------------------------------------
 %% Function : dispatcher/1
-%% Purpose  : Waits for job completion messages and shuts everything down when
-%%            all are done.
+%% Purpose  : Waits for job completion messages and calls stop() when all are
+%%            done.
+%%
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 dispatcher([]) ->
-    init:stop();
+    stop();
 
 dispatcher(Nodes) ->
     receive

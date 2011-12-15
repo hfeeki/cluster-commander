@@ -29,7 +29,7 @@ def main():
     else:
         os.chdir(PATH_DIR__BEAM)
         os.system(
-            'erl -noshell -pa %s -s commander main %s' %
+            'erl -noshell -pa %s -s commander start %s' %
             (PATH_DIR__BEAM, ' '.join(arguments))
         )
 
