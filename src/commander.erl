@@ -20,7 +20,10 @@ main(Args) ->
     crypto:start(),
     ssh:start(),
 
-    Nodes = [Hostname || {{state, _}, {hostname, Hostname}} <- pbs_nodes()],
+    Nodes = [
+        Hostname || {{state, State}, {hostname, Hostname}} <- pbs_nodes(),
+        node_available(string:tokens(State, ","))
+    ],
 
     lists:foreach(
         fun(Node) ->
@@ -108,6 +111,20 @@ pbs_node_data(AllData, ExtractedData) ->
 
         _Else ->
             pbs_node_data(RemainingData, ExtractedData)
+    end.
+
+
+%%-----------------------------------------------------------------------------
+%% Function : node_available/1
+%% Purpose  : Checks whether a given node's state is considered available.
+%% Type     : bool()
+%%-----------------------------------------------------------------------------
+node_available([]) -> true;
+
+node_available([State|StatesTail]) ->
+    case lists:member(State, ?UNAVAILABLE_STATES) of
+        true -> false;
+        false -> node_available(StatesTail)
     end.
 
 
