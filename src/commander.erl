@@ -116,13 +116,13 @@ executor(Node) ->
             executor(Node);
 
         {ssh_cm, _, {exit_status, _}} ->
-            dispatcher_proc ! {done, Node};
+            self() ! stop;
 
         {ssh_cm, _, _} ->
             executor(Node);
 
         stop ->
-            void;
+            dispatcher_proc ! {done, Node};
 
         Other ->
             io:format("WARNING! UNEXPECTED MSG: ~n~p~n", [Other]),
