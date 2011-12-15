@@ -20,7 +20,6 @@
 %%-----------------------------------------------------------------------------
 start(Args) ->
     Command = string:join([atom_to_list(Arg) || Arg <- Args], " "),
-    User = string:strip(os:cmd("whoami"), both, $\n),
 
     case ?SSH_PROVIDER of
         otp ->
@@ -39,7 +38,7 @@ start(Args) ->
     lists:foreach(
         fun(Node) ->
             Pid = spawn(commander, executor, [Node]),
-            Pid ! {job, ?SSH_PROVIDER, {User, Command}}
+            Pid ! {job, ?SSH_PROVIDER, {command, Command}}
         end,
         Nodes
     ).
@@ -78,18 +77,17 @@ dispatcher(Nodes) ->
 %%-----------------------------------------------------------------------------
 executor(Node) ->
     receive
-        {job, os, {_, Command}} ->
+        {job, os, {command, Command}} ->
             CmdStr = string:join([?OS_SSH_CMD, Node, Command], " "),
             CmdOut = os:cmd(CmdStr),
             print(Node, CmdOut),
             dispatcher_proc ! {done, Node};
 
-        {job, otp, {User, Command}} ->
+        {job, otp, {command, Command}} ->
             ConnectOptions = [
                 {silently_accept_hosts, true},
                 {user_interaction, true},
                 {connect_timeout, ?TIMEOUT},
-                {user, User},
                 {user_dir, ?PATH_DIR__DATA_SSH}
             ],
 
