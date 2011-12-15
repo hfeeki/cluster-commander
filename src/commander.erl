@@ -122,11 +122,7 @@ executor(Node) ->
             executor(Node);
 
         stop ->
-            dispatcher_proc ! {done, Node};
-
-        Other ->
-            io:format("WARNING! UNEXPECTED MSG: ~n~p~n", [Other]),
-            executor(Node)
+            dispatcher_proc ! {done, Node}
     end.
 
 
