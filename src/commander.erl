@@ -8,8 +8,7 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander).
--export([main/1, executor/0, pbs_nodes/0]).
-
+-export([main/1, executor/0, printer/0, pbs_nodes/0]).
 
 -include("commander_config.hrl").
 
@@ -36,6 +35,8 @@ main(Args) ->
         node_available(string:tokens(State, ","))
     ],
 
+    register(printer_proc, spawn(commander, printer, [])),
+
     lists:foreach(
         fun(Node) ->
             ProcName = list_to_atom(Node),
@@ -59,8 +60,7 @@ executor() ->
         {job, os, {_, Host, Command}} ->
             CmdStr = string:join([?OS_SSH_CMD, Host, Command], " "),
             CmdOut = os:cmd(CmdStr),
-            StdOut = string:join(["\n", Host, ?SEPARATOR, CmdOut], "\n"),
-            io:format(StdOut);
+            printer_proc ! {print_req, Host, CmdOut};
 
         {job, otp, {User, Host, Command}} ->
             ConnectOptions = [
@@ -82,15 +82,31 @@ executor() ->
                 erlang:process_info(self(), registered_name),
             NodeId = atom_to_list(ProcName),
             NodeOutput = binary_to_list(Data),
-            StdOutput =
-                string:join(["\n", NodeId, ?SEPARATOR, NodeOutput], "\n"),
-            io:format(StdOutput);
+            printer_proc ! {print_req, NodeId, NodeOutput};
 
         {ssh_cm, _, _} -> executor();
 
         Other ->
             io:format("WARNING! UNEXPECTED MSG: ~n~p~n", [Other]),
             executor()
+    end.
+
+
+%%-----------------------------------------------------------------------------
+%% Function : printer/0
+%% Purpose  : Labels and prints received msg to stdout.
+%% Type     : none()
+%%-----------------------------------------------------------------------------
+printer() ->
+    receive
+        {print_req, From, Msg} ->
+            Output = string:join(["\n", From, ?SEPARATOR, Msg], "\n"),
+            io:format(Output),
+            printer();
+        stop ->
+            void;
+        _Other ->
+            printer()
     end.
 
 
