@@ -93,10 +93,22 @@ executor(Node) ->
                 {user_dir, ?PATH_DIR__DATA_SSH}
             ],
 
-            {ok, ConnRef} = ssh:connect(Node, ?PORT, ConnectOptions),
-            {ok, ChannId} = ssh_connection:session_channel(ConnRef, ?TIMEOUT),
+            case ssh:connect(Node, ?PORT, ConnectOptions) of
+                {ok, ConnRef} ->
+                    case ssh_connection:session_channel(ConnRef, ?TIMEOUT) of
+                        {ok, ChannId} ->
+                            ssh_connection:exec(
+                                ConnRef, ChannId, Command, ?TIMEOUT);
+                        {error, Reason} ->
+                            print(Node, Reason, fail),
+                            self() ! stop
+                    end;
 
-            ssh_connection:exec(ConnRef, ChannId, Command, ?TIMEOUT),
+                {error, Reason} ->
+                    print(Node, Reason, fail),
+                    self() ! stop
+            end,
+
             executor(Node);
 
         {ssh_cm, _, {data, _, _, Data}} ->
@@ -109,6 +121,9 @@ executor(Node) ->
         {ssh_cm, _, _} ->
             executor(Node);
 
+        stop ->
+            void;
+
         Other ->
             io:format("WARNING! UNEXPECTED MSG: ~n~p~n", [Other]),
             executor(Node)
@@ -116,15 +131,31 @@ executor(Node) ->
 
 
 %%-----------------------------------------------------------------------------
-%% Function : print/2
-%% Purpose  : Labels (with Node) and prints Msg to stdout.
+%% Function : print/2 -> print/3
+%% Purpose  : Labels (with Node and color code) and prints Msg to stdout.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 print(Node, Msg) ->
+    print(Node, Msg, ok).
+
+
+print(Node, Msg, Flag) ->
+    MsgColor =
+        case Flag of
+            fail -> ?TERM_COLOR_FAIL;
+            ok   -> ?TERM_COLOR_OFF
+        end,
+
     Output = string:join(
-        ["\n", ?TERM_COLOR_EM, Node, ?SEPARATOR, ?TERM_COLOR_OFF, Msg],
+        [
+            "\n",
+            string:join([?TERM_COLOR_EM, Node, ?TERM_COLOR_OFF], ""),
+            string:join([?TERM_COLOR_EM, ?SEPARATOR, ?TERM_COLOR_OFF], ""),
+            string:join([MsgColor, Msg, ?TERM_COLOR_OFF], "")
+        ],
         "\n"
     ),
+
     io:format(Output).
 
 
