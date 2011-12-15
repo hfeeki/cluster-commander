@@ -121,7 +121,10 @@ executor(Node) ->
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 print(Node, Msg) ->
-    Output = string:join(["\n", Node, ?SEPARATOR, Msg], "\n"),
+    Output = string:join(
+        ["\n", ?TERM_COLOR_EM, Node, ?SEPARATOR, ?TERM_COLOR_OFF, Msg],
+        "\n"
+    ),
     io:format(Output).
 
 
