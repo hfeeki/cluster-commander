@@ -15,7 +15,7 @@
 
 
 main(Args) ->
-    [User, Command] = lists:map(fun(A) -> atom_to_list(A) end, Args),
+    [User, Command] = [atom_to_list(Arg) || Arg <- Args],
     %SshProvider = os,
     SshProvider = otp,
 
