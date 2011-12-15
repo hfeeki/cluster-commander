@@ -16,6 +16,8 @@
 
 main(Args) ->
     [User, Command] = lists:map(fun(A) -> atom_to_list(A) end, Args),
+    %SshProvider = os,
+    SshProvider = otp,
 
     crypto:start(),
     ssh:start(),
@@ -32,7 +34,7 @@ main(Args) ->
                 ProcName,
                 spawn(commander, executor, [])
             ),
-            ProcName ! {job, {User, Node, Command}}
+            ProcName ! {job, SshProvider, {User, Node, Command}}
         end,
         Nodes
     ).
@@ -40,7 +42,14 @@ main(Args) ->
 
 executor() ->
     receive
-        {job, {User, Host, Command}} ->
+        {job, os, {_, Host, Command}} ->
+            CmdStr = string:join([?OS_SSH_CMD, Host, Command], " "),
+            CmdOut = os:cmd(CmdStr),
+            StdOut = string:join(["\n", Host, ?SEPARATOR, CmdOut], "\n"),
+            io:format(StdOut),
+            self() ! stop;
+
+        {job, otp, {User, Host, Command}} ->
             ConnectOptions = [
                 {silently_accept_hosts, true},
                 {user_interaction, true},
