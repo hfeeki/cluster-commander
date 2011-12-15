@@ -72,7 +72,7 @@ executor() ->
             StdOutput =
                 string:join(["\n", NodeId, ?SEPARATOR, NodeOutput], "\n"),
             io:format(StdOutput),
-            ProcName ! stop;
+            self() ! stop;
 
         {ssh_cm, _, _} -> executor();
 
