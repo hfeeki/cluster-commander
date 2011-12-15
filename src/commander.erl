@@ -8,7 +8,7 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander).
--export([main/1, executor/0, printer/0, pbs_nodes/0]).
+-export([main/1, dispatcher/1, executor/0, printer/0, pbs_nodes/0]).
 
 -include("commander_config.hrl").
 
@@ -35,19 +35,34 @@ main(Args) ->
         node_available(string:tokens(State, ","))
     ],
 
+    register(dispatcher_proc, spawn(commander, dispatcher, [Nodes])),
     register(printer_proc, spawn(commander, printer, [])),
 
     lists:foreach(
         fun(Node) ->
             ProcName = list_to_atom(Node),
-            register(
-                ProcName,
-                spawn(commander, executor, [])
-            ),
+            register(ProcName, spawn(commander, executor, [])),
             ProcName ! {job, SshProvider, {User, Node, Command}}
         end,
         Nodes
     ).
+
+
+%%-----------------------------------------------------------------------------
+%% Function : dispatcher/1
+%% Purpose  : Waits for job completion messages and shuts everything down when
+%%            all are done.
+%% Type     : none()
+%%-----------------------------------------------------------------------------
+dispatcher([]) ->
+    printer_proc ! stop,
+    init:stop();
+
+dispatcher(Nodes) ->
+    receive
+        {done, Node} ->
+            dispatcher(Nodes -- [Node])
+    end.
 
 
 %%-----------------------------------------------------------------------------
@@ -99,9 +114,10 @@ executor() ->
 %%-----------------------------------------------------------------------------
 printer() ->
     receive
-        {print_req, From, Msg} ->
-            Output = string:join(["\n", From, ?SEPARATOR, Msg], "\n"),
+        {print_req, Host, Msg} ->
+            Output = string:join(["\n", Host, ?SEPARATOR, Msg], "\n"),
             io:format(Output),
+            dispatcher_proc ! {done, Host},
             printer();
         stop ->
             void;
