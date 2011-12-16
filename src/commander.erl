@@ -104,10 +104,11 @@ executor(Node) ->
             print(Node, binary_to_list(Data)),
             executor(Node);
 
-        {ssh_cm, _, {exit_status, _}} ->
-            self() ! stop;
+        {ssh_cm, _, {closed, _}} ->
+            self() ! stop,
+            executor(Node);
 
-        {ssh_cm, _, _} ->
+        {ssh_cm, _} ->
             executor(Node);
 
         stop ->
