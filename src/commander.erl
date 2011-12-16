@@ -71,7 +71,7 @@ dispatcher(Nodes) ->
 
 
 %%-----------------------------------------------------------------------------
-%% Function : executor/0
+%% Function : executor/1
 %% Purpose  : Executes and print output of a given SSH command.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
