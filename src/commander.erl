@@ -19,8 +19,22 @@
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 start(Args) ->
+    %
+    % Get requested command string
+    %
     Command = string:join([atom_to_list(Arg) || Arg <- Args], " "),
 
+    %
+    % Get a list of target nodes
+    %
+    Nodes = [
+        Name || {{state, State}, {name, Name}} <- pbs_nodes(),
+        node_available(string:tokens(State, ","))
+    ],
+
+    %
+    % Start dependencies for Erlang ssh app
+    %
     case ?SSH_PROVIDER of
         otp ->
             crypto:start(),
@@ -28,11 +42,9 @@ start(Args) ->
         os -> pass
     end,
 
-    Nodes = [
-        Name || {{state, State}, {name, Name}} <- pbs_nodes(),
-        node_available(string:tokens(State, ","))
-    ],
-
+    %
+    % Start worker procs
+    %
     spawn(commander, global_timer, []),
     register(dispatcher_proc, spawn(commander, dispatcher, [Nodes])),
 
