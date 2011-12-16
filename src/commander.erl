@@ -8,7 +8,7 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander).
--export([start/1, dispatcher/1, executor/1]).
+-export([start/1, global_timer/0, dispatcher/1, executor/1]).
 
 -include("commander_config.hrl").
 
@@ -33,6 +33,7 @@ start(Args) ->
         node_available(string:tokens(State, ","))
     ],
 
+    spawn(commander, global_timer, []),
     register(dispatcher_proc, spawn(commander, dispatcher, [Nodes])),
 
     lists:foreach(
@@ -67,6 +68,19 @@ dispatcher(Nodes) ->
     receive
         {done, Node} ->
             dispatcher(Nodes -- [Node])
+    end.
+
+
+%%-----------------------------------------------------------------------------
+%% Function : global_timer/0
+%% Purpose  : Enforces global timeout.
+%% Type     : none()
+%%-----------------------------------------------------------------------------
+global_timer() ->
+    receive
+    after ?GLOBAL_TIMEOUT ->
+        print("GLOBAL TIMER", "GLOBAL TIMEOUT EXCEEDED!", fail),
+        stop()
     end.
 
 
