@@ -68,9 +68,7 @@ stop() ->
 
 %%-----------------------------------------------------------------------------
 %% Function : dispatcher/1
-%% Purpose  : Waits for job completion messages and calls stop() when all are
-%%            done.
-%%
+%% Purpose  : Waits for job completion msgs and calls stop() when all are done.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 dispatcher([]) ->
@@ -181,7 +179,7 @@ print(Node, Msg, Flag) ->
 %%-----------------------------------------------------------------------------
 %% Function : pbs_nodes/0
 %% Purpose  : Returns a list of TORQUE cluster nodes and their states.
-%% Type     : list(tuple(tuple(atom(), string()), ...))
+%% Type     : [{{atom(), string()}, {atom(), string()}}, ...]
 %%-----------------------------------------------------------------------------
 pbs_nodes() ->
     {Tree, _} = xmerl_scan:string(os:cmd("pbsnodes -x"), [{validation, off}]),
@@ -193,7 +191,7 @@ pbs_nodes() ->
 %%-----------------------------------------------------------------------------
 %% Function : pbs_node_data/1 -> pbs_node_data/2
 %% Purpose  : Returns a tuple with a nodes name and state.
-%% Type     : tuple(tuple(atom(), string()), ...)
+%% Type     : {{atom(), string()}, {atom(), string()}}
 %%-----------------------------------------------------------------------------
 pbs_node_data(Node) ->
     Data = nth_of_tuple(9, Node),
