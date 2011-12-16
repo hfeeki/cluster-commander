@@ -81,7 +81,8 @@ executor(Node) ->
             CmdStr = string:join([?OS_SSH_CMD, Node, Command], " "),
             CmdOut = os:cmd(CmdStr),
             print(Node, CmdOut),
-            dispatcher_proc ! {done, Node};
+            self() ! done,
+            executor(Node);
 
         {job, otp, {command, Command}} ->
             case ssh:connect(Node, ?PORT, ?CONNECT_OPTIONS) of
@@ -92,11 +93,11 @@ executor(Node) ->
                                 ConnRef, ChannId, Command, ?TIMEOUT);
                         {error, Reason} ->
                             print(Node, Reason, fail),
-                            self() ! stop
+                            self() ! done
                     end;
                 {error, Reason} ->
                     print(Node, Reason, fail),
-                    self() ! stop
+                    self() ! done
             end,
             executor(Node);
 
@@ -105,13 +106,13 @@ executor(Node) ->
             executor(Node);
 
         {ssh_cm, _, {closed, _}} ->
-            self() ! stop,
+            self() ! done,
             executor(Node);
 
         {ssh_cm, _} ->
             executor(Node);
 
-        stop ->
+        done ->
             dispatcher_proc ! {done, Node}
     end.
 
