@@ -94,12 +94,10 @@ executor(Node) ->
                             print(Node, Reason, fail),
                             self() ! stop
                     end;
-
                 {error, Reason} ->
                     print(Node, Reason, fail),
                     self() ! stop
             end,
-
             executor(Node);
 
         {ssh_cm, _, {data, _, _, Data}} ->
@@ -127,6 +125,12 @@ print(Node, Msg) ->
 
 
 print(Node, Msg, Flag) ->
+    FormattedMsg =
+        case Flag of
+            fail -> io_lib:format("~p", [Msg]);
+            ok   -> Msg
+        end,
+
     MsgColor =
         case Flag of
             fail -> ?TERM_COLOR_FAIL;
@@ -138,7 +142,7 @@ print(Node, Msg, Flag) ->
             "\n",
             string:join([?TERM_COLOR_EM, Node, ?TERM_COLOR_OFF], ""),
             string:join([?TERM_COLOR_EM, ?SEPARATOR, ?TERM_COLOR_OFF], ""),
-            string:join([MsgColor, Msg, ?TERM_COLOR_OFF], "")
+            string:join([MsgColor, FormattedMsg, ?TERM_COLOR_OFF], "")
         ],
         "\n"
     ),
