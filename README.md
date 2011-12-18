@@ -1,5 +1,6 @@
 #Cluster Commander#
 
+
 Description
 =================
 Takes a command string and runs it on all nodes of a TORQUE cluster that are
@@ -20,7 +21,11 @@ Roadmap
     - sftp support (get/put)
     - user-editable config files to override defaults
     - manual cluster nodes configs
+    - specify individual target nodes
     - node groups
     - gated hosts (chained OS ssh/scp commands)
     - get nodes for other types of clusters (Disco, Hadoop, etc.)
     - simultaneous display of resource usage on all nodes on one screen
+    - common cluster operations scripts:
+        - cleanly shutdown a subset/group of nodes:
+            - cleanly stop current jobs
