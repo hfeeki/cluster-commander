@@ -10,7 +10,9 @@
 -module(commander).
 -export([start/1, global_timer/0, dispatcher/1, executor/1]).
 
+
 -include("commander_config.hrl").
+-include("commander_types.hrl").
 
 
 %%-----------------------------------------------------------------------------
@@ -28,8 +30,8 @@ start(Args) ->
     % Get a list of target nodes
     %
     Nodes = [
-        Name || {{state, State}, {name, Name}} <- pbs_nodes(),
-        node_available(string:tokens(State, ","))
+        NodeData#node_data.name || NodeData <- pbs_nodes(),
+        node_available(NodeData#node_data.states)
     ],
 
     %
@@ -179,40 +181,39 @@ print(Node, Msg, Flag) ->
 %%-----------------------------------------------------------------------------
 %% Function : pbs_nodes/0
 %% Purpose  : Returns a list of TORQUE cluster nodes and their states.
-%% Type     : [{{atom(), string()}, {atom(), string()}}, ...]
+%% Type     : list(#node_data{})
 %%-----------------------------------------------------------------------------
 pbs_nodes() ->
     {Tree, _} = xmerl_scan:string(os:cmd("pbsnodes -x"), [{validation, off}]),
     Nodes = nth_of_tuple(9, Tree),
-    PBSNodes = [pbs_node_data(Node) || Node <- Nodes],
-    PBSNodes.
+    [pbs_node_data(Node) || Node <- Nodes].
 
 
 %%-----------------------------------------------------------------------------
 %% Function : pbs_node_data/1 -> pbs_node_data/2
 %% Purpose  : Returns a tuple with a nodes name and state.
-%% Type     : {{atom(), string()}, {atom(), string()}}
+%% Type     : #node_data{}
 %%-----------------------------------------------------------------------------
 pbs_node_data(Node) ->
     Data = nth_of_tuple(9, Node),
-    pbs_node_data(Data, []).
+    pbs_node_data(Data, #node_data{}).
 
 
-pbs_node_data([], ExtractedData) ->
-    list_to_tuple(ExtractedData);
+pbs_node_data([], NodeData) -> NodeData;
 
-pbs_node_data([Data|TailData], ExtractedData) ->
+pbs_node_data([Data|DataTail], NodeData) ->
     [Datum] = nth_of_tuple(9, Data),
 
     case Datum of
         {xmlText, [{name, _}, _, _], _, _, Name, text} ->
-            pbs_node_data(TailData, [{name, Name}|ExtractedData]);
+            pbs_node_data(DataTail, NodeData#node_data{name = Name});
 
-        {xmlText, [{state, _}, _, _], _, _, State, text} ->
-            pbs_node_data(TailData, [{state, State}|ExtractedData]);
+        {xmlText, [{state, _}, _, _], _, _, StatesString, text} ->
+            States = string:tokens(StatesString, ","),
+            pbs_node_data(DataTail, NodeData#node_data{states = States});
 
         _Else ->
-            pbs_node_data(TailData, ExtractedData)
+            pbs_node_data(DataTail, NodeData)
     end.
 
 
