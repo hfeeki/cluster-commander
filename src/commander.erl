@@ -89,11 +89,9 @@ dispatcher(Nodes) ->
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 global_timer() ->
-    receive
-    after ?GLOBAL_TIMEOUT ->
-        print("GLOBAL TIMER", "GLOBAL TIMEOUT EXCEEDED!", fail),
-        stop()
-    end.
+    timer:sleep(?GLOBAL_TIMEOUT),
+    print("GLOBAL TIMER", "GLOBAL TIMEOUT EXCEEDED!", fail),
+    stop().
 
 
 %%-----------------------------------------------------------------------------
