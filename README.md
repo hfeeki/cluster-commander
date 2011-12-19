@@ -1,4 +1,4 @@
-#Cluster Commander#
+# Cluster Commander #
 
 
 Description
@@ -14,18 +14,22 @@ Assumes a password-less ssh key (current limitation in Erlang/OTP ssh app).
 
 Roadmap
 =======
-1. Restructure to make a proper OTP application.
-2. Use rebar and manage dependencies, releases, etc.
-3. Use getopt and allow overriding defaults (set with macros).
-4. Other, un-prioritized, features:
-    - sftp support (get/put)
-    - user-editable config files to override defaults
-    - manual cluster nodes configs
-    - specify individual target nodes
-    - node groups
-    - gated hosts (chained OS ssh/scp commands)
-    - get nodes for other types of clusters (Disco, Hadoop, etc.)
-    - simultaneous display of resource usage on all nodes on one screen
-    - common cluster operations scripts:
-        - cleanly shutdown a subset/group of nodes:
-            - cleanly stop current jobs
+
+### v1 ###
+* Use getopt and allow overriding defaults (set with macros).
+* Polish executable script
+* Restructure to make a proper OTP application.
+* Use rebar and manage dependencies, releases, etc.
+
+### v2 ###
+* sftp support (get/put)
+* user-editable config files to override defaults
+* manual cluster nodes configs
+* specify individual target nodes
+* node groups
+* gated hosts (chained OS ssh/scp commands)
+* get nodes for other types of clusters (Disco, Hadoop, etc.)
+* simultaneous display of resource usage on all nodes on one screen
+* common cluster operations scripts:
+    - cleanly shutdown a subset/group of nodes:
+        - cleanly stop current jobs
