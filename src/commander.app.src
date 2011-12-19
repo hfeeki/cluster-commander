@@ -1,0 +1,17 @@
+{application, commander, [
+        {description,
+            "Runs a given command on all available nodes in a TORQUE cluster."
+        },
+        {vsn, "0.5"},
+        {registered, []},
+        {applications,
+            [
+                kernel,
+                stdlib,
+                crypto,
+                ssh
+            ]
+        },
+        {mod, { commander, []}},
+        {env, []}
+]}.
