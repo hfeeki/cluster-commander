@@ -1,4 +1,4 @@
-all: getdeps compile
+all: getdeps compile link
 
 getdeps:
 	@./rebar get-deps
@@ -6,6 +6,9 @@ getdeps:
 compile:
 	@./rebar compile
 	@cp deps/*/ebin/*.beam ebin/
+
+link:
+	@./rebar escriptize
 
 clean:
 	@./rebar clean

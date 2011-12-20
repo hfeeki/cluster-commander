@@ -8,7 +8,7 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander).
--export([start/1, global_timer/0, dispatcher/1, executor/1]).
+-export([main/1, dispatcher/1, executor/1]).
 
 
 -include("commander_config.hrl").
@@ -16,15 +16,15 @@
 
 
 %%-----------------------------------------------------------------------------
-%% Function : start/1
+%% Function : main/1
 %% Purpose  : Entry point. Gets a list of nodes and spawns worker procs.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-start(Args) ->
+main(Args) ->
     %
     % Get requested command string
     %
-    Command = string:join([atom_to_list(Arg) || Arg <- Args], " "),
+    Command = string:join(Args, " "),
 
     %
     % Get a list of target nodes
@@ -47,16 +47,20 @@ start(Args) ->
     %
     % Start worker procs
     %
-    spawn(commander, global_timer, []),
-    register(dispatcher_proc, spawn(commander, dispatcher, [Nodes])),
+    register(dispatcher_proc, spawn(fun() -> dispatcher(Nodes) end)),
 
     lists:foreach(
         fun(Node) ->
-            Pid = spawn(commander, executor, [Node]),
+            Pid = spawn(fun() -> executor(Node) end),
             Pid ! {job, ?SSH_PROVIDER, {command, Command}}
         end,
         Nodes
-    ).
+    ),
+
+    %
+    % Global timeout
+    %
+    timer:sleep(?GLOBAL_TIMEOUT).
 
 
 %%-----------------------------------------------------------------------------
@@ -81,17 +85,6 @@ dispatcher(Nodes) ->
         {done, Node} ->
             dispatcher(Nodes -- [Node])
     end.
-
-
-%%-----------------------------------------------------------------------------
-%% Function : global_timer/0
-%% Purpose  : Enforces global timeout.
-%% Type     : none()
-%%-----------------------------------------------------------------------------
-global_timer() ->
-    timer:sleep(?GLOBAL_TIMEOUT),
-    print("GLOBAL TIMER", "GLOBAL TIMEOUT EXCEEDED!", fail),
-    stop().
 
 
 %%-----------------------------------------------------------------------------
