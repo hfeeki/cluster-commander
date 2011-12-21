@@ -123,21 +123,12 @@ main(Args) ->
 
 
 %%-----------------------------------------------------------------------------
-%% Function : stop/0
-%% Purpose  : Shuts-down BEAM.
-%% Type     : none()
-%%-----------------------------------------------------------------------------
-stop() ->
-    init:stop().
-
-
-%%-----------------------------------------------------------------------------
 %% Function : dispatcher/1
 %% Purpose  : Waits for job completion msgs and calls stop() when all are done.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 dispatcher([]) ->
-    stop();
+    halt(0);
 
 dispatcher(Nodes) ->
     receive
