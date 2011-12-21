@@ -10,9 +10,18 @@
 -define(PORT, 22).
 -define(TIMEOUT, 5000).
 -define(GLOBAL_TIMEOUT, ?TIMEOUT * 2).
--define(PATH_DIR__DATA_SSH, "../data/ssh").
 -define(UNAVAILABLE_STATES, ["down", "offline"]).
--define(OS_SSH_CMD, "ssh -2 -q -o ConnectTimeout=5").
+-define(PATH_DIR__DATA_SSH,
+    filename:join([os:getenv("HOME"), ".cluster-commander/ssh"])
+).
+-define(PATH_FILE__ID_RSA, filename:join([?PATH_DIR__DATA_SSH, "id_rsa"])).
+-define(OS_CMD__SSH_KEYGEN,
+    string:join(
+        ["ssh-keygen", "-N", "''", "-b", "2048", "-f", ?PATH_FILE__ID_RSA],
+        " "
+    )
+).
+-define(OS_CMD__SSH, "ssh -2 -q -o ConnectTimeout=5").
 -define(SSH_PROVIDER, otp).  % :: otp | os
 -define(CONNECT_OPTIONS,
     [

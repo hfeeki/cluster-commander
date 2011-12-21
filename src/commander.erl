@@ -39,6 +39,14 @@ main(Args) ->
     %
     case ?SSH_PROVIDER of
         otp ->
+            filelib:ensure_dir(?PATH_DIR__DATA_SSH),
+            file:make_dir(?PATH_DIR__DATA_SSH),
+
+            case filelib:is_file(?PATH_FILE__ID_RSA) of
+                true -> pass;
+                false -> os:cmd(?OS_CMD__SSH_KEYGEN)
+            end,
+
             crypto:start(),
             ssh:start();
         os -> pass
@@ -95,7 +103,7 @@ dispatcher(Nodes) ->
 executor(Node) ->
     receive
         {job, os, {command, Command}} ->
-            CmdStr = string:join([?OS_SSH_CMD, Node, Command], " "),
+            CmdStr = string:join([?OS_CMD__SSH, Node, Command], " "),
             CmdOut = os:cmd(CmdStr),
             print(Node, CmdOut),
             self() ! done,
