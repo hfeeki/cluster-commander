@@ -16,7 +16,7 @@ Roadmap
 =======
 
 ### v1 ###
-* ~~ Use getopt and allow overriding defaults (set with macros) ~~
+* ~~Use getopt and allow overriding defaults (set with macros)~~
 * Polish executable script
 * Restructure to make a proper OTP application
 * ~~Use rebar and manage dependencies, releases, etc.~~
