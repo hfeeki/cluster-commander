@@ -1,4 +1,4 @@
-all: getdeps compile link
+all: clean getdeps compile link
 
 getdeps:
 	@./rebar get-deps
