@@ -20,15 +20,16 @@
 %% Purpose  : Entry point. Gets a list of nodes and spawns worker procs.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
+main([]) ->
+    usage();
+
 main(Args) ->
     %
     % Get options
     %
     case getopt:parse(?OPT_SPECS, Args) of
         {ok, _} -> continue;
-        {error, _} ->
-            getopt:usage(?OPT_SPECS, ?MODULE, "command"),
-            halt(1)
+        {error, _} -> usage()
     end,
 
     {ok, OptParsed} = getopt:parse(?OPT_SPECS, Args),
@@ -98,6 +99,16 @@ main(Args) ->
     % Global timeout
     %
     timer:sleep(GlobalTimeout * 1000).
+
+
+%%-----------------------------------------------------------------------------
+%% Function : usage/0
+%% Purpose  : Prints usage instructions and halts BEAM.
+%% Type     : none()
+%%-----------------------------------------------------------------------------
+usage() ->
+    getopt:usage(?OPT_SPECS, ?MODULE, "command"),
+    halt(1).
 
 
 %%-----------------------------------------------------------------------------
