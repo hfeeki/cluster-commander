@@ -22,9 +22,19 @@
 %%-----------------------------------------------------------------------------
 main(Args) ->
     %
+    % Parse options
+    %
+    DefaultUser = string:strip(os:cmd("whoami"), both, $\n),
+    OptSpecs = [
+        {user, $u, "user", {string, DefaultUser}, "User"}
+    ],
+
+    {ok, {[{user, User}], CommandsList}} = getopt:parse(OptSpecs, Args),
+
+    %
     % Get requested command string
     %
-    Command = string:join(Args, " "),
+    Command = string:join(CommandsList, " "),
 
     %
     % Get a list of target nodes
@@ -60,7 +70,7 @@ main(Args) ->
     lists:foreach(
         fun(Node) ->
             Pid = spawn(fun() -> executor(Node) end),
-            Pid ! {job, ?SSH_PROVIDER, {command, Command}}
+            Pid ! {job, ?SSH_PROVIDER, {{command, Command}, {user, User}}}
         end,
         Nodes
     ),
@@ -102,15 +112,17 @@ dispatcher(Nodes) ->
 %%-----------------------------------------------------------------------------
 executor(Node) ->
     receive
-        {job, os, {command, Command}} ->
-            CmdStr = string:join([?OS_CMD__SSH, Node, Command], " "),
+        {job, os, {{command, Command}, {user, User}}} ->
+            UserAtHost = string:join([User, Node], "@"),
+            CmdStr = string:join([?OS_CMD__SSH, UserAtHost, Command], " "),
             CmdOut = os:cmd(CmdStr),
             print(Node, CmdOut),
             self() ! done,
             executor(Node);
 
-        {job, otp, {command, Command}} ->
-            case ssh:connect(Node, ?PORT, ?CONNECT_OPTIONS) of
+        {job, otp, {{command, Command}, {user, User}}} ->
+            ConnectOptions = [{user, User} | ?CONNECT_OPTIONS],
+            case ssh:connect(Node, ?PORT, ConnectOptions) of
                 {ok, ConnRef} ->
                     case ssh_connection:session_channel(ConnRef, ?TIMEOUT) of
                         {ok, ChannId} ->
