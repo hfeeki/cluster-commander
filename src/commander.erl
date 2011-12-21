@@ -46,6 +46,13 @@ main(Args) ->
         }
     ],
 
+    case getopt:parse(OptSpecs, Args) of
+        {ok, _} -> continue;
+        {error, _} ->
+            getopt:usage(OptSpecs, ?MODULE, "command"),
+            halt(1)
+    end,
+
     {ok, OptParsed} = getopt:parse(OptSpecs, Args),
     {OptList, CommandsList} = OptParsed,
 
