@@ -13,3 +13,11 @@
         states = [] :: list(string())
     }
 ).
+
+-record(node_job,
+    {
+        user    = "" :: string(),
+        command = "" :: string(),
+        timeout = 0  :: integer()
+    }
+).

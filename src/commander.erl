@@ -56,6 +56,15 @@ main(Args) ->
     Command = string:join(CommandsList, " "),
 
     %
+    % Pack job
+    %
+    NodeJob = #node_job{
+        user    = User,
+        command = Command,
+        timeout = HostTimeout
+    },
+
+    %
     % Get a list of target nodes
     %
     Nodes = [
@@ -89,8 +98,7 @@ main(Args) ->
     lists:foreach(
         fun(Node) ->
             Pid = spawn(fun() -> executor(Node) end),
-            Pid ! {job, SshProvider,
-                    {{command, Command}, {user, User}, {timeout, HostTimeout}}}
+            Pid ! {job, SshProvider, NodeJob}
         end,
         Nodes
     ),
@@ -132,7 +140,8 @@ dispatcher(Nodes) ->
 %%-----------------------------------------------------------------------------
 executor(Node) ->
     receive
-        {job, os, {{command, Command}, {user, User}, {timeout, Timeout}}} ->
+        {job, os, NodeJob} ->
+            #node_job{user=User, command=Command, timeout=Timeout} = NodeJob,
             UserAtHost = string:join([User, Node], "@"),
             SshOpt =
                 "-2 -q -o ConnectTimeout=" ++ integer_to_list(trunc(Timeout)),
@@ -143,7 +152,8 @@ executor(Node) ->
             self() ! done,
             executor(Node);
 
-        {job, otp, {{command, Command}, {user, User}, {timeout, Timeout}}} ->
+        {job, otp, NodeJob} ->
+            #node_job{user=User, command=Command, timeout=Timeout} = NodeJob,
             TimeoutMs = Timeout * 1000,
             ConnectOptions = [
                 {user, User}, {connect_timeout, TimeoutMs}
