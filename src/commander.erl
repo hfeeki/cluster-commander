@@ -25,10 +25,15 @@ main(Args) ->
     % Parse options
     %
     OptSpecs = [
-        {user, $u, "user", {string, ?DEFAULT_USER}, "User"}
+        {user,         $u, "user", {string, ?DEFAULT_USER}, "User"},
+        {ssh_provider, $s, "ssh",  {atom,   ?SSH_PROVIDER}, "SSH provider"}
     ],
 
-    {ok, {[{user, User}], CommandsList}} = getopt:parse(OptSpecs, Args),
+    {ok, OptParsed} = getopt:parse(OptSpecs, Args),
+    {OptList, CommandsList} = OptParsed,
+
+    User = proplists:get_value(user, OptList),
+    SshProvider = proplists:get_value(ssh_provider, OptList),
 
     %
     % Get requested command string
@@ -46,7 +51,7 @@ main(Args) ->
     %
     % Start dependencies for Erlang ssh app
     %
-    case ?SSH_PROVIDER of
+    case SshProvider of
         otp ->
             filelib:ensure_dir(?PATH_DIR__DATA_SSH),
             file:make_dir(?PATH_DIR__DATA_SSH),
@@ -69,7 +74,7 @@ main(Args) ->
     lists:foreach(
         fun(Node) ->
             Pid = spawn(fun() -> executor(Node) end),
-            Pid ! {job, ?SSH_PROVIDER, {{command, Command}, {user, User}}}
+            Pid ! {job, SshProvider, {{command, Command}, {user, User}}}
         end,
         Nodes
     ),
