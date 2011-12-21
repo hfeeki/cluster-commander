@@ -8,7 +8,7 @@
 %%%----------------------------------------------------------------------------
 
 -define(PORT, 22).
--define(TIMEOUT, 5000).
+-define(TIMEOUT, 5).
 -define(GLOBAL_TIMEOUT, ?TIMEOUT * 2).
 -define(UNAVAILABLE_STATES, ["down", "offline"]).
 -define(DEFAULT_USER, string:strip(os:cmd("whoami"), both, $\n)).
@@ -22,13 +22,11 @@
         " "
     )
 ).
--define(OS_CMD__SSH, "ssh -2 -q -o ConnectTimeout=5").
 -define(SSH_PROVIDER, otp).  % :: otp | os
 -define(CONNECT_OPTIONS,
     [
         {silently_accept_hosts, true},
         {user_interaction, true},
-        {connect_timeout, ?TIMEOUT},
         {user_dir, ?PATH_DIR__DATA_SSH}
     ]
 ).

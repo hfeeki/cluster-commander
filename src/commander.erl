@@ -22,11 +22,24 @@
 %%-----------------------------------------------------------------------------
 main(Args) ->
     %
-    % Parse options
+    % Get options
     %
     OptSpecs = [
-        {user,         $u, "user", {string, ?DEFAULT_USER}, "User"},
-        {ssh_provider, $s, "ssh",  {atom,   ?SSH_PROVIDER}, "SSH provider"}
+        {user,           $u, "user",           {string, ?DEFAULT_USER},
+       "User"
+        },
+
+        {ssh_provider,   $s, "ssh",            {atom, ?SSH_PROVIDER},
+       "SSH provider"
+        },
+
+        {host_timeout,   $t, "host-timeout",   {integer, ?TIMEOUT},
+       "Host timeout"
+        },
+
+        {global_timeout, $T, "global-timeout", {integer, ?GLOBAL_TIMEOUT},
+       "Global timeout"
+        }
     ],
 
     {ok, OptParsed} = getopt:parse(OptSpecs, Args),
@@ -34,6 +47,8 @@ main(Args) ->
 
     User = proplists:get_value(user, OptList),
     SshProvider = proplists:get_value(ssh_provider, OptList),
+    HostTimeout = proplists:get_value(host_timeout, OptList),
+    GlobalTimeout = proplists:get_value(global_timeout, OptList),
 
     %
     % Get requested command string
@@ -74,7 +89,8 @@ main(Args) ->
     lists:foreach(
         fun(Node) ->
             Pid = spawn(fun() -> executor(Node) end),
-            Pid ! {job, SshProvider, {{command, Command}, {user, User}}}
+            Pid ! {job, SshProvider,
+                    {{command, Command}, {user, User}, {timeout, HostTimeout}}}
         end,
         Nodes
     ),
@@ -82,7 +98,7 @@ main(Args) ->
     %
     % Global timeout
     %
-    timer:sleep(?GLOBAL_TIMEOUT).
+    timer:sleep(GlobalTimeout * 1000).
 
 
 %%-----------------------------------------------------------------------------
@@ -116,22 +132,29 @@ dispatcher(Nodes) ->
 %%-----------------------------------------------------------------------------
 executor(Node) ->
     receive
-        {job, os, {{command, Command}, {user, User}}} ->
+        {job, os, {{command, Command}, {user, User}, {timeout, Timeout}}} ->
             UserAtHost = string:join([User, Node], "@"),
-            CmdStr = string:join([?OS_CMD__SSH, UserAtHost, Command], " "),
+            SshOpt =
+                "-2 -q -o ConnectTimeout=" ++ integer_to_list(trunc(Timeout)),
+
+            CmdStr = string:join(["ssh", SshOpt, UserAtHost, Command], " "),
             CmdOut = os:cmd(CmdStr),
             print(Node, CmdOut),
             self() ! done,
             executor(Node);
 
-        {job, otp, {{command, Command}, {user, User}}} ->
-            ConnectOptions = [{user, User} | ?CONNECT_OPTIONS],
+        {job, otp, {{command, Command}, {user, User}, {timeout, Timeout}}} ->
+            TimeoutMs = Timeout * 1000,
+            ConnectOptions = [
+                {user, User}, {connect_timeout, TimeoutMs}
+            ] ++ ?CONNECT_OPTIONS,
+
             case ssh:connect(Node, ?PORT, ConnectOptions) of
                 {ok, ConnRef} ->
-                    case ssh_connection:session_channel(ConnRef, ?TIMEOUT) of
+                    case ssh_connection:session_channel(ConnRef, TimeoutMs) of
                         {ok, ChannId} ->
                             ssh_connection:exec(
-                                ConnRef, ChannId, Command, ?TIMEOUT);
+                                ConnRef, ChannId, Command, TimeoutMs);
                         {error, Reason} ->
                             print(Node, Reason, fail),
                             self() ! done
