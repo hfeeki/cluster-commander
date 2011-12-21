@@ -124,7 +124,7 @@ main(Args) ->
 
 %%-----------------------------------------------------------------------------
 %% Function : dispatcher/1
-%% Purpose  : Waits for job completion msgs and calls stop() when all are done.
+%% Purpose  : Waits for job completions and halts BEAM when all are done.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 dispatcher([]) ->
