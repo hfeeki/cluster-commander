@@ -19,7 +19,7 @@ Roadmap
 * Use getopt and allow overriding defaults (set with macros).
 * Polish executable script
 * Restructure to make a proper OTP application.
-* Use rebar and manage dependencies, releases, etc.
+* ~~Use rebar and manage dependencies, releases, etc.~~
 
 ### v2 ###
 * sftp support (get/put)
