@@ -9,6 +9,8 @@ compile:
 
 link:
 	@./rebar escriptize
+	@mkdir -p bin
+	@mv commander bin/
 
 clean:
 	@./rebar clean
