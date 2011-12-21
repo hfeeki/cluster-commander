@@ -11,6 +11,7 @@
 -define(TIMEOUT, 5000).
 -define(GLOBAL_TIMEOUT, ?TIMEOUT * 2).
 -define(UNAVAILABLE_STATES, ["down", "offline"]).
+-define(DEFAULT_USER, string:strip(os:cmd("whoami"), both, $\n)).
 -define(PATH_DIR__DATA_SSH,
     filename:join([os:getenv("HOME"), ".cluster-commander/ssh"])
 ).

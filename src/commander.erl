@@ -24,9 +24,8 @@ main(Args) ->
     %
     % Parse options
     %
-    DefaultUser = string:strip(os:cmd("whoami"), both, $\n),
     OptSpecs = [
-        {user, $u, "user", {string, DefaultUser}, "User"}
+        {user, $u, "user", {string, ?DEFAULT_USER}, "User"}
     ],
 
     {ok, {[{user, User}], CommandsList}} = getopt:parse(OptSpecs, Args),
