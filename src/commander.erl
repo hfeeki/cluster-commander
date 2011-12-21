@@ -39,6 +39,10 @@ main(Args) ->
 
         {global_timeout, $T, "global-timeout", {integer, ?GLOBAL_TIMEOUT},
        "Global timeout"
+        },
+
+        {port,           $p, "port",           {integer, ?PORT},
+       "SSH port number"
         }
     ],
 
@@ -49,6 +53,7 @@ main(Args) ->
     SshProvider = proplists:get_value(ssh_provider, OptList),
     HostTimeout = proplists:get_value(host_timeout, OptList),
     GlobalTimeout = proplists:get_value(global_timeout, OptList),
+    Port = proplists:get_value(port, OptList),
 
     %
     % Get requested command string
@@ -61,7 +66,8 @@ main(Args) ->
     NodeJob = #node_job{
         user    = User,
         command = Command,
-        timeout = HostTimeout
+        timeout = HostTimeout,
+        port = Port
     },
 
     %
@@ -141,10 +147,20 @@ dispatcher(Nodes) ->
 executor(Node) ->
     receive
         {job, os, NodeJob} ->
-            #node_job{user=User, command=Command, timeout=Timeout} = NodeJob,
+            #node_job{
+                user=User, command=Command, timeout=Timeout, port=Port
+            } = NodeJob,
+
             UserAtHost = string:join([User, Node], "@"),
-            SshOpt =
-                "-2 -q -o ConnectTimeout=" ++ integer_to_list(trunc(Timeout)),
+            SshOpt = string:join([
+                "-2 -q",
+
+                "-p",
+                integer_to_list(Port),
+
+                "-o",
+                "ConnectTimeout=" ++ integer_to_list(trunc(Timeout))
+            ], " "),
 
             CmdStr = string:join(["ssh", SshOpt, UserAtHost, Command], " "),
             CmdOut = os:cmd(CmdStr),
@@ -153,13 +169,16 @@ executor(Node) ->
             executor(Node);
 
         {job, otp, NodeJob} ->
-            #node_job{user=User, command=Command, timeout=Timeout} = NodeJob,
+            #node_job{
+                user=User, command=Command, timeout=Timeout, port=Port
+            } = NodeJob,
+
             TimeoutMs = Timeout * 1000,
             ConnectOptions = [
                 {user, User}, {connect_timeout, TimeoutMs}
             ] ++ ?CONNECT_OPTIONS,
 
-            case ssh:connect(Node, ?PORT, ConnectOptions) of
+            case ssh:connect(Node, Port, ConnectOptions) of
                 {ok, ConnRef} ->
                     case ssh_connection:session_channel(ConnRef, TimeoutMs) of
                         {ok, ChannId} ->

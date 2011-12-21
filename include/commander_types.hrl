@@ -18,6 +18,7 @@
     {
         user    = "" :: string(),
         command = "" :: string(),
-        timeout = 0  :: integer()
+        timeout = 0 :: integer(),
+        port    = 0 :: integer()
     }
 ).
