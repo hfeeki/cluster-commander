@@ -24,36 +24,14 @@ main(Args) ->
     %
     % Get options
     %
-    OptSpecs = [
-        {user,           $u, "user",           {string, ?DEFAULT_USER},
-       "User"
-        },
-
-        {ssh_provider,   $s, "ssh",            {atom, ?SSH_PROVIDER},
-       "SSH provider"
-        },
-
-        {host_timeout,   $t, "host-timeout",   {integer, ?TIMEOUT},
-       "Host timeout"
-        },
-
-        {global_timeout, $T, "global-timeout", {integer, ?GLOBAL_TIMEOUT},
-       "Global timeout"
-        },
-
-        {port,           $p, "port",           {integer, ?PORT},
-       "SSH port number"
-        }
-    ],
-
-    case getopt:parse(OptSpecs, Args) of
+    case getopt:parse(?OPT_SPECS, Args) of
         {ok, _} -> continue;
         {error, _} ->
-            getopt:usage(OptSpecs, ?MODULE, "command"),
+            getopt:usage(?OPT_SPECS, ?MODULE, "command"),
             halt(1)
     end,
 
-    {ok, OptParsed} = getopt:parse(OptSpecs, Args),
+    {ok, OptParsed} = getopt:parse(?OPT_SPECS, Args),
     {OptList, CommandsList} = OptParsed,
 
     User = proplists:get_value(user, OptList),

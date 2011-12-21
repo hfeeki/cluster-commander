@@ -37,3 +37,27 @@
 -define(TERM_COLOR_WARN, "\033[1;93m").  % Yellow bold
 -define(TERM_COLOR_FAIL, "\033[1;91m").  % Red bold
 -define(TERM_COLOR_OFF,  "\033[0m").     % COLOR OFF
+
+-define(OPT_SPECS,
+    [
+        {user,           $u, "user",           {string, ?DEFAULT_USER},
+       "User"
+        },
+
+        {ssh_provider,   $s, "ssh",            {atom, ?SSH_PROVIDER},
+       "SSH provider"
+        },
+
+        {host_timeout,   $t, "host-timeout",   {integer, ?TIMEOUT},
+       "Host timeout"
+        },
+
+        {global_timeout, $T, "global-timeout", {integer, ?GLOBAL_TIMEOUT},
+       "Global timeout"
+        },
+
+        {port,           $p, "port",           {integer, ?PORT},
+       "SSH port number"
+        }
+    ]
+).
