@@ -68,10 +68,8 @@ main(Args) ->
     [
         NodeData#node_data.name || NodeData <- pbs_nodes(),
         case TryAllNodes of
-            true ->
-                NodeData =:= NodeData;  % Is there a better way to match-all?
-            false ->
-                node_available(NodeData#node_data.states)
+            true -> true;
+            false -> node_available(NodeData#node_data.states)
         end
     ],
 
