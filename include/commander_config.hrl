@@ -58,6 +58,10 @@
 
         {port,           $p, "port",           {integer, ?PORT},
        "SSH port number"
+        },
+
+        {try_all_nodes,   $a, "try-all-nodes", {boolean, false},
+       "Attempt to connect to all nodes, regardless of their current state."
         }
     ]
 ).

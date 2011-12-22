@@ -40,6 +40,7 @@ main(Args) ->
     HostTimeout = proplists:get_value(host_timeout, OptList),
     GlobalTimeout = proplists:get_value(global_timeout, OptList),
     Port = proplists:get_value(port, OptList),
+    TryAllNodes = proplists:get_value(try_all_nodes, OptList),
 
     %
     % Get requested command string
@@ -59,9 +60,15 @@ main(Args) ->
     %
     % Get a list of target nodes
     %
-    Nodes = [
+    Nodes =
+    [
         NodeData#node_data.name || NodeData <- pbs_nodes(),
-        node_available(NodeData#node_data.states)
+        case TryAllNodes of
+            true ->
+                NodeData =:= NodeData;  % Is there a better way to match-all?
+            false ->
+                node_available(NodeData#node_data.states)
+        end
     ],
 
     %
