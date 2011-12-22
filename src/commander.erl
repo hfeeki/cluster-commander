@@ -38,7 +38,11 @@ main(Args) ->
     User = proplists:get_value(user, OptList),
     SshProvider = proplists:get_value(ssh_provider, OptList),
     HostTimeout = proplists:get_value(host_timeout, OptList),
-    GlobalTimeout = proplists:get_value(global_timeout, OptList),
+    GlobalTimeout =
+        case proplists:get_value(global_timeout, OptList) of
+            0 -> infinity;
+            OtherGlobalTimeout -> OtherGlobalTimeout * 1000
+        end,
     Port = proplists:get_value(port, OptList),
     TryAllNodes = proplists:get_value(try_all_nodes, OptList),
 
@@ -105,7 +109,7 @@ main(Args) ->
     %
     % Global timeout
     %
-    timer:sleep(GlobalTimeout * 1000).
+    timer:sleep(GlobalTimeout).
 
 
 %%-----------------------------------------------------------------------------
@@ -167,7 +171,11 @@ executor(Node) ->
                 user=User, command=Command, timeout=Timeout, port=Port
             } = NodeJob,
 
-            TimeoutMs = Timeout * 1000,
+            TimeoutMs =
+                case Timeout of
+                    0 -> infinity;
+                    OtherTimeout -> OtherTimeout * 1000
+                end,
 
             ConnectOptions =
                 [{user, User}, {connect_timeout, TimeoutMs}]
