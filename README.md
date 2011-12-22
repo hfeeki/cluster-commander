@@ -1,8 +1,5 @@
 # Cluster Commander #
 
-
-Description
-===========
 Takes a command string and runs it on all nodes of a TORQUE cluster that are
 not marked as 'down' and/or 'offline'. Prints each output.
 
@@ -19,17 +16,17 @@ Usage
               [-T <global_timeout>] [-p <port>] [-a <try_all_nodes>]
               command
 
-      SHORT     LONG        DESCRIPTION                 DEAFULTS TO
+      SHORT     LONG              DESCRIPTION                  DEAFULTS TO
       -------------------------------------------------------------------------
-      -u, --user            User                        current
-      -s, --ssh             SSH provider (os | otp)     otp
-      -t, --host-timeout    Host timeout                5 secs
-      -T, --global-timeout  Global timeout              10 secs
-      -p, --port            SSH port number             22
+      -u        --user            User                         <current_user>
+      -s        --ssh             SSH provider ('os' | 'otp')  otp
+      -t        --host-timeout    Host timeout                 5  <secs>
+      -T        --global-timeout  Global timeout               10 <secs>
+      -p        --port            SSH port number              22
 
-      -a, --try-all-nodes   Attempt to connect to all   <OFF>
-                            nodes, regardless of their
-                            current state.
+      -a        --try-all-nodes   Attempt to connect to all    <OFF>
+                                  nodes, regardless of their
+                                  current state.
 
 
 Caveats
