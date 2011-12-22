@@ -28,6 +28,12 @@ Usage
                                   nodes, regardless of their
                                   current state.
 
+If the target command contains options itself, it must be quoted to prevent
+commander from attempting to interpret those options, for example:
+
+    commander uptime
+    commander "ls -l /"
+
 
 Caveats
 =======
