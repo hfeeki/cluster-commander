@@ -161,9 +161,10 @@ executor(Node) ->
             } = NodeJob,
 
             TimeoutMs = Timeout * 1000,
-            ConnectOptions = [
-                {user, User}, {connect_timeout, TimeoutMs}
-            ] ++ ?CONNECT_OPTIONS,
+
+            ConnectOptions =
+                [{user, User}, {connect_timeout, TimeoutMs}]
+                ++ ?CONNECT_OPTIONS,
 
             case ssh:connect(Node, Port, ConnectOptions) of
                 {ok, ConnRef} ->
