@@ -16,7 +16,7 @@ Usage
               [-T <global_timeout>] [-p <port>] [-a <try_all_nodes>]
               command
 
-      SHORT     LONG              DESCRIPTION                  DEAFULTS TO
+      SHORT     LONG              DESCRIPTION                  DEFAULTS TO
       -------------------------------------------------------------------------
       -u        --user            User                         <current_user>
       -s        --ssh             SSH provider ('os' | 'otp')  otp
