@@ -2,12 +2,12 @@
 %%% Copyright (c) 2011 Siraaj Khandkar
 %%% Licensed under MIT license. See LICENSE file for details.
 %%%
-%%% File    : commander_agents.erl
+%%% File    : commander_workers.erl
 %%% Author  : Siraaj Khandkar <siraaj@khandkar.net>
-%%% Purpose : Functions that will be spawned as procs.
+%%% Purpose : Worker processes.
 %%%----------------------------------------------------------------------------
 
--module(commander_agents).
+-module(commander_workers).
 -export([dispatcher/1, executor/1]).
 
 

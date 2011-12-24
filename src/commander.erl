@@ -1,4 +1,4 @@
-%%%----------------------------------------------------------------------------
+%%----------------------------------------------------------------------------
 %%% Copyright (c) 2011 Siraaj Khandkar
 %%% Licensed under MIT license. See LICENSE file for details.
 %%%
@@ -87,11 +87,11 @@ main(Args) ->
     %
     % Start worker procs
     %
-    register(dispatcher_proc, spawn(commander_agents, dispatcher, [Nodes])),
+    register(dispatcher_proc, spawn(commander_workers, dispatcher, [Nodes])),
 
     lists:foreach(
         fun(Node) ->
-            Pid = spawn(commander_agents, executor, [Node]),
+            Pid = spawn(commander_workers, executor, [Node]),
             Pid ! {job, SshProvider, NodeJob}
         end,
         Nodes
