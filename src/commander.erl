@@ -17,7 +17,7 @@
 
 %%-----------------------------------------------------------------------------
 %% Function : main/1
-%% Purpose  : Entry point. Gets a list of nodes and spawns worker procs.
+%% Purpose  : Entry point. Gets options, a list of nodes and spawns workers.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 main([]) ->
