@@ -94,11 +94,11 @@ main(Args) ->
     %
     % Start worker procs
     %
-    register(dispatcher_proc, spawn(fun() -> dispatcher(Nodes) end)),
+    register(dispatcher_proc, spawn(commander, dispatcher, [Nodes])),
 
     lists:foreach(
         fun(Node) ->
-            Pid = spawn(fun() -> executor(Node) end),
+            Pid = spawn(commander, executor, [Node]),
             Pid ! {job, SshProvider, NodeJob}
         end,
         Nodes
