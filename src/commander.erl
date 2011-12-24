@@ -44,7 +44,7 @@ main(Args) ->
             OtherGlobalTimeout -> OtherGlobalTimeout * 1000
         end,
     Port = proplists:get_value(port, OptList),
-    TryAllNodes = proplists:get_value(try_all_nodes, OptList),
+    MayBeTryAllNodes = proplists:get_value(try_all_nodes, OptList),
 
     %
     % Get requested command string
@@ -64,14 +64,7 @@ main(Args) ->
     %
     % Get a list of target nodes
     %
-    Nodes =
-    [
-        NodeData#node_data.name || NodeData <- commander_data:pbs_nodes(),
-        case TryAllNodes of
-            true -> true;
-            false -> commander_data:node_available(NodeData#node_data.states)
-        end
-    ],
+    Nodes = commander_data:pbs_nodes(MayBeTryAllNodes),
 
     %
     % Start dependencies for Erlang ssh app

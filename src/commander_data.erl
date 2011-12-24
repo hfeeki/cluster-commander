@@ -8,7 +8,7 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander_data).
--export([pbs_nodes/0, node_available/1]).
+-export([pbs_nodes/1]).
 
 
 -include("commander_config.hrl").
@@ -16,14 +16,22 @@
 
 
 %%-----------------------------------------------------------------------------
-%% Function : pbs_nodes/0
+%% Function : pbs_nodes/1
 %% Purpose  : Returns a list of TORQUE cluster nodes and their states.
 %% Type     : list(#node_data{})
 %%-----------------------------------------------------------------------------
-pbs_nodes() ->
+pbs_nodes(MayBeTryAllNodes) ->
     {Tree, _} = xmerl_scan:string(os:cmd("pbsnodes -x"), [{validation, off}]),
-    Nodes = commander_lib:nth_of_tuple(9, Tree),
-    [pbs_node_data(Node) || Node <- Nodes].
+    NodesTree = commander_lib:nth_of_tuple(9, Tree),
+    NodesData = [pbs_node_data(Node) || Node <- NodesTree],
+    NodeNames = [
+        Node#node_data.name || Node <- NodesData,
+        case MayBeTryAllNodes of
+            true -> true;
+            false -> node_available(Node#node_data.states)
+        end
+    ],
+    NodeNames.
 
 
 %%-----------------------------------------------------------------------------
