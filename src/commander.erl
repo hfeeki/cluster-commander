@@ -185,8 +185,7 @@ executor(Node, AccumulatedData) ->
                 end,
 
             ConnectOptions =
-                [{user, User}, {connect_timeout, TimeoutMs}]
-                ++ ?CONNECT_OPTIONS,
+                [{user, User}, {connect_timeout, TimeoutMs}|?CONNECT_OPTIONS],
 
             case ssh:connect(Node, Port, ConnectOptions) of
                 {ok, ConnRef} ->
