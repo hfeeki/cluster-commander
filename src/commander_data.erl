@@ -22,7 +22,7 @@
 %%-----------------------------------------------------------------------------
 %% Function : pbs_nodes/1
 %% Purpose  : Returns a list of TORQUE cluster nodes and their states.
-%% Type     : list(#node_data{})
+%% Type     : list(string())
 %%-----------------------------------------------------------------------------
 pbs_nodes(MayBeTryAllNodes) ->
     {Tree, _} = xmerl_scan:string(os:cmd("pbsnodes -x"), [{validation, off}]),
