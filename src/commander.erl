@@ -169,7 +169,7 @@ executor(Node, AccumulatedData) ->
 
             CmdStr = string:join(["ssh", SshOpt, UserAtHost, Command], " "),
             CmdOut = os:cmd(CmdStr),
-            print(Node, CmdOut),
+            commander_lib:print(Node, CmdOut),
             self() ! done,
             executor(Node, AccumulatedData);
 
@@ -194,11 +194,11 @@ executor(Node, AccumulatedData) ->
                             ssh_connection:exec(
                                 ConnRef, ChannId, Command, TimeoutMs);
                         {error, Reason} ->
-                            print(Node, Reason, fail),
+                            commander_lib:print(Node, Reason, fail),
                             self() ! done
                     end;
                 {error, Reason} ->
-                    print(Node, Reason, fail),
+                    commander_lib:print(Node, Reason, fail),
                     self() ! done
             end,
             executor(Node, AccumulatedData);
@@ -208,7 +208,7 @@ executor(Node, AccumulatedData) ->
 
         {ssh_cm, _, {closed, _}} ->
             JoinedData = string:join(lists:reverse(AccumulatedData), ""),
-            print(Node, JoinedData),
+            commander_lib:print(Node, JoinedData),
             self() ! done,
             executor(Node, []);
 
@@ -221,48 +221,13 @@ executor(Node, AccumulatedData) ->
 
 
 %%-----------------------------------------------------------------------------
-%% Function : print/2 -> print/3
-%% Purpose  : Labels (with Node and color code) and prints Msg to stdout.
-%% Type     : none()
-%%-----------------------------------------------------------------------------
-print(Node, Msg) ->
-    print(Node, Msg, ok).
-
-
-print(Node, Msg, Flag) ->
-    FormattedMsg =
-        case Flag of
-            fail -> io_lib:format("~p", [Msg]);
-            ok   -> Msg
-        end,
-
-    MsgColor =
-        case Flag of
-            fail -> ?TERM_COLOR_FAIL;
-            ok   -> ?TERM_COLOR_OFF
-        end,
-
-    Output = string:join(
-        [
-            "\n",
-            string:join([?TERM_COLOR_EM, Node, ?TERM_COLOR_OFF], ""),
-            string:join([?TERM_COLOR_EM, ?SEPARATOR, ?TERM_COLOR_OFF], ""),
-            string:join([MsgColor, FormattedMsg, ?TERM_COLOR_OFF], "")
-        ],
-        "\n"
-    ),
-
-    io:format(Output).
-
-
-%%-----------------------------------------------------------------------------
 %% Function : pbs_nodes/0
 %% Purpose  : Returns a list of TORQUE cluster nodes and their states.
 %% Type     : list(#node_data{})
 %%-----------------------------------------------------------------------------
 pbs_nodes() ->
     {Tree, _} = xmerl_scan:string(os:cmd("pbsnodes -x"), [{validation, off}]),
-    Nodes = nth_of_tuple(9, Tree),
+    Nodes = commander_lib:nth_of_tuple(9, Tree),
     [pbs_node_data(Node) || Node <- Nodes].
 
 
@@ -272,14 +237,14 @@ pbs_nodes() ->
 %% Type     : #node_data{}
 %%-----------------------------------------------------------------------------
 pbs_node_data(Node) ->
-    Data = nth_of_tuple(9, Node),
+    Data = commander_lib:nth_of_tuple(9, Node),
     pbs_node_data(Data, #node_data{}).
 
 
 pbs_node_data([], NodeData) -> NodeData;
 
 pbs_node_data([Data|DataTail], NodeData) ->
-    [Datum] = nth_of_tuple(9, Data),
+    [Datum] = commander_lib:nth_of_tuple(9, Data),
 
     case Datum of
         {xmlText, [{name, _}, _, _], _, _, Name, text} ->
@@ -306,12 +271,3 @@ node_available([State|StatesTail]) ->
         true -> false;
         false -> node_available(StatesTail)
     end.
-
-
-%%-----------------------------------------------------------------------------
-%% Function : nth_of_tuple/2
-%% Purpose  : Returns an Nth element of a tuple. Just a shortcut.
-%% Type     : any()
-%%-----------------------------------------------------------------------------
-nth_of_tuple(N, Tuple) ->
-    lists:nth(N, tuple_to_list(Tuple)).
