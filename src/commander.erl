@@ -136,11 +136,20 @@ dispatcher(Nodes) ->
 
 
 %%-----------------------------------------------------------------------------
+%% Function : executor/0
+%% Purpose  : Calls executor/1 with an initial (empty) data list.
+%% Type     : none()
+%%-----------------------------------------------------------------------------
+executor(Node) ->
+    executor(Node, []).
+
+
+%%-----------------------------------------------------------------------------
 %% Function : executor/1
 %% Purpose  : Executes and print output of a given SSH command.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-executor(Node) ->
+executor(Node, AccumulatedData) ->
     receive
         {job, os, NodeJob} ->
             #node_job{
@@ -162,7 +171,7 @@ executor(Node) ->
             CmdOut = os:cmd(CmdStr),
             print(Node, CmdOut),
             self() ! done,
-            executor(Node);
+            executor(Node, AccumulatedData);
 
         {job, otp, NodeJob} ->
             #node_job{
@@ -193,18 +202,19 @@ executor(Node) ->
                     print(Node, Reason, fail),
                     self() ! done
             end,
-            executor(Node);
+            executor(Node, AccumulatedData);
 
         {ssh_cm, _, {data, _, _, Data}} ->
-            print(Node, binary_to_list(Data)),
-            executor(Node);
+            executor(Node, [binary_to_list(Data) | AccumulatedData]);
 
         {ssh_cm, _, {closed, _}} ->
+            JoinedData = string:join(lists:reverse(AccumulatedData), ""),
+            print(Node, JoinedData),
             self() ! done,
-            executor(Node);
+            executor(Node, []);
 
         {ssh_cm, _} ->
-            executor(Node);
+            executor(Node, AccumulatedData);
 
         done ->
             dispatcher_proc ! {done, Node}
