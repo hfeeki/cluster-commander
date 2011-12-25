@@ -27,7 +27,7 @@ main(Args) ->
     Options = commander_options:get_options(Args),
 
     %
-    % Pack job
+    % Pack job data
     %
     NodeJob = #node_job{
         user    = Options#options.user,
