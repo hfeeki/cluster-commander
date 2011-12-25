@@ -9,16 +9,16 @@
 
 -record(node_data,
     {
-        name   = "" :: string(),
-        states = [] :: list(string())
+        name    = undefined :: string(),
+        states  = undefined :: list(string())
     }
 ).
 
 -record(node_job,
     {
-        user    = "" :: string(),
-        command = "" :: string(),
-        timeout = 0 :: integer(),
-        port    = 0 :: integer()
+        user    = undefined :: string(),
+        command = undefined :: string(),
+        timeout = undefined :: integer(),
+        port    = undefined :: integer()
     }
 ).
