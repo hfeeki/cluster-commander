@@ -22,3 +22,15 @@
         port    = undefined :: integer()
     }
 ).
+
+-record(options,
+    {
+        user            = undefined :: string(),
+        ssh_provider    = undefined :: atom(),
+        host_timeout    = undefined :: integer(),
+        global_timeout  = undefined :: integer(),
+        port            = undefined :: integer(),
+        try_all_nodes   = undefined :: boolean(),
+        command         = undefined :: string()
+    }
+).

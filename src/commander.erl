@@ -24,56 +24,32 @@
 %% Purpose  : Entry point. Gets options, a list of nodes and spawns workers.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-main([]) ->
-    usage();
-
 main(Args) ->
     %
     % Get options
     %
-    case getopt:parse(?OPT_SPECS, Args) of
-        {ok, _} -> continue;
-        {error, _} -> usage()
-    end,
-
-    {ok, OptParsed} = getopt:parse(?OPT_SPECS, Args),
-    {OptList, CommandsList} = OptParsed,
-
-    User = proplists:get_value(user, OptList),
-    SshProvider = proplists:get_value(ssh_provider, OptList),
-    HostTimeout = proplists:get_value(host_timeout, OptList),
-    GlobalTimeout =
-        case proplists:get_value(global_timeout, OptList) of
-            0 -> infinity;
-            OtherGlobalTimeout -> OtherGlobalTimeout * 1000
-        end,
-    Port = proplists:get_value(port, OptList),
-    MayBeTryAllNodes = proplists:get_value(try_all_nodes, OptList),
-
-    %
-    % Get requested command string
-    %
-    Command = string:join(CommandsList, " "),
+    Options = commander_options:get_options(Args),
 
     %
     % Pack job
     %
     NodeJob = #node_job{
-        user    = User,
-        command = Command,
-        timeout = HostTimeout,
-        port = Port
+        user    = Options#options.user,
+        command = Options#options.command,
+        timeout = Options#options.host_timeout,
+        port = Options#options.port
     },
 
     %
     % Get a list of target nodes
     %
+    MayBeTryAllNodes = Options#options.try_all_nodes,
     Nodes = commander_data:pbs_nodes(MayBeTryAllNodes),
 
     %
     % Start dependencies for Erlang ssh app
     %
-    case SshProvider of
+    case Options#options.ssh_provider of
         otp ->
             filelib:ensure_dir(?PATH_DIR__DATA_SSH),
             file:make_dir(?PATH_DIR__DATA_SSH),
@@ -96,7 +72,7 @@ main(Args) ->
     lists:foreach(
         fun(Node) ->
             Pid = spawn(commander_workers, executor, [Node]),
-            Pid ! {job, SshProvider, NodeJob}
+            Pid ! {job, Options#options.ssh_provider, NodeJob}
         end,
         Nodes
     ),
@@ -104,18 +80,4 @@ main(Args) ->
     %
     % Global timeout
     %
-    timer:sleep(GlobalTimeout).
-
-
-%%%============================================================================
-%%% Private
-%%%============================================================================
-
-%%-----------------------------------------------------------------------------
-%% Function : usage/0
-%% Purpose  : Prints usage instructions and halts BEAM.
-%% Type     : none()
-%%-----------------------------------------------------------------------------
-usage() ->
-    getopt:usage(?OPT_SPECS, ?MODULE, "command"),
-    halt(1).
+    timer:sleep(Options#options.global_timeout).
