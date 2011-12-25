@@ -26,16 +26,16 @@
 %%-----------------------------------------------------------------------------
 pbs_nodes(MayBeTryAllNodes) ->
     {Tree, _} = xmerl_scan:string(os:cmd("pbsnodes -x"), [{validation, off}]),
-    NodesTree = commander_lib:nth_of_tuple(9, Tree),
-    NodesData = [pbs_node_data(Node) || Node <- NodesTree],
-    NodeNames = [
-        Node#node_data.name || Node <- NodesData,
+    ListOfNodeTrees = commander_lib:nth_of_tuple(9, Tree),
+    ListOfNodeData  = [pbs_node_data(Node) || Node <- ListOfNodeTrees],
+    ListOfNodeNames = [
+        Node#node_data.name || Node <- ListOfNodeData,
         case MayBeTryAllNodes of
             true -> true;
-            false -> node_available(Node#node_data.states)
+            false -> is_node_available(Node#node_data.states)
         end
     ],
-    NodeNames.
+    ListOfNodeNames.
 
 
 %%%============================================================================
@@ -71,14 +71,14 @@ pbs_node_data([Data|DataTail], NodeData) ->
 
 
 %%-----------------------------------------------------------------------------
-%% Function : node_available/1
+%% Function : is_node_available/1
 %% Purpose  : Checks whether a given node's state is considered available.
 %% Type     : bool()
 %%-----------------------------------------------------------------------------
-node_available([]) -> true;
+is_node_available([]) -> true;
 
-node_available([State|StatesTail]) ->
+is_node_available([State|StatesTail]) ->
     case lists:member(State, ?UNAVAILABLE_STATES) of
         true -> false;
-        false -> node_available(StatesTail)
+        false -> is_node_available(StatesTail)
     end.
