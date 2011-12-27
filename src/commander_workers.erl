@@ -47,47 +47,47 @@ executor(Node) ->
 executor(Node, AccumulatedData) ->
     receive
         {job, os, JobData} ->
-            #job{
-                user=User, command=Command, timeout=Timeout, port=Port
-            } = JobData,
-
-            UserAtHost = string:join([User, Node], "@"),
+            UserAtHost = string:join([JobData#job.user, Node], "@"),
             SshOpt = string:join([
                 "-2 -q",
-
                 "-p",
-                integer_to_list(Port),
-
+                integer_to_list(JobData#job.port),
                 "-o",
-                "ConnectTimeout=" ++ integer_to_list(trunc(Timeout))
+                "ConnectTimeout="++integer_to_list(trunc(JobData#job.timeout))
             ], " "),
 
-            CmdStr = string:join(["ssh", SshOpt, UserAtHost, Command], " "),
+            CmdStr = string:join(
+                ["ssh", SshOpt, UserAtHost, JobData#job.command],
+                " "
+            ),
+
             CmdOut = os:cmd(CmdStr),
             commander_lib:print(Node, CmdOut),
             self() ! done,
             executor(Node, AccumulatedData);
 
         {job, otp, JobData} ->
-            #job{
-                user=User, command=Command, timeout=Timeout, port=Port
-            } = JobData,
-
-            TimeoutMs =
-                case Timeout of
+            Timeout =
+                case JobData#job.timeout of
                     0 -> infinity;
                     OtherTimeout -> OtherTimeout * 1000
                 end,
 
             ConnectOptions =
-                [{user, User}, {connect_timeout, TimeoutMs}|?CONNECT_OPTIONS],
+                [
+                    {user, JobData#job.user},
+                    {connect_timeout, Timeout}
+                    | ?CONNECT_OPTIONS
+                ],
 
-            case ssh:connect(Node, Port, ConnectOptions) of
+            case ssh:connect(Node, JobData#job.port, ConnectOptions) of
                 {ok, ConnRef} ->
-                    case ssh_connection:session_channel(ConnRef, TimeoutMs) of
+                    case ssh_connection:session_channel(ConnRef, Timeout) of
                         {ok, ChannId} ->
-                            ssh_connection:exec(
-                                ConnRef, ChannId, Command, TimeoutMs);
+                            ssh_connection:exec(ConnRef,
+                                                ChannId,
+                                                JobData#job.command,
+                                                Timeout);
                         {error, Reason} ->
                             commander_lib:print(Node, Reason, fail),
                             self() ! done
