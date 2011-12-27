@@ -29,38 +29,23 @@ get_options([]) ->
 
 get_options(Args) ->
     case getopt:parse(?OPT_SPECS, Args) of
-        {ok, _} -> continue;
+        {ok, {OptList, CommandsList}} ->
+            #options{
+                user = proplists:get_value(user, OptList),
+                ssh_provider = proplists:get_value(ssh_provider, OptList),
+                host_timeout = proplists:get_value(host_timeout, OptList),
+                global_timeout =
+                    case proplists:get_value(global_timeout, OptList) of
+                        0 -> infinity;
+                        OtherGlobalTimeout -> OtherGlobalTimeout * 1000
+                    end,
+                port = proplists:get_value(port, OptList),
+                try_all_nodes = proplists:get_value(try_all_nodes, OptList),
+                command = string:join(CommandsList, " ")
+            };
+
         {error, _} -> usage()
-    end,
-
-    {ok, OptParsed} = getopt:parse(?OPT_SPECS, Args),
-    {OptList, CommandsList} = OptParsed,
-
-    User = proplists:get_value(user, OptList),
-    SshProvider = proplists:get_value(ssh_provider, OptList),
-    HostTimeout = proplists:get_value(host_timeout, OptList),
-    GlobalTimeout =
-        case proplists:get_value(global_timeout, OptList) of
-            0 -> infinity;
-            OtherGlobalTimeout -> OtherGlobalTimeout * 1000
-        end,
-    Port = proplists:get_value(port, OptList),
-    MayBeTryAllNodes = proplists:get_value(try_all_nodes, OptList),
-
-    %
-    % Get requested command string
-    %
-    Command = string:join(CommandsList, " "),
-
-    #options{
-        user = User,
-        ssh_provider = SshProvider,
-        host_timeout = HostTimeout,
-        global_timeout = GlobalTimeout,
-        port = Port,
-        try_all_nodes = MayBeTryAllNodes,
-        command = Command
-    }.
+    end.
 
 
 %%%============================================================================
