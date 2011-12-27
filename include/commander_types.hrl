@@ -14,7 +14,7 @@
     }
 ).
 
--record(node_job,
+-record(job,
     {
         user    = undefined :: string(),
         command = undefined :: string(),

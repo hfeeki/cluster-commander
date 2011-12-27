@@ -29,11 +29,11 @@ main(Args) ->
     %
     % Pack job data
     %
-    NodeJob = #node_job{
+    JobData = #job{
         user    = Options#options.user,
         command = Options#options.command,
         timeout = Options#options.host_timeout,
-        port = Options#options.port
+        port    = Options#options.port
     },
 
     %
@@ -68,7 +68,7 @@ main(Args) ->
     lists:foreach(
         fun(Node) ->
             Pid = spawn(commander_workers, executor, [Node]),
-            Pid ! {job, Options#options.ssh_provider, NodeJob}
+            Pid ! {job, Options#options.ssh_provider, JobData}
         end,
         Nodes
     ),

@@ -46,10 +46,10 @@ executor(Node) ->
 %%-----------------------------------------------------------------------------
 executor(Node, AccumulatedData) ->
     receive
-        {job, os, NodeJob} ->
-            #node_job{
+        {job, os, JobData} ->
+            #job{
                 user=User, command=Command, timeout=Timeout, port=Port
-            } = NodeJob,
+            } = JobData,
 
             UserAtHost = string:join([User, Node], "@"),
             SshOpt = string:join([
@@ -68,10 +68,10 @@ executor(Node, AccumulatedData) ->
             self() ! done,
             executor(Node, AccumulatedData);
 
-        {job, otp, NodeJob} ->
-            #node_job{
+        {job, otp, JobData} ->
+            #job{
                 user=User, command=Command, timeout=Timeout, port=Port
-            } = NodeJob,
+            } = JobData,
 
             TimeoutMs =
                 case Timeout of
