@@ -97,11 +97,11 @@ executor(Node, AccumulatedData) ->
             executor(Node, AccumulatedData);
 
         {ssh_cm, _, {data, _, _, Data}} ->
-            executor(Node, [binary_to_list(Data) | AccumulatedData]);
+            executor(Node, [Data | AccumulatedData]);
 
         {ssh_cm, _, {closed, _}} ->
-            JoinedData = string:join(lists:reverse(AccumulatedData), ""),
-            print(Node, JoinedData),
+            Data = lists:reverse(AccumulatedData),
+            print(Node, Data),
             self() ! done,
             executor(Node, []);
 
