@@ -8,7 +8,7 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander_lib).
--export([nth_of_tuple/2, print/2, print/3]).
+-export([nth_of_tuple/2]).
 
 
 -include("commander_config.hrl").
@@ -21,38 +21,3 @@
 %%-----------------------------------------------------------------------------
 nth_of_tuple(N, Tuple) ->
     lists:nth(N, tuple_to_list(Tuple)).
-
-
-%%-----------------------------------------------------------------------------
-%% Function : print/2 -> print/3
-%% Purpose  : Labels (with Node and color code) and prints Msg to stdout.
-%% Type     : none()
-%%-----------------------------------------------------------------------------
-print(Node, Msg) ->
-    print(Node, Msg, ok).
-
-
-print(Node, Msg, Flag) ->
-    FormattedMsg =
-        case Flag of
-            fail -> io_lib:format("~p", [Msg]);
-            ok   -> Msg
-        end,
-
-    MsgColor =
-        case Flag of
-            fail -> ?TERM_COLOR_FAIL;
-            ok   -> ?TERM_COLOR_OFF
-        end,
-
-    Output = string:join(
-        [
-            "\n",
-            string:join([?TERM_COLOR_EM, Node, ?TERM_COLOR_OFF], ""),
-            string:join([?TERM_COLOR_EM, ?SEPARATOR, ?TERM_COLOR_OFF], ""),
-            string:join([MsgColor, FormattedMsg, ?TERM_COLOR_OFF], "")
-        ],
-        "\n"
-    ),
-
-    io:format(Output).

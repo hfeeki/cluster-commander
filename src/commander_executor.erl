@@ -60,7 +60,7 @@ executor(Node, AccumulatedData) ->
             ),
 
             CmdOut = os:cmd(CmdStr),
-            commander_lib:print(Node, CmdOut),
+            print(Node, CmdOut),
             self() ! done,
             executor(Node, AccumulatedData);
 
@@ -87,11 +87,11 @@ executor(Node, AccumulatedData) ->
                                                 JobData#job.command,
                                                 Timeout);
                         {error, Reason} ->
-                            commander_lib:print(Node, Reason, fail),
+                            print(Node, Reason, fail),
                             self() ! done
                     end;
                 {error, Reason} ->
-                    commander_lib:print(Node, Reason, fail),
+                    print(Node, Reason, fail),
                     self() ! done
             end,
             executor(Node, AccumulatedData);
@@ -101,7 +101,7 @@ executor(Node, AccumulatedData) ->
 
         {ssh_cm, _, {closed, _}} ->
             JoinedData = string:join(lists:reverse(AccumulatedData), ""),
-            commander_lib:print(Node, JoinedData),
+            print(Node, JoinedData),
             self() ! done,
             executor(Node, []);
 
@@ -111,3 +111,38 @@ executor(Node, AccumulatedData) ->
         done ->
             commander_dispatcher:done(Node)
     end.
+
+
+%%-----------------------------------------------------------------------------
+%% Function : print/2 -> print/3
+%% Purpose  : Labels (with Node and color code) and prints Msg to stdout.
+%% Type     : none()
+%%-----------------------------------------------------------------------------
+print(Node, Msg) ->
+    print(Node, Msg, ok).
+
+
+print(Node, Msg, Flag) ->
+    FormattedMsg =
+        case Flag of
+            fail -> io_lib:format("~p", [Msg]);
+            ok   -> Msg
+        end,
+
+    MsgColor =
+        case Flag of
+            fail -> ?TERM_COLOR_FAIL;
+            ok   -> ?TERM_COLOR_OFF
+        end,
+
+    Output = string:join(
+        [
+            "\n",
+            string:join([?TERM_COLOR_EM, Node, ?TERM_COLOR_OFF], ""),
+            string:join([?TERM_COLOR_EM, ?SEPARATOR, ?TERM_COLOR_OFF], ""),
+            string:join([MsgColor, FormattedMsg, ?TERM_COLOR_OFF], "")
+        ],
+        "\n"
+    ),
+
+    io:format(Output).
