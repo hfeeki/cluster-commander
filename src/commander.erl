@@ -70,14 +70,13 @@ main(Args) ->
     end,
 
     %
-    % Start worker procs
+    % Start workerers
     %
-    register(dispatcher_proc, spawn(commander_workers, dispatcher, [Nodes])),
+    commander_dispatcher:start(Nodes),
 
     lists:foreach(
         fun(Node) ->
-            Pid = spawn(commander_workers, executor, [Node]),
-            Pid ! JobMsg
+            commander_executor:start(Node, JobMsg)
         end,
         Nodes
     ),

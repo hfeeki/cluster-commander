@@ -2,33 +2,31 @@
 %%% Copyright (c) 2011 Siraaj Khandkar
 %%% Licensed under MIT license. See LICENSE file for details.
 %%%
-%%% File    : commander_workers.erl
+%%% File    : commander_executor.erl
 %%% Author  : Siraaj Khandkar <siraaj@khandkar.net>
-%%% Purpose : Worker processes.
+%%% Purpose : Executes and print output of a given SSH command.
 %%%----------------------------------------------------------------------------
 
--module(commander_workers).
--export([dispatcher/1, executor/1]).
+-module(commander_executor).
+-export([start/2]).
 
 
 -include("commander_config.hrl").
 -include("commander_types.hrl").
 
 
-%%-----------------------------------------------------------------------------
-%% Function : dispatcher/1
-%% Purpose  : Waits for job completions and halts BEAM when all are done.
-%% Type     : none()
-%%-----------------------------------------------------------------------------
-dispatcher([]) ->
-    halt(0);
+%%%============================================================================
+%%% API
+%%%============================================================================
 
-dispatcher(Nodes) ->
-    receive
-        {done, Node} ->
-            dispatcher(Nodes -- [Node])
-    end.
+start(Node, JobMsg) ->
+    Pid = spawn(fun() -> executor(Node) end),
+    Pid ! JobMsg.
 
+
+%%%============================================================================
+%%% Internal
+%%%============================================================================
 
 %%-----------------------------------------------------------------------------
 %% Function : executor/0
@@ -111,5 +109,5 @@ executor(Node, AccumulatedData) ->
             executor(Node, AccumulatedData);
 
         done ->
-            dispatcher_proc ! {done, Node}
+            commander_dispatcher:done(Node)
     end.
