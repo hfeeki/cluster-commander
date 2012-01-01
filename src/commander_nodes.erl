@@ -2,12 +2,12 @@
 %%% Copyright (c) 2011 Siraaj Khandkar
 %%% Licensed under MIT license. See LICENSE file for details.
 %%%
-%%% File    : commander_data.erl
+%%% File    : commander_nodes.erl
 %%% Author  : Siraaj Khandkar <siraaj@khandkar.net>
 %%% Purpose : Data-gathering functions.
 %%%----------------------------------------------------------------------------
 
--module(commander_data).
+-module(commander_nodes).
 -export([pbs_nodes/1]).
 
 

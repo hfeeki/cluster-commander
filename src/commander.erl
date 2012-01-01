@@ -49,7 +49,7 @@ main(Args) ->
     % Get a list of target nodes
     %
     MayBeTryAllNodes = Options#options.try_all_nodes,
-    Nodes = commander_data:pbs_nodes(MayBeTryAllNodes),
+    Nodes = commander_nodes:pbs_nodes(MayBeTryAllNodes),
 
     %
     % Start dependencies for Erlang ssh app
