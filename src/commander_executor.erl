@@ -4,7 +4,7 @@
 %%%
 %%% File    : commander_executor.erl
 %%% Author  : Siraaj Khandkar <siraaj@khandkar.net>
-%%% Purpose : Executes and print output of a given SSH command.
+%%% Purpose : Executes and prints output of a given SSH command.
 %%%----------------------------------------------------------------------------
 
 -module(commander_executor).
@@ -39,7 +39,7 @@ executor(Node) ->
 
 %%-----------------------------------------------------------------------------
 %% Function : executor/1
-%% Purpose  : Executes and print output of a given SSH command.
+%% Purpose  : Executes and prints output of a given SSH command.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 executor(Node, AccumulatedData) ->
