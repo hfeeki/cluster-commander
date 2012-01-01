@@ -12,7 +12,6 @@
 
 
 -include("commander_config.hrl").
--include("commander_types.hrl").
 
 
 %%-----------------------------------------------------------------------------
