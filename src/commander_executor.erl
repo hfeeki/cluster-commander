@@ -125,7 +125,7 @@ print(Node, Msg) ->
 print(Node, Msg, Flag) ->
     FormattedMsg =
         case Flag of
-            fail -> io_lib:format("~p", [Msg]);
+            fail -> io_lib:format("~p~n", [Msg]);
             ok   -> Msg
         end,
 
