@@ -136,12 +136,11 @@ print(Node, Msg, Flag) ->
         end,
 
     Output = [
-        "\n",
-        ?TERM_COLOR_EM, Node, ?TERM_COLOR_OFF,
-        "\n",
-        ?TERM_COLOR_EM, ?SEPARATOR, ?TERM_COLOR_OFF,
-        "\n",
-        MsgColor, FormattedMsg, ?TERM_COLOR_OFF
+        % Header
+        ?TERM_COLOR_EM, Node, "\n", ?SEPARATOR, ?TERM_COLOR_OFF, "\n",
+
+        % Actual output
+        MsgColor, FormattedMsg, ?TERM_COLOR_OFF, "\n"
     ],
 
     io:format(Output).
