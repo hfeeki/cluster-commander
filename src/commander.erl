@@ -34,7 +34,7 @@ main(Args) ->
     Options = get_options_or_usage(Args),
 
     %
-    % Pack job data
+    % Pack job message
     %
     JobData = #job{
         user    = Options#options.user,
@@ -42,6 +42,8 @@ main(Args) ->
         timeout = Options#options.host_timeout,
         port    = Options#options.port
     },
+
+    JobMsg = {job, Options#options.ssh_provider, JobData},
 
     %
     % Get a list of target nodes
@@ -75,7 +77,7 @@ main(Args) ->
     lists:foreach(
         fun(Node) ->
             Pid = spawn(commander_workers, executor, [Node]),
-            Pid ! {job, Options#options.ssh_provider, JobData}
+            Pid ! JobMsg
         end,
         Nodes
     ),
