@@ -4,7 +4,7 @@
 %%%
 %%% File    : commander_nodes.erl
 %%% Author  : Siraaj Khandkar <siraaj@khandkar.net>
-%%% Purpose : Data-gathering functions.
+%%% Purpose : Target nodes finding functions.
 %%%----------------------------------------------------------------------------
 
 -module(commander_nodes).
