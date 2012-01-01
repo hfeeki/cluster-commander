@@ -135,14 +135,13 @@ print(Node, Msg, Flag) ->
             ok   -> ?TERM_COLOR_OFF
         end,
 
-    Output = string:join(
-        [
-            "\n",
-            string:join([?TERM_COLOR_EM, Node, ?TERM_COLOR_OFF], ""),
-            string:join([?TERM_COLOR_EM, ?SEPARATOR, ?TERM_COLOR_OFF], ""),
-            string:join([MsgColor, FormattedMsg, ?TERM_COLOR_OFF], "")
-        ],
-        "\n"
-    ),
+    Output = [
+        "\n",
+        ?TERM_COLOR_EM, Node, ?TERM_COLOR_OFF,
+        "\n",
+        ?TERM_COLOR_EM, ?SEPARATOR, ?TERM_COLOR_OFF,
+        "\n",
+        MsgColor, FormattedMsg, ?TERM_COLOR_OFF
+    ],
 
     io:format(Output).
