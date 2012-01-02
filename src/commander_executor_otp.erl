@@ -42,7 +42,7 @@ executor(Node) ->
 %% Purpose  : Executes and prints output of a given SSH command.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-executor(Node, AccumulatedData) ->
+executor(Node, DataAcc) ->
     receive
         {job, Job} ->
             Timeout =
@@ -73,19 +73,20 @@ executor(Node, AccumulatedData) ->
                     commander_utils:print(Node, Reason, fail),
                     self() ! done
             end,
-            executor(Node, AccumulatedData);
+
+            executor(Node, DataAcc);
 
         {ssh_cm, _, {data, _, _, Data}} ->
-            executor(Node, [Data | AccumulatedData]);
+            executor(Node, [Data | DataAcc]);
 
         {ssh_cm, _, {closed, _}} ->
-            Data = lists:reverse(AccumulatedData),
+            Data = lists:reverse(DataAcc),
             commander_utils:print(Node, Data),
             self() ! done,
             executor(Node, []);
 
         {ssh_cm, _} ->
-            executor(Node, AccumulatedData);
+            executor(Node, DataAcc);
 
         done ->
             commander_dispatcher:done(Node)
