@@ -51,12 +51,11 @@ executor(Node, AccumulatedData) ->
                     OtherTimeout -> OtherTimeout * 1000
                 end,
 
-            ConnectOptions =
-                [
-                    {user, Job#job.user},
-                    {connect_timeout, Timeout}
-                    | ?CONNECT_OPTIONS
-                ],
+            ConnectOptions = [
+                {user, Job#job.user},
+                {connect_timeout, Timeout}
+                | ?CONNECT_OPTIONS
+            ],
 
             case ssh:connect(Node, Job#job.port, ConnectOptions) of
                 {ok, ConnRef} ->
