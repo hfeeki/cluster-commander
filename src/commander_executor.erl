@@ -114,7 +114,7 @@ executor(Node, AccumulatedData) ->
 
 
 %%-----------------------------------------------------------------------------
-%% Function : print/2 -> print/3
+%% Function : print/2 -> print/3 -> print/4
 %% Purpose  : Labels (with Node and color code) and prints Msg to stdout.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
@@ -122,25 +122,20 @@ print(Node, Msg) ->
     print(Node, Msg, ok).
 
 
-print(Node, Msg, Flag) ->
-    FormattedMsg =
-        case Flag of
-            fail -> io_lib:format("~p~n", [Msg]);
-            ok   -> Msg
-        end,
+print(Node, Msg, ok) ->
+    print(Node, Msg, ok, ?TERM_COLOR_OFF);
 
-    MsgColor =
-        case Flag of
-            fail -> ?TERM_COLOR_FAIL;
-            ok   -> ?TERM_COLOR_OFF
-        end,
+print(Node, Msg, fail) ->
+    print(Node, io_lib:format("~p~n", [Msg]), fail, ?TERM_COLOR_FAIL).
 
+
+print(Node, Msg, _Flag, Color) ->
     Output = [
         % Header
         ?TERM_COLOR_EM, Node, "\n", ?SEPARATOR, ?TERM_COLOR_OFF, "\n",
 
         % Actual output
-        MsgColor, FormattedMsg, ?TERM_COLOR_OFF, "\n"
+        Color, Msg, ?TERM_COLOR_OFF, "\n"
     ],
 
     io:format(Output).
