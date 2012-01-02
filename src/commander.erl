@@ -28,14 +28,10 @@ main([]) ->
     usage();
 
 main(Args) ->
-    %
     % Get options
-    %
     Options = get_options_or_usage(Args),
 
-    %
     % Pack job
-    %
     Job = #job{
         user    = Options#options.user,
         command = Options#options.command,
@@ -43,19 +39,13 @@ main(Args) ->
         port    = Options#options.port
     },
 
-    %
     % Get a list of target nodes
-    %
     Nodes = commander_nodes:pbs_nodes(Options#options.try_all_nodes),
 
-    %
     % Launch workers
-    %
     launch(Options#options.ssh_provider, Nodes, Job),
 
-    %
     % Wait until done or timeout
-    %
     timer:sleep(Options#options.global_timeout).
 
 
