@@ -19,9 +19,9 @@
 %%% API
 %%%============================================================================
 
-start(Node, JobMsg) ->
+start(Node, Job) ->
     Pid = spawn(fun() -> executor(Node) end),
-    Pid ! JobMsg.
+    Pid ! {job, Job}.
 
 
 %%%============================================================================
@@ -44,27 +44,27 @@ executor(Node) ->
 %%-----------------------------------------------------------------------------
 executor(Node, AccumulatedData) ->
     receive
-        {job, otp, JobData} ->
+        {job, Job} ->
             Timeout =
-                case JobData#job.timeout of
+                case Job#job.timeout of
                     0 -> infinity;
                     OtherTimeout -> OtherTimeout * 1000
                 end,
 
             ConnectOptions =
                 [
-                    {user, JobData#job.user},
+                    {user, Job#job.user},
                     {connect_timeout, Timeout}
                     | ?CONNECT_OPTIONS
                 ],
 
-            case ssh:connect(Node, JobData#job.port, ConnectOptions) of
+            case ssh:connect(Node, Job#job.port, ConnectOptions) of
                 {ok, ConnRef} ->
                     case ssh_connection:session_channel(ConnRef, Timeout) of
                         {ok, ChannId} ->
                             ssh_connection:exec(ConnRef,
                                                 ChannId,
-                                                JobData#job.command,
+                                                Job#job.command,
                                                 Timeout);
                         {error, Reason} ->
                             print(Node, Reason, fail),

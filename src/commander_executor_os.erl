@@ -19,7 +19,7 @@
 %%% API
 %%%============================================================================
 
-start(Node, {job, _, JobData}) -> spawn(fun() -> executor(Node, JobData) end).
+start(Node, Job) -> spawn(fun() -> executor(Node, Job) end).
 
 
 %%%============================================================================
@@ -31,19 +31,19 @@ start(Node, {job, _, JobData}) -> spawn(fun() -> executor(Node, JobData) end).
 %% Purpose  : Executes and prints output of a given SSH command.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-executor(Node, JobData) ->
-    UserAtHost = string:join([JobData#job.user, Node], "@"),
+executor(Node, Job) ->
+    UserAtHost = string:join([Job#job.user, Node], "@"),
 
     SshOpt = string:join(
         [
-            "-2 -q", "-p", integer_to_list(JobData#job.port),
-            "-o", "ConnectTimeout="++integer_to_list(trunc(JobData#job.timeout))
+            "-2 -q", "-p", integer_to_list(Job#job.port),
+            "-o", "ConnectTimeout="++integer_to_list(trunc(Job#job.timeout))
         ],
         " "
     ),
 
     CmdStr = string:join(
-        ["ssh", SshOpt, UserAtHost, JobData#job.command],
+        ["ssh", SshOpt, UserAtHost, Job#job.command],
         " "
     ),
 

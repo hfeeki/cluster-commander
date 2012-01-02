@@ -34,16 +34,14 @@ main(Args) ->
     Options = get_options_or_usage(Args),
 
     %
-    % Pack job message
+    % Pack job
     %
-    JobData = #job{
+    Job = #job{
         user    = Options#options.user,
         command = Options#options.command,
         timeout = Options#options.host_timeout,
         port    = Options#options.port
     },
-
-    JobMsg = {job, Options#options.ssh_provider, JobData},
 
     %
     % Get a list of target nodes
@@ -53,8 +51,7 @@ main(Args) ->
     %
     % Launch workers
     %
-    launch(Options#options.ssh_provider, Nodes, JobMsg),
-
+    launch(Options#options.ssh_provider, Nodes, Job),
 
     %
     % Wait until done or timeout
@@ -71,17 +68,17 @@ main(Args) ->
 %% Purpose  : Processes prerequisites and starts worker procs.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-launch(SshProvider, Nodes, JobMsg) ->
+launch(SshProvider, Nodes, Job) ->
     ssh_prerequisites(SshProvider),
-    launch(ready, SshProvider, Nodes, JobMsg).
+    launch(ready, SshProvider, Nodes, Job).
 
 
-launch(ready, SshProvider, Nodes, JobMsg) ->
+launch(ready, SshProvider, Nodes, Job) ->
     Module = join_atoms([commander_executor_, SshProvider]),
     commander_dispatcher:start(Nodes),
     lists:foreach(
         fun(Node) ->
-            Module:start(Node, JobMsg)
+            Module:start(Node, Job)
         end,
         Nodes
     ).
