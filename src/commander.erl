@@ -52,37 +52,13 @@ main(Args) ->
     Nodes = commander_nodes:pbs_nodes(MayBeTryAllNodes),
 
     %
-    % Start dependencies for Erlang ssh app
+    % Launch workers
     %
-    case Options#options.ssh_provider of
-        otp ->
-            filelib:ensure_dir(?PATH_DIR__DATA_SSH),
-            file:make_dir(?PATH_DIR__DATA_SSH),
+    launch(Options#options.ssh_provider, Nodes, JobMsg),
 
-            case filelib:is_file(?PATH_FILE__ID_RSA) of
-                true -> pass;
-                false -> os:cmd(?OS_CMD__SSH_KEYGEN)
-            end,
-
-            crypto:start(),
-            ssh:start();
-        os -> pass
-    end,
 
     %
-    % Start workerers
-    %
-    commander_dispatcher:start(Nodes),
-
-    lists:foreach(
-        fun(Node) ->
-            commander_executor:start(Node, JobMsg)
-        end,
-        Nodes
-    ),
-
-    %
-    % Global timeout
+    % Wait until done or timeout
     %
     timer:sleep(Options#options.global_timeout).
 
@@ -90,6 +66,55 @@ main(Args) ->
 %%%============================================================================
 %%% Internal
 %%%============================================================================
+
+%%-----------------------------------------------------------------------------
+%% Function : launch/3 -> launch/2
+%% Purpose  : Starts worker processes.
+%% Type     : none()
+%%-----------------------------------------------------------------------------
+launch(os, Nodes, JobMsg) ->
+    launch(Nodes, JobMsg);
+
+launch(otp, Nodes, JobMsg) ->
+    ensure_required_dirs_n_files(),
+    crypto:start(),
+    ssh:start(),
+    launch(Nodes, JobMsg).
+
+
+launch(Nodes, JobMsg) ->
+    commander_dispatcher:start(Nodes),
+    lists:foreach(
+        fun(Node) ->
+            commander_executor:start(Node, JobMsg)
+        end,
+        Nodes
+    ).
+
+
+%%-----------------------------------------------------------------------------
+%% Function : ensure_required_dirs_n_files/0
+%% Purpose  : Ensures existance of required directories and files :)
+%% Type     : none()
+%%-----------------------------------------------------------------------------
+ensure_required_dirs_n_files() ->
+    filelib:ensure_dir(?PATH_DIR__DATA_SSH),
+    file:make_dir(?PATH_DIR__DATA_SSH),
+    maybe_gen_key().
+
+
+%%-----------------------------------------------------------------------------
+%% Function : maybe_gen_key/0 -> maybe_gen_key/1
+%% Purpose  : If SSH key not found, calls ssh-keygen to make one.
+%% Type     : none()
+%%-----------------------------------------------------------------------------
+maybe_gen_key() ->
+    maybe_gen_key(filelib:is_file(?PATH_FILE__ID_RSA)).
+
+
+maybe_gen_key(true) -> ok;
+maybe_gen_key(false) -> os:cmd(?OS_CMD__SSH_KEYGEN).
+
 
 %%-----------------------------------------------------------------------------
 %% Function : get_options_or_usage/1
