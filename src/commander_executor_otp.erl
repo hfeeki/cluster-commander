@@ -2,12 +2,12 @@
 %%% Copyright (c) 2011 Siraaj Khandkar
 %%% Licensed under MIT license. See LICENSE file for details.
 %%%
-%%% File    : commander_executor.erl
+%%% File    : commander_executor_otp.erl
 %%% Author  : Siraaj Khandkar <siraaj@khandkar.net>
-%%% Purpose : Executes and prints output of a given SSH command.
+%%% Purpose : Executor process (using Erlang/OTP ssh app)
 %%%----------------------------------------------------------------------------
 
--module(commander_executor).
+-module(commander_executor_otp).
 -export([start/2]).
 
 
@@ -44,26 +44,6 @@ executor(Node) ->
 %%-----------------------------------------------------------------------------
 executor(Node, AccumulatedData) ->
     receive
-        {job, os, JobData} ->
-            UserAtHost = string:join([JobData#job.user, Node], "@"),
-            SshOpt = string:join([
-                "-2 -q",
-                "-p",
-                integer_to_list(JobData#job.port),
-                "-o",
-                "ConnectTimeout="++integer_to_list(trunc(JobData#job.timeout))
-            ], " "),
-
-            CmdStr = string:join(
-                ["ssh", SshOpt, UserAtHost, JobData#job.command],
-                " "
-            ),
-
-            CmdOut = os:cmd(CmdStr),
-            print(Node, CmdOut),
-            self() ! done,
-            executor(Node, AccumulatedData);
-
         {job, otp, JobData} ->
             Timeout =
                 case JobData#job.timeout of

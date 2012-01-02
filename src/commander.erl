@@ -68,39 +68,37 @@ main(Args) ->
 %%%============================================================================
 
 %%-----------------------------------------------------------------------------
-%% Function : launch/3 -> launch/2
-%% Purpose  : Starts worker processes.
+%% Function : launch/3 -> launch/4
+%% Purpose  : Processes prerequisites and starts worker procs.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-launch(os, Nodes, JobMsg) ->
-    launch(Nodes, JobMsg);
-
-launch(otp, Nodes, JobMsg) ->
-    ensure_required_dirs_n_files(),
-    crypto:start(),
-    ssh:start(),
-    launch(Nodes, JobMsg).
+launch(SshProvider, Nodes, JobMsg) ->
+    ssh_prerequisites(SshProvider),
+    launch(ready, SshProvider, Nodes, JobMsg).
 
 
-launch(Nodes, JobMsg) ->
+launch(ready, SshProvider, Nodes, JobMsg) ->
+    Module = join_atoms([commander_executor_, SshProvider]),
     commander_dispatcher:start(Nodes),
     lists:foreach(
         fun(Node) ->
-            commander_executor:start(Node, JobMsg)
+            Module:start(Node, JobMsg)
         end,
         Nodes
     ).
 
 
-%%-----------------------------------------------------------------------------
-%% Function : ensure_required_dirs_n_files/0
-%% Purpose  : Ensures existance of required directories and files :)
-%% Type     : none()
-%%-----------------------------------------------------------------------------
-ensure_required_dirs_n_files() ->
+ssh_prerequisites(os) -> none;
+ssh_prerequisites(otp) ->
     filelib:ensure_dir(?PATH_DIR__DATA_SSH),
     file:make_dir(?PATH_DIR__DATA_SSH),
-    maybe_gen_key().
+    maybe_gen_key(),
+    crypto:start(),
+    ssh:start().
+
+
+join_atoms(ListOfAtoms) ->
+    list_to_atom(string:join([atom_to_list(A) || A <- ListOfAtoms], "")).
 
 
 %%-----------------------------------------------------------------------------
