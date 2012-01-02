@@ -20,7 +20,7 @@
 %%%============================================================================
 
 start(Node, Job) ->
-    Pid = spawn(fun() -> executor(Node) end),
+    Pid = spawn(fun() -> executor(Node, []) end),
     Pid ! {job, Job}.
 
 
@@ -29,16 +29,7 @@ start(Node, Job) ->
 %%%============================================================================
 
 %%-----------------------------------------------------------------------------
-%% Function : executor/0
-%% Purpose  : Calls executor/1 with an initial (empty) data list.
-%% Type     : none()
-%%-----------------------------------------------------------------------------
-executor(Node) ->
-    executor(Node, []).
-
-
-%%-----------------------------------------------------------------------------
-%% Function : executor/1
+%% Function : executor/2
 %% Purpose  : Executes and prints output of a given SSH command.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
