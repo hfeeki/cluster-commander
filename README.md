@@ -4,7 +4,7 @@ Takes a command string and runs it on all nodes of a TORQUE cluster that are
 not marked as 'down' and/or 'offline'. Prints each output.
 
 
-Build / install
+Build / Install
 ===============
     make
     cp ./bin/commander /some/dir/in/your/path/
