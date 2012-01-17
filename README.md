@@ -51,7 +51,6 @@ Roadmap
 * ~~Use rebar and manage dependencies, releases, etc.~~
 * ~~Use getopt and allow overriding defaults (set with macros)~~
 * ~~Polish executable script~~
-* Restructure to make a proper OTP application
 
 ### v2 ###
 * sftp support (get/put)
