@@ -46,13 +46,9 @@ running already).
 
 Roadmap
 =======
-
-### v1 ###
 * ~~Use rebar and manage dependencies, releases, etc.~~
 * ~~Use getopt and allow overriding defaults (set with macros)~~
 * ~~Polish executable script~~
-
-### v2 ###
 * sftp support (get/put)
 * user-editable config files to override defaults
 * manual cluster nodes configs
