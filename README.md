@@ -44,16 +44,16 @@ command as the alternative back-end (in which case ssh-agent must be up and
 running already).
 
 
-Roadmap
-=======
+Features Roadmap
+================
 * ~~Use rebar and manage dependencies, releases, etc.~~
 * ~~Use getopt and allow overriding defaults (set with macros)~~
 * ~~Polish executable script~~
-* sftp support (get/put)
-* user-editable config files to override defaults
 * manual cluster nodes configs
 * specify individual target nodes
 * node groups
+* user-editable config files to override defaults
+* sftp support (get/put)
 * gated hosts (chained OS ssh/scp commands)
 * get nodes for other types of clusters (Disco, Hadoop, etc.)
 * simultaneous display of resource usage on all nodes on one screen
