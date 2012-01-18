@@ -8,7 +8,7 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander_nodes).
--export([pbs_nodes/1]).
+-export([get_nodes/1]).
 
 
 -include("commander_config.hrl").
@@ -20,8 +20,25 @@
 %%%============================================================================
 
 %%-----------------------------------------------------------------------------
+%% Function : get_nodes/1
+%% Purpose  : Gets a list of nodes for the requested group.
+%% Type     : {ok, list()} | {error, Reason}
+%%-----------------------------------------------------------------------------
+get_nodes(#nodes_opts{nodes_group=pbs, try_all_nodes=MayBeTryAllNodes}) ->
+    {ok, pbs_nodes(MayBeTryAllNodes)};
+
+get_nodes(#nodes_opts{nodes_group=Group}) ->
+    ErrorMsg = io_lib:format("UNKNOWN NODES GROUP: ~s", [Group]),
+    {error, ErrorMsg}.
+
+
+%%%============================================================================
+%%% Private
+%%%============================================================================
+
+%%-----------------------------------------------------------------------------
 %% Function : pbs_nodes/1
-%% Purpose  : Returns a list of TORQUE cluster nodes and their states.
+%% Purpose  : Returns a list of TORQUE cluster nodes.
 %% Type     : list(string())
 %%-----------------------------------------------------------------------------
 pbs_nodes(MayBeTryAllNodes) ->
@@ -37,10 +54,6 @@ pbs_nodes(MayBeTryAllNodes) ->
     ],
     ListOfNodeNames.
 
-
-%%%============================================================================
-%%% Private
-%%%============================================================================
 
 %%-----------------------------------------------------------------------------
 %% Function : pbs_node_data/1 -> pbs_node_data/2

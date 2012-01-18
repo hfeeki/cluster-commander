@@ -11,7 +11,9 @@
 -define(TIMEOUT, 5).
 -define(GLOBAL_TIMEOUT, ?TIMEOUT * 2).
 -define(UNAVAILABLE_STATES, ["down", "offline"]).
+
 -define(DEFAULT_USER, string:strip(os:cmd("whoami"), both, $\n)).
+-define(DEFAULT_NODES_GROUP, pbs).
 
 -define(PATH_DIR__DATA,     filename:join([os:getenv("HOME"), ".cluster-commander"])).
 -define(PATH_DIR__DATA_SSH, filename:join([?PATH_DIR__DATA, "ssh"])).
@@ -44,6 +46,10 @@
     [
         {user,           $u, "user",           {string, ?DEFAULT_USER},
        "User"
+        },
+
+        {nodes_group,   $g, "group",           {atom, ?DEFAULT_NODES_GROUP},
+       "Nodes group"
         },
 
         {ssh_provider,   $s, "ssh",            {atom, ?SSH_PROVIDER},

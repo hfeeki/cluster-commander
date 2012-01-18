@@ -23,9 +23,17 @@
     }
 ).
 
+-record(nodes_opts,
+    {
+        nodes_group     = undefined :: atom(),
+        try_all_nodes   = undefined :: boolean()
+    }
+).
+
 -record(options,
     {
         user            = undefined :: string(),
+        nodes_group     = undefined :: atom(),
         ssh_provider    = undefined :: atom(),
         host_timeout    = undefined :: integer(),
         global_timeout  = undefined :: integer(),

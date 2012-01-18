@@ -31,7 +31,13 @@ main(Args) ->
     % Get options
     Options = get_options_or_usage(Args),
 
-    % Pack job
+    % Pack nodes options
+    NodesOpts = #nodes_opts{
+        nodes_group   = Options#options.nodes_group,
+        try_all_nodes = Options#options.try_all_nodes
+    },
+
+    % Pack job options
     Job = #job{
         user    = Options#options.user,
         command = Options#options.command,
@@ -40,13 +46,17 @@ main(Args) ->
     },
 
     % Get a list of target nodes
-    Nodes = commander_nodes:pbs_nodes(Options#options.try_all_nodes),
+    case commander_nodes:get_nodes(NodesOpts) of
+        {ok, Nodes} ->
+            % Launch workers
+            launch(Options#options.ssh_provider, Nodes, Job),
 
-    % Launch workers
-    launch(Options#options.ssh_provider, Nodes, Job),
+            % Wait until done or timeout
+            timer:sleep(Options#options.global_timeout);
 
-    % Wait until done or timeout
-    timer:sleep(Options#options.global_timeout).
+        {error, Reason} ->
+            io:format("~s~s~s~n", [?TERM_COLOR_FAIL, Reason, ?TERM_COLOR_OFF])
+    end.
 
 
 %%%============================================================================
@@ -110,6 +120,7 @@ get_options_or_usage(Args) ->
         {ok, {OptList, CommandsList}} ->
             #options{
                 user = proplists:get_value(user, OptList),
+                nodes_group = proplists:get_value(nodes_group, OptList),
                 ssh_provider = proplists:get_value(ssh_provider, OptList),
                 host_timeout = proplists:get_value(host_timeout, OptList),
                 global_timeout =
