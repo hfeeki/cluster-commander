@@ -12,10 +12,12 @@
 -define(GLOBAL_TIMEOUT, ?TIMEOUT * 2).
 -define(UNAVAILABLE_STATES, ["down", "offline"]).
 -define(DEFAULT_USER, string:strip(os:cmd("whoami"), both, $\n)).
--define(PATH_DIR__DATA_SSH,
-    filename:join([os:getenv("HOME"), ".cluster-commander/ssh"])
-).
--define(PATH_FILE__ID_RSA, filename:join([?PATH_DIR__DATA_SSH, "id_rsa"])).
+
+-define(PATH_DIR__DATA,     filename:join([os:getenv("HOME"), ".cluster-commander"])).
+-define(PATH_DIR__DATA_SSH, filename:join([?PATH_DIR__DATA, "ssh"])).
+-define(PATH_FILE__ID_RSA,  filename:join([?PATH_DIR__DATA_SSH, "id_rsa"])).
+-define(PATH_FILE__GROUPS,  filename:join([?PATH_DIR__DATA, "groups.json"])).
+
 -define(OS_CMD__SSH_KEYGEN,
     string:join(
         ["ssh-keygen", "-N", "''", "-b", "2048", "-f", ?PATH_FILE__ID_RSA],
