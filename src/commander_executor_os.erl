@@ -36,7 +36,7 @@ executor(Node, Job) ->
 
     SshOpt = string:join(
         [
-            "-2 -q", "-p", integer_to_list(Job#job.port),
+            "-2", "-p", integer_to_list(Job#job.port),
             "-o", "ConnectTimeout="++integer_to_list(trunc(Job#job.timeout))
         ],
         " "
