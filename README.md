@@ -44,14 +44,14 @@ command as the alternative back-end (in which case ssh-agent must be up and
 running already).
 
 
-Features Roadmap
-================
+Roadmap
+=======
 * ~~Use rebar and manage dependencies, releases, etc.~~
 * ~~Use getopt and allow overriding defaults (set with macros)~~
 * ~~Polish executable script~~
-* manual cluster nodes configs
-* specify individual target nodes
-* node groups
+* ~~node groups~~
+* ~~manual cluster nodes configs~~
+* specify individual target nodes on CLI
 * user-editable config files to override defaults
 * sftp support (get/put)
 * gated hosts (chained OS ssh/scp commands)
