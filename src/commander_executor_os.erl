@@ -49,4 +49,5 @@ executor(Node, Job) ->
 
     CmdOut = os:cmd(CmdStr),
 
-    commander_utils:print(Node, CmdOut).
+    commander_utils:print(Node, CmdOut),
+    commander_dispatcher:done(Node).
