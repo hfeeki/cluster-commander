@@ -12,13 +12,12 @@ Build / Install
 
 Usage
 =====
-    commander [-u <user>] [-s <ssh_provider>] [-t <host_timeout>]
-              [-T <global_timeout>] [-p <port>] [-a <try_all_nodes>]
-              command
+    commander   [OPTION]... [COMMAND_STRING]
 
       SHORT     LONG              DESCRIPTION                  DEFAULTS TO
       -------------------------------------------------------------------------
       -u        --user            User                         <current_user>
+      -g        --group           Nodes group                  pbs
       -s        --ssh             SSH provider ('os' | 'otp')  otp
       -t        --host-timeout    Host timeout                 5  <secs>
       -T        --global-timeout  Global timeout               10 <secs>
