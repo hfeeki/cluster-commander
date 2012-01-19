@@ -33,6 +33,7 @@ main(Args) ->
 
     % Pack nodes options
     NodesOpts = #nodes_opts{
+        nodes         = Options#options.nodes,
         nodes_group   = Options#options.nodes_group,
         try_all_nodes = Options#options.try_all_nodes
     },
@@ -120,6 +121,7 @@ get_options_or_usage(Args) ->
         {ok, {OptList, CommandsList}} ->
             #options{
                 user = proplists:get_value(user, OptList),
+                nodes = proplists:get_value(nodes, OptList),
                 nodes_group = proplists:get_value(nodes_group, OptList),
                 ssh_provider = proplists:get_value(ssh_provider, OptList),
                 host_timeout = proplists:get_value(host_timeout, OptList),

@@ -48,7 +48,11 @@
        "User"
         },
 
-        {nodes_group,   $g, "group",           {atom, ?DEFAULT_NODES_GROUP},
+        {nodes,          $n, "nodes",          {string, ""},
+        "Nodes list (comma separated). Overrides all other sources of nodes."
+        },
+
+        {nodes_group,    $g, "group",          {atom, ?DEFAULT_NODES_GROUP},
        "Nodes group"
         },
 

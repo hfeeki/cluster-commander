@@ -16,16 +16,20 @@ Usage
 
       SHORT     LONG              DESCRIPTION                  DEFAULTS TO
       -------------------------------------------------------------------------
-      -u        --user            User                         <current_user>
+      -u        --user            User                         <CURRENT_USER>
       -g        --group           Nodes group                  pbs
       -s        --ssh             SSH provider ('os' | 'otp')  otp
-      -t        --host-timeout    Host timeout                 5  <secs>
-      -T        --global-timeout  Global timeout               10 <secs>
+      -t        --host-timeout    Host timeout                 5  <SECS>
+      -T        --global-timeout  Global timeout               10 <SECS>
       -p        --port            SSH port number              22
 
       -a        --try-all-nodes   Attempt to connect to all    <OFF>
                                   nodes, regardless of their
                                   current state.
+
+      -n        --nodes           Nodes list                   <EMPTY>
+                                  (comma-separated). Overrides
+                                  all other sources of nodes.
 
 If the target command contains options itself, it must be quoted to prevent
 commander from attempting to interpret those options, for example:
@@ -50,7 +54,7 @@ Roadmap
 * ~~Polish executable script~~
 * ~~node groups~~
 * ~~manual cluster nodes configs~~
-* specify individual target nodes on CLI
+* ~~specify individual target nodes on CLI~~
 * user-editable config files to override defaults
 * sftp support (get/put)
 * gated hosts (chained OS ssh/scp commands)

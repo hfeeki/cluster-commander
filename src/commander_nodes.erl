@@ -24,6 +24,9 @@
 %% Purpose  : Gets a list of nodes for the requested group.
 %% Type     : {ok, list()} | {error, Reason}
 %%-----------------------------------------------------------------------------
+get_nodes(#nodes_opts{nodes=Nodes}) when Nodes /= "" ->
+    {ok, string:tokens(Nodes, ",")};
+
 get_nodes(#nodes_opts{nodes_group=pbs, try_all_nodes=MayBeTryAllNodes}) ->
     {ok, pbs_nodes(MayBeTryAllNodes)};
 
