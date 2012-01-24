@@ -55,6 +55,7 @@ Roadmap
 * ~~node groups~~
 * ~~manual cluster nodes configs~~
 * ~~specify individual target nodes on CLI~~
+* CLI option to filter nodes through a RegEx pattern
 * user-editable config files to override defaults
 * sftp support (get/put)
 * gated hosts (chained OS ssh/scp commands)
