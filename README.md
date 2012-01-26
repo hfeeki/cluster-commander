@@ -1,7 +1,31 @@
 # Cluster Commander #
 
-Takes a command string and runs it on all nodes of a TORQUE cluster that are
-not marked as 'down' and/or 'offline'. Prints each output.
+Cluster management tool. Concurrently runs command(s) on groups of nodes.
+
+By default, reads a list of nodes from `pbsnodes` command (and skips nodes
+marked as 'down' and/or 'offline', overridden with `-a` CLI option).
+Alternatively (or additionaly), groups of nodes can be defined in
+`~/.cluster-commander/groups.json`, for example:
+
+```json
+{
+    "file_servers": [
+        "fs-01",
+        "fs-02",
+        "fs-03"
+    ],
+    "compute_nodes_01": [
+        "node-01-01",
+        "node-01-02",
+        "node-01-03"
+    ],
+    "compute_nodes_02": [
+        "node-02-01",
+        "node-02-02",
+        "node-02-03"
+    ]
+}
+```
 
 
 Build / Install
