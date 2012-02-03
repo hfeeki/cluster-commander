@@ -8,7 +8,7 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander_executor_otp).
--export([start/2]).
+-export([start/2, init/2]).
 
 
 -include("commander_config.hrl").
@@ -20,8 +20,7 @@
 %%%============================================================================
 
 start(Node, Job) ->
-    Pid = spawn(fun() -> executor(Node, []) end),
-    Pid ! {job, Job}.
+    spawn(?MODULE, init, [Node, Job]).
 
 
 %%%============================================================================
@@ -29,56 +28,66 @@ start(Node, Job) ->
 %%%============================================================================
 
 %%-----------------------------------------------------------------------------
-%% Function : executor/2
-%% Purpose  : Executes and prints output of a given SSH command.
+%% Function : init/2
+%% Purpose  : Attempt SSH connection
+%% Type     : loop/1 | stop/3
+%%-----------------------------------------------------------------------------
+init(Node, Job) ->
+    User    = Job#job.user,
+    Port    = Job#job.port,
+    Command = Job#job.command,
+    Timeout =
+        case  Job#job.timeout of
+            0 -> infinity;
+            OtherTimeout -> OtherTimeout * 1000
+        end,
+
+    ConnectOptions = [
+        {user, User},
+        {connect_timeout, Timeout}
+        | ?CONNECT_OPTIONS
+    ],
+
+    case ssh:connect(Node, Port, ConnectOptions) of
+        {ok, ConnRef} ->
+            case ssh_connection:session_channel(ConnRef, Timeout) of
+                {ok, ChannId} ->
+                    ssh_connection:exec(ConnRef, ChannId, Command, Timeout),
+                    loop(Node);
+                {error, Reason} ->
+                    stop(Node, Reason, fail)
+            end;
+        {error, Reason} ->
+            stop(Node, Reason, fail)
+    end.
+
+
+%%-----------------------------------------------------------------------------
+%% Function : stop/3
+%% Purpose  : Print output and exit, informing dispatcher of the completion.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-executor(Node, DataAcc) ->
+stop(Node, Data, ExitStatus) ->
+    commander_utils:print(Node, Data, ExitStatus),
+    commander_dispatcher:done(Node).
+
+
+%%-----------------------------------------------------------------------------
+%% Function : loop/1 -> loop/2
+%% Purpose  : Main loop. Collect output of the executed SSH command.
+%% Type     : none()
+%%-----------------------------------------------------------------------------
+loop(Node) -> loop(Node, []).
+
+loop(Node, DataAcc) ->
     receive
-        {job, Job} ->
-            Timeout =
-                case Job#job.timeout of
-                    0 -> infinity;
-                    OtherTimeout -> OtherTimeout * 1000
-                end,
-
-            ConnectOptions = [
-                {user, Job#job.user},
-                {connect_timeout, Timeout}
-                | ?CONNECT_OPTIONS
-            ],
-
-            case ssh:connect(Node, Job#job.port, ConnectOptions) of
-                {ok, ConnRef} ->
-                    case ssh_connection:session_channel(ConnRef, Timeout) of
-                        {ok, ChannId} ->
-                            ssh_connection:exec(ConnRef,
-                                                ChannId,
-                                                Job#job.command,
-                                                Timeout);
-                        {error, Reason} ->
-                            commander_utils:print(Node, Reason, fail),
-                            self() ! done
-                    end;
-                {error, Reason} ->
-                    commander_utils:print(Node, Reason, fail),
-                    self() ! done
-            end,
-
-            executor(Node, DataAcc);
-
         {ssh_cm, _, {data, _, _, Data}} ->
-            executor(Node, [Data | DataAcc]);
+            loop(Node, [Data|DataAcc]);
 
         {ssh_cm, _, {closed, _}} ->
             Data = lists:reverse(DataAcc),
-            commander_utils:print(Node, Data),
-            self() ! done,
-            executor(Node, []);
+            stop(Node, Data, ok);
 
         {ssh_cm, _} ->
-            executor(Node, DataAcc);
-
-        done ->
-            commander_dispatcher:done(Node)
+            loop(Node, DataAcc)
     end.

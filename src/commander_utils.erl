@@ -24,16 +24,11 @@
 %% Purpose  : Adds header and color, then prints Data to stdout.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-print(From, Data) ->
-    print(From, Data, ok).
+print(From, Data) -> print(From, Data, ok).
 
-
-print(From, Data, ok) ->
-    print(From, Data, ok, ?TERM_COLOR_OFF);
-
+print(From, Data, ok) -> print(From, Data, ok, ?TERM_COLOR_OFF);
 print(From, Data, fail) ->
     print(From, io_lib:format("~p~n", [Data]), fail, ?TERM_COLOR_FAIL).
-
 
 print(From, Data, _Flag, Color) ->
     Output = [
