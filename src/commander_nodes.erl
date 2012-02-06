@@ -76,7 +76,7 @@ configured_groups({ok, GroupsJsonBin}, Group) ->
 %%-----------------------------------------------------------------------------
 pbs_nodes(MayBeTryAllNodes) ->
     {Tree, _} = xmerl_scan:string(os:cmd("pbsnodes -x"), [{validation, off}]),
-    ListOfNodeTrees = nth_of_tuple(9, Tree),
+    ListOfNodeTrees = element(9, Tree),
     ListOfNodeData  = [pbs_node_data(Node) || Node <- ListOfNodeTrees],
     ListOfNodeNames = [
         Node#node_data.name || Node <- ListOfNodeData,
@@ -94,14 +94,14 @@ pbs_nodes(MayBeTryAllNodes) ->
 %% Type     : #node_data{}
 %%-----------------------------------------------------------------------------
 pbs_node_data(Node) ->
-    Data = nth_of_tuple(9, Node),
+    Data = element(9, Node),
     pbs_node_data(Data, #node_data{}).
 
 
 pbs_node_data([], NodeData) -> NodeData;
 
 pbs_node_data([Data|DataTail], NodeData) ->
-    [Datum] = nth_of_tuple(9, Data),
+    [Datum] = element(9, Data),
 
     case Datum of
         {xmlText, [{name, _}, _, _], _, _, Name, text} ->
@@ -128,12 +128,3 @@ is_node_available([State|StatesTail]) ->
         true -> false;
         false -> is_node_available(StatesTail)
     end.
-
-
-%%-----------------------------------------------------------------------------
-%% Function : nth_of_tuple/2
-%% Purpose  : Returns an Nth element of a tuple. Just a shortcut.
-%% Type     : any()
-%%-----------------------------------------------------------------------------
-nth_of_tuple(N, Tuple) ->
-    lists:nth(N, tuple_to_list(Tuple)).
