@@ -64,8 +64,8 @@ configured_groups({ok, GroupsJsonBin}, Group) ->
                     {error, io_lib:format("UNKNOWN NODES GROUP: ~s", [Group])}
             end
     catch
-        _Exception ->
-            {error, "COULD NOT DECODE JSON"}
+        {ErrorType, _ErrorDetails} ->
+            {error, io_lib:format("COULD NOT DECODE JSON: ~p", [ErrorType])}
     end.
 
 
