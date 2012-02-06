@@ -79,11 +79,26 @@ Roadmap
 * ~~node groups~~
 * ~~manual cluster nodes configs~~
 * ~~specify individual target nodes on CLI~~
+* Accept a (whitespace-delimited) list of nodes from stdin
+* Organize node-groups configurations into "static" and "dynamic" groups:
+    - Static groups: defined manually, on a per-node basis
+        - Add helper commands to generate and update static groups based
+          on defined naming patterns, such as: node-01-01, node-01-02,
+          node-02-01, ..., etc
+
+    - Built-in dynamic groups: built-in parsers for common cluster resource
+      managers (with options for node state handling ("down", "offline", etc)):
+        - ~~TORQUE/PBS~~
+        - Disco
+        - Hadoop
+
+    - Plug-in dynamic groups: define an external command whose output supplies
+      a whitespace-delimited list of nodes
+
 * CLI option to filter nodes through a RegEx pattern
 * user-editable config files to override defaults
 * sftp support (get/put)
 * gated hosts (chained OS ssh/scp commands)
-* get nodes for other types of clusters (Disco, Hadoop, etc.)
 * simultaneous display of resource usage on all nodes on one screen
 * common cluster operations scripts:
     - cleanly shutdown a subset/group of nodes:
