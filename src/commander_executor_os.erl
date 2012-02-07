@@ -8,7 +8,7 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander_executor_os).
--export([start/2]).
+-export([start/2, init/2]).
 
 
 -include("commander_config.hrl").
@@ -19,7 +19,8 @@
 %%% API
 %%%============================================================================
 
-start(Node, Job) -> spawn(fun() -> executor(Node, Job) end).
+start(Node, Job) ->
+    spawn(?MODULE, init, [Node, Job]).
 
 
 %%%============================================================================
@@ -27,27 +28,70 @@ start(Node, Job) -> spawn(fun() -> executor(Node, Job) end).
 %%%============================================================================
 
 %%-----------------------------------------------------------------------------
-%% Function : executor/0
-%% Purpose  : Executes and prints output of a given SSH command.
+%% Function : init/2
+%% Purpose  : Initializes port to system's ssh command
+%% Type     : loop/1
+%%-----------------------------------------------------------------------------
+init(Node, Job) ->
+    % Read job options
+    User = Job#job.user,
+    Port = integer_to_list(Job#job.port),
+    Timeout = integer_to_list(trunc(Job#job.timeout)),
+    Command = Job#job.command,
+
+    % Compile SSH command string
+    UserAtHost = string:join([User, Node], "@"),
+    SSHOptions = string:join(
+        ["-2", "-p", Port, "-o", "ConnectTimeout="++Timeout],
+        " "
+    ),
+    SSHCommand = string:join(["ssh", SSHOptions, UserAtHost, Command], " "),
+
+    % Spawn port
+    PortOptions = [stream, exit_status, use_stdio, stderr_to_stdout, in, eof],
+    PortID = open_port({spawn, SSHCommand}, PortOptions),
+
+    % Continue to pick-up output data
+    loop(Node, PortID).
+
+
+%%-----------------------------------------------------------------------------
+%% Function : stop/3
+%% Purpose  : Print output and exit, informing dispatcher of the completion.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-executor(Node, Job) ->
-    UserAtHost = string:join([Job#job.user, Node], "@"),
-
-    SshOpt = string:join(
-        [
-            "-2", "-p", integer_to_list(Job#job.port),
-            "-o", "ConnectTimeout="++integer_to_list(trunc(Job#job.timeout))
-        ],
-        " "
-    ),
-
-    CmdStr = string:join(
-        ["ssh", SshOpt, UserAtHost, Job#job.command],
-        " "
-    ),
-
-    CmdOut = os:cmd(CmdStr),
-
-    commander_utils:print(Node, CmdOut),
+stop(Node, Data, ExitCode) ->
+    commander_utils:print(Node, lists:flatten(Data), exit_status(ExitCode)),
     commander_dispatcher:done(Node).
+
+
+%%-----------------------------------------------------------------------------
+%% Function : exit_status()
+%% Purpose  : Quick lookup of our exit status based on command's exit code.
+%% In       : integer()
+%% Out      : atom()
+%%-----------------------------------------------------------------------------
+exit_status(0) -> ok;
+exit_status(_) -> fail.
+
+
+%%-----------------------------------------------------------------------------
+%% Function : loop/2 -> loop/3
+%% Purpose  : Main loop. Collect output of the executed SSH command.
+%% Type     : none()
+%%-----------------------------------------------------------------------------
+loop(Node, PortID) -> loop(Node, PortID, []).
+
+loop(Node, PortID, DataAcc) ->
+    receive
+        {PortID, {data, Data}} ->
+            loop(Node, PortID, [Data|DataAcc]);
+
+        {PortID, eof} ->
+            port_close(PortID),
+            receive
+                {PortID, {exit_status, ExitCode}} ->
+                    Data = lists:reverse(DataAcc),
+                    stop(Node, Data, ExitCode)
+            end
+    end.
