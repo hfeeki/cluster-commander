@@ -33,9 +33,10 @@ start(Node, Job) ->
 %% Type     : loop/1 | stop/3
 %%-----------------------------------------------------------------------------
 init(Node, Job) ->
-    User    = Job#job.user,
-    Port    = Job#job.port,
-    Command = Job#job.command,
+    User       = Job#job.user,
+    Port       = Job#job.port,
+    Command    = Job#job.command,
+    SaveDataTo = Job#job.save_data_to,
     Timeout =
         case  Job#job.timeout of
             0 -> infinity;
@@ -53,12 +54,12 @@ init(Node, Job) ->
             case ssh_connection:session_channel(ConnRef, Timeout) of
                 {ok, ChannId} ->
                     ssh_connection:exec(ConnRef, ChannId, Command, Timeout),
-                    loop(Node);
+                    loop(Node, SaveDataTo);
                 {error, Reason} ->
-                    stop(Node, Reason, fail)
+                    stop(Node, Reason, fail, SaveDataTo)
             end;
         {error, Reason} ->
-            stop(Node, Reason, fail)
+            stop(Node, Reason, fail, SaveDataTo)
     end.
 
 
@@ -67,8 +68,9 @@ init(Node, Job) ->
 %% Purpose  : Print output and exit, informing dispatcher of the completion.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-stop(Node, Data, ExitStatus) ->
+stop(Node, Data, ExitStatus, SaveDataTo) ->
     commander_utils:print(Node, Data, ExitStatus),
+    commander_utils:save_data(Node, Data, SaveDataTo),
     commander_dispatcher:done(Node).
 
 
@@ -77,17 +79,17 @@ stop(Node, Data, ExitStatus) ->
 %% Purpose  : Main loop. Collect output of the executed SSH command.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-loop(Node) -> loop(Node, []).
+loop(Node, SaveDataTo) -> loop(Node, [], SaveDataTo).
 
-loop(Node, DataAcc) ->
+loop(Node, DataAcc, SaveDataTo) ->
     receive
         {ssh_cm, _, {data, _, _, Data}} ->
-            loop(Node, [Data|DataAcc]);
+            loop(Node, [Data|DataAcc], SaveDataTo);
 
         {ssh_cm, _, {closed, _}} ->
             Data = lists:reverse(DataAcc),
-            stop(Node, Data, ok);
+            stop(Node, Data, ok, SaveDataTo);
 
         {ssh_cm, _} ->
-            loop(Node, DataAcc)
+            loop(Node, DataAcc, SaveDataTo)
     end.

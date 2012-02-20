@@ -16,10 +16,11 @@
 
 -record(job,
     {
-        user    = undefined :: string(),
-        command = undefined :: string(),
-        timeout = undefined :: integer(),
-        port    = undefined :: integer()
+        user         = undefined :: string(),
+        command      = undefined :: string(),
+        save_data_to = undefined :: string(),
+        timeout      = undefined :: integer(),
+        port         = undefined :: integer()
     }
 ).
 
@@ -41,6 +42,7 @@
         global_timeout  = undefined :: integer(),
         port            = undefined :: integer(),
         try_all_nodes   = undefined :: boolean(),
+        save_data_to    = undefined :: string(),
         command         = undefined :: string()
     }
 ).

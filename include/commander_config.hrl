@@ -15,10 +15,15 @@
 -define(DEFAULT_USER, string:strip(os:cmd("whoami"), both, $\n)).
 -define(DEFAULT_NODES_GROUP, pbs).
 
--define(PATH_DIR__DATA,     filename:join([os:getenv("HOME"), ".cluster-commander"])).
--define(PATH_DIR__DATA_SSH, filename:join([?PATH_DIR__DATA, "ssh"])).
--define(PATH_FILE__ID_RSA,  filename:join([?PATH_DIR__DATA_SSH, "id_rsa"])).
--define(PATH_FILE__GROUPS,  filename:join([?PATH_DIR__DATA, "groups.json"])).
+
+-define(PATH_DIR__HOME,         os:getenv("HOME")).
+-define(PATH_DIR__DATA,         filename:join([?PATH_DIR__HOME, ".cluster-commander"])).
+-define(PATH_DIR__DATA_SSH,     filename:join([?PATH_DIR__DATA, "ssh"])).
+-define(PATH_DIR__DATA_OUTPUTS, filename:join([?PATH_DIR__DATA, "outputs"])).
+
+-define(PATH_FILE__GROUPS,      filename:join([?PATH_DIR__DATA,     "groups.json"])).
+-define(PATH_FILE__ID_RSA,      filename:join([?PATH_DIR__DATA_SSH, "id_rsa"])).
+
 
 -define(OS_CMD__SSH_KEYGEN,
     string:join(
@@ -45,7 +50,7 @@
 -define(OPT_SPECS,
     [
         {user,           $u, "user",           {string, ?DEFAULT_USER},
-       "User"
+        "User"
         },
 
         {nodes,          $n, "nodes",          {string, ""},
@@ -53,27 +58,32 @@
         },
 
         {nodes_group,    $g, "group",          {atom, ?DEFAULT_NODES_GROUP},
-       "Nodes group"
+        "Nodes group"
         },
 
         {ssh_provider,   $s, "ssh",            {atom, ?SSH_PROVIDER},
-       "SSH provider"
+        "SSH provider"
         },
 
         {host_timeout,   $t, "host-timeout",   {integer, ?TIMEOUT},
-       "Host timeout"
+        "Host timeout"
         },
 
         {global_timeout, $T, "global-timeout", {integer, ?GLOBAL_TIMEOUT},
-       "Global timeout"
+        "Global timeout"
         },
 
         {port,           $p, "port",           {integer, ?PORT},
-       "SSH port number"
+        "SSH port number"
         },
 
-        {try_all_nodes,   $a, "try-all-nodes", {boolean, false},
-       "Attempt to connect to all nodes, regardless of their current state."
+        {try_all_nodes,  $a, "try-all-nodes", {boolean, false},
+        "Attempt to connect to all nodes, regardless of their current state."
+        },
+
+        {save_data_to,   $d, "save-data-to",   {string, ?PATH_DIR__DATA_OUTPUTS},
+        "Directory to save data (outputs) to."
         }
+
     ]
 ).

@@ -40,10 +40,11 @@ main(Args) ->
 
     % Pack job options
     Job = #job{
-        user    = Options#options.user,
-        command = Options#options.command,
-        timeout = Options#options.host_timeout,
-        port    = Options#options.port
+        user         = Options#options.user,
+        command      = Options#options.command,
+        save_data_to = Options#options.save_data_to,
+        timeout      = Options#options.host_timeout,
+        port         = Options#options.port
     },
 
     % Get a list of target nodes
@@ -133,6 +134,7 @@ get_options_or_usage(Args) ->
                     end,
                 port = proplists:get_value(port, OptList),
                 try_all_nodes = proplists:get_value(try_all_nodes, OptList),
+                save_data_to = proplists:get_value(save_data_to, OptList),
                 command = string:join(CommandsList, " ")
             };
 

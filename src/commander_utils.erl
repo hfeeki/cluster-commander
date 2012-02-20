@@ -12,6 +12,7 @@
     [
         commander_exit/1,
         commander_exit/2,
+        save_data/3,
         print_info/2,
         print/2,
         print/3
@@ -32,6 +33,21 @@ commander_exit(fail) -> commander_exit(fail, "").
 commander_exit(fail, Message) ->
     print_info(fail, Message),
     halt(1).
+
+
+%%-----------------------------------------------------------------------------
+%% Function : save_data/3
+%% Purpose  : Save data received from node.
+%% Type     : io()
+%%-----------------------------------------------------------------------------
+save_data(Node, Data, "") ->
+    DirectoryPath = ?PATH_DIR__DATA_OUTPUTS,
+    save_data(Node, Data, DirectoryPath);
+
+save_data(Node, Data, DirectoryPath) ->
+    FilePath = filename:join([DirectoryPath, Node ++ ".out"]),
+    filelib:ensure_dir(FilePath),
+    file:write_file(FilePath, Data).
 
 
 %%-----------------------------------------------------------------------------
