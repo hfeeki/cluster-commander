@@ -53,7 +53,13 @@ main(Args) ->
             launch(Options#options.ssh_provider, Nodes, Job),
 
             % Wait until done or timeout
-            timer:sleep(Options#options.global_timeout);
+            timer:sleep(Options#options.global_timeout),
+
+            io:format("~s~s~s~n", [
+                    ?TERM_COLOR_FAIL,
+                    "GLOBAL TIMEOUT EXCEEDED!",
+                    ?TERM_COLOR_OFF
+            ]);
 
         {error, Reason} ->
             io:format("~s~s~s~n", [?TERM_COLOR_FAIL, Reason, ?TERM_COLOR_OFF])
