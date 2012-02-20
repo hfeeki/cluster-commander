@@ -10,6 +10,8 @@
 -module(commander_utils).
 -export(
     [
+        commander_exit/1,
+        commander_exit/2,
         print_info/2,
         print/2,
         print/3
@@ -21,14 +23,24 @@
 
 
 %%-----------------------------------------------------------------------------
+%% Function : commander_exit/1 -> commander_exit/2
+%% Purpose  : Wrapper for everything we (may) need to do to exit cleanly.
+%%-----------------------------------------------------------------------------
+commander_exit(ok) -> halt(0);
+commander_exit(fail) -> commander_exit(fail, "").
+
+commander_exit(fail, Message) ->
+    print_info(fail, Message),
+    halt(1).
+
+
+%%-----------------------------------------------------------------------------
 %% Function : print_info/2
 %% Purpose  : Inform the user of something that happened in the program.
 %% Type     : io()
 %%-----------------------------------------------------------------------------
 print_info(fail, Message) ->
-    ok = io:format([?TERM_COLOR_FAIL, Message, ?TERM_COLOR_OFF, "~n"]).
-
-            %commander_utils:print_info(fail, "GLOBAL TIMEOUT EXCEEDED!"),
+    ok = io:format([?TERM_COLOR_FAIL, Message, ?TERM_COLOR_OFF, "\n"]).
 
 
 %%-----------------------------------------------------------------------------

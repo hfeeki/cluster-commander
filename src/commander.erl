@@ -54,12 +54,10 @@ main(Args) ->
 
             % Wait until done or timeout
             timer:sleep(Options#options.global_timeout),
-            commander_utils:print_info(fail, "GLOBAL TIMEOUT EXCEEDED!"),
-            halt(1);
+            commander_utils:commander_exit(fail, "GLOBAL TIMEOUT EXCEEDED!");
 
         {error, Reason} ->
-            commander_utils:print_info(fail, Reason),
-            halt(1)
+            commander_utils:commander_exit(fail, Reason)
     end.
 
 
@@ -144,9 +142,9 @@ get_options_or_usage(Args) ->
 
 %%-----------------------------------------------------------------------------
 %% Function : usage/0
-%% Purpose  : Prints usage instructions and halts BEAM.
+%% Purpose  : Prints usage instructions and exits the program.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 usage() ->
     getopt:usage(?OPT_SPECS, ?MODULE, "command"),
-    halt(1).
+    commander_utils:commander_exit(fail).

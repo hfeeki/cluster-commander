@@ -32,14 +32,13 @@ done(Node) ->
 
 %%-----------------------------------------------------------------------------
 %% Function : dispatcher/1
-%% Purpose  : Waits for job completions and halts BEAM when all are done.
+%% Purpose  : Waits for job completions, then exits the program.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 dispatcher([]) ->
-    halt(0);
+    commander_utils:commander_exit(ok);
 
 dispatcher(Nodes) ->
     receive
-        {done, Node} ->
-            dispatcher(Nodes -- [Node])
+        {done, Node} -> dispatcher(Nodes -- [Node])
     end.
