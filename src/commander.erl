@@ -54,15 +54,10 @@ main(Args) ->
 
             % Wait until done or timeout
             timer:sleep(Options#options.global_timeout),
-
-            io:format("~s~s~s~n", [
-                    ?TERM_COLOR_FAIL,
-                    "GLOBAL TIMEOUT EXCEEDED!",
-                    ?TERM_COLOR_OFF
-            ]);
+            commander_utils:print_info(fail, "GLOBAL TIMEOUT EXCEEDED!");
 
         {error, Reason} ->
-            io:format("~s~s~s~n", [?TERM_COLOR_FAIL, Reason, ?TERM_COLOR_OFF])
+            commander_utils:print_info(fail, Reason)
     end.
 
 

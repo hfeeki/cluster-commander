@@ -10,6 +10,7 @@
 -module(commander_utils).
 -export(
     [
+        print_info/2,
         print/2,
         print/3
     ]
@@ -17,6 +18,17 @@
 
 
 -include("commander_config.hrl").
+
+
+%%-----------------------------------------------------------------------------
+%% Function : print_info/2
+%% Purpose  : Inform the user of something that happened in the program.
+%% Type     : io()
+%%-----------------------------------------------------------------------------
+print_info(fail, Message) ->
+    ok = io:format([?TERM_COLOR_FAIL, Message, ?TERM_COLOR_OFF, "~n"]).
+
+            %commander_utils:print_info(fail, "GLOBAL TIMEOUT EXCEEDED!"),
 
 
 %%-----------------------------------------------------------------------------
