@@ -45,7 +45,7 @@ save_data(Node, Data, "") ->
     save_data(Node, Data, DirectoryPath);
 
 save_data(Node, Data, DirectoryPath) ->
-    FilePath = filename:join([DirectoryPath, Node ++ ".out"]),
+    FilePath = filename:join([DirectoryPath, Node]),
     filelib:ensure_dir(FilePath),
     file:write_file(FilePath, Data).
 
