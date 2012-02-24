@@ -31,6 +31,9 @@ main(Args) ->
     % Get options
     Options = get_options_or_usage(Args),
 
+    Operation   = Options#options.operation,
+    SshProvider = Options#options.ssh_provider,
+
     % Pack nodes options
     NodesOpts = #nodes_opts{
         nodes         = Options#options.nodes,
@@ -51,7 +54,7 @@ main(Args) ->
     case commander_nodes:get_nodes(NodesOpts) of
         {ok, Nodes} ->
             % Launch workers
-            launch(Options#options.ssh_provider, Nodes, Job),
+            launch(Operation, SshProvider, Nodes, Job),
 
             % Wait until done or timeout
             timer:sleep(Options#options.global_timeout),
@@ -67,16 +70,12 @@ main(Args) ->
 %%%============================================================================
 
 %%-----------------------------------------------------------------------------
-%% Function : launch/3 -> launch/4
+%% Function : launch/4
 %% Purpose  : Processes prerequisites and starts worker procs.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-launch(SshProvider, Nodes, Job) ->
+launch(exec, SshProvider, Nodes, Job) ->
     ssh_prerequisites(SshProvider),
-    launch(ready, SshProvider, Nodes, Job).
-
-
-launch(ready, SshProvider, Nodes, Job) ->
     Module = join_atoms([commander_executor_, SshProvider]),
     commander_dispatcher:start(Nodes),
     lists:foreach(
@@ -84,7 +83,11 @@ launch(ready, SshProvider, Nodes, Job) ->
             Module:start(Node, Job)
         end,
         Nodes
-    ).
+    );
+
+launch(Operation, _, _, _) ->
+    Msg = io_lib:format("'~s' is not yet implemented. Sorry. :(", [Operation]),
+    commander_utils:commander_exit(fail, Msg).
 
 
 ssh_prerequisites(os) -> none;
@@ -115,31 +118,61 @@ maybe_gen_key(false) -> os:cmd(?OS_CMD__SSH_KEYGEN).
 
 %%-----------------------------------------------------------------------------
 %% Function : get_options_or_usage/1
-%% Purpose  : Parses and packs CLI options and arguments into #options{} record.
+%% Purpose  : Parses and packs CLI options and arguments into #options{} record
 %% Type     : #options{}
 %%-----------------------------------------------------------------------------
 get_options_or_usage(Args) ->
     case getopt:parse(?OPT_SPECS, Args) of
         {ok, {OptList, CommandsList}} ->
-            #options{
-                user = proplists:get_value(user, OptList),
-                nodes = proplists:get_value(nodes, OptList),
-                nodes_group = proplists:get_value(nodes_group, OptList),
-                ssh_provider = proplists:get_value(ssh_provider, OptList),
-                host_timeout = proplists:get_value(host_timeout, OptList),
-                global_timeout =
-                    case proplists:get_value(global_timeout, OptList) of
-                        0 -> infinity;
-                        OtherGlobalTimeout -> OtherGlobalTimeout * 1000
-                    end,
-                port = proplists:get_value(port, OptList),
-                try_all_nodes = proplists:get_value(try_all_nodes, OptList),
-                save_data_to = proplists:get_value(save_data_to, OptList),
-                command = string:join(CommandsList, " ")
-            };
+            get_packed_options(OptList, CommandsList);
 
         {error, _} -> usage()
     end.
+
+
+%%-----------------------------------------------------------------------------
+%% Function : get_packed_options/2
+%% Purpose  : Plucks off a requested operation or sets default
+%% Type     : get_packed_options/3
+%%-----------------------------------------------------------------------------
+get_packed_options(OptList,    ["get"  | CommandsList]) ->
+    get_packed_options(OptList, "get",   CommandsList);
+
+get_packed_options(OptList,    ["put"  | CommandsList]) ->
+    get_packed_options(OptList, "put",   CommandsList);
+
+get_packed_options(OptList,    ["exec" | CommandsList]) ->
+    get_packed_options(OptList, "exec",  CommandsList);
+
+get_packed_options(OptList,              CommandsList) ->
+    get_packed_options(OptList, "exec",  CommandsList).
+
+
+%%-----------------------------------------------------------------------------
+%% Function : get_packed_options/3
+%% Purpose  : Packs options into record
+%% Type     : #options{}
+%%-----------------------------------------------------------------------------
+get_packed_options(OptList, Operation, CommandsList) ->
+    #options{
+        operation       = list_to_atom(Operation),
+
+        user            = proplists:get_value(user,             OptList),
+        nodes           = proplists:get_value(nodes,            OptList),
+        nodes_group     = proplists:get_value(nodes_group,      OptList),
+        ssh_provider    = proplists:get_value(ssh_provider,     OptList),
+        port            = proplists:get_value(port,             OptList),
+        try_all_nodes   = proplists:get_value(try_all_nodes,    OptList),
+        save_data_to    = proplists:get_value(save_data_to,     OptList),
+        host_timeout    = proplists:get_value(host_timeout,     OptList),
+        global_timeout  =
+                    case  proplists:get_value(global_timeout,   OptList) of
+                        0     -> infinity;
+                        Other -> Other * 1000
+                    end,
+
+        command         = string:join(CommandsList, " ")
+    }.
 
 
 %%-----------------------------------------------------------------------------

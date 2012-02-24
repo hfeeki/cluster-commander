@@ -34,6 +34,7 @@
 
 -record(options,
     {
+        operation       = undefined :: atom(),
         user            = undefined :: string(),
         nodes           = undefined :: string(),
         nodes_group     = undefined :: atom(),
