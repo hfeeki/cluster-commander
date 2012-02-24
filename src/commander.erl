@@ -128,16 +128,16 @@ get_options_or_usage(Args) ->
         {ok, {OptList, [OperationCandidate|Commands]=CommandsList}} ->
             Operation = list_to_atom(OperationCandidate),
 
-            case operation_type(Operation) of
-                transport when length(Commands) >= 2 ->
+            case operation_handler(Operation) of
+                transporter when length(Commands) >= 2 ->
                     [PathFrom, PathTo | _] = Commands,
                     Paths = [{from, PathFrom}, {to, PathTo}],
                     get_packed_options(OptList, Operation, [], Paths);
 
-                transport ->
+                transporter ->
                     usage("Please specify 2 paths: origin and destination.");
 
-                execute ->
+                executor ->
                     get_packed_options(OptList, Operation, Commands, []);
 
                 unknown ->
@@ -148,10 +148,10 @@ get_options_or_usage(Args) ->
     end.
 
 
-operation_type(get)  -> transport;
-operation_type(put)  -> transport;
-operation_type(exec) -> execute;
-operation_type(_)    -> unknown.
+operation_handler(get)  -> transporter;
+operation_handler(put)  -> transporter;
+operation_handler(exec) -> executor;
+operation_handler(_)    -> unknown.
 
 default_operation() -> exec.
 
