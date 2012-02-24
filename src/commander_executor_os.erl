@@ -34,10 +34,10 @@ start(Node, Job) ->
 %%-----------------------------------------------------------------------------
 init(Node, Job) ->
     % Read job options
-    User = Job#job.user,
-    Port = integer_to_list(Job#job.port),
-    Timeout = integer_to_list(trunc(Job#job.timeout)),
-    Command = Job#job.command,
+    User       = Job#job.user,
+    Port       = integer_to_list(Job#job.port),
+    Timeout    = integer_to_list(trunc(Job#job.timeout)),
+    Command    = Job#job.command,
     SaveDataTo = Job#job.save_data_to,
 
     % Compile SSH command string
