@@ -31,6 +31,9 @@ commander_exit(ok) -> halt(0);
 commander_exit(fail) -> commander_exit(fail, "").
 
 commander_exit(fail, Message) ->
+    %
+    % Fail Truck courtesy of Al Barrentine (https://github.com/thatdatabaseguy)
+    %
     FailTruck =
         <<"
         UH-OH! YOU'VE BEEN HIT BY THE
