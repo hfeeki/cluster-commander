@@ -20,7 +20,9 @@
         command      = undefined :: string(),
         save_data_to = undefined :: string(),
         timeout      = undefined :: integer(),
-        port         = undefined :: integer()
+        port         = undefined :: integer(),
+        path_from    = undefined :: string(),
+        path_to      = undefined :: string()
     }
 ).
 
@@ -35,6 +37,8 @@
 -record(options,
     {
         operation       = undefined :: atom(),
+        path_from       = undefined :: string(),
+        path_to         = undefined :: string(),
         user            = undefined :: string(),
         nodes           = undefined :: string(),
         nodes_group     = undefined :: atom(),

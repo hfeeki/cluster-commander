@@ -1,4 +1,4 @@
-%%----------------------------------------------------------------------------
+%%%----------------------------------------------------------------------------
 %%% Copyright (c) 2011 Siraaj Khandkar
 %%% Licensed under MIT license. See LICENSE file for details.
 %%%
@@ -47,7 +47,9 @@ main(Args) ->
         command      = Options#options.command,
         save_data_to = Options#options.save_data_to,
         timeout      = Options#options.host_timeout,
-        port         = Options#options.port
+        port         = Options#options.port,
+        path_from    = Options#options.path_from,
+        path_to      = Options#options.path_to
     },
 
     % Get a list of target nodes
@@ -119,33 +121,39 @@ do_maybe_gen_key(false) -> os:cmd(?OS_CMD__SSH_KEYGEN).
 %%-----------------------------------------------------------------------------
 %% Function : get_options_or_usage/1
 %% Purpose  : Parses and packs CLI options and arguments into #options{} record
-%% Type     : #options{}
+%% Type     : #options{} | usage()
 %%-----------------------------------------------------------------------------
 get_options_or_usage(Args) ->
     case getopt:parse(?OPT_SPECS, Args) of
-        {ok, {OptList, CommandsList}} ->
-            get_packed_options(OptList, CommandsList);
+        {ok, {OptList, [OperationCandidate|Commands]=CommandsList}} ->
+            Operation = list_to_atom(OperationCandidate),
+
+            case operation_type(Operation) of
+                transport when length(Commands) >= 2 ->
+                    [PathFrom, PathTo | _] = Commands,
+                    Paths = [{from, PathFrom}, {to, PathTo}],
+                    get_packed_options(OptList, Operation, [], Paths);
+
+                transport ->
+                    usage("Please specify 2 paths: origin and destination.");
+
+                execute ->
+                    get_packed_options(OptList, Operation, Commands, []);
+
+                unknown ->
+                    get_packed_options(OptList, default_operation(), CommandsList, [])
+            end;
 
         {error, _} -> usage()
     end.
 
 
-%%-----------------------------------------------------------------------------
-%% Function : get_packed_options/2
-%% Purpose  : Plucks off a requested operation or sets default
-%% Type     : get_packed_options/3
-%%-----------------------------------------------------------------------------
-get_packed_options(OptList,    ["get"  | CommandsList]) ->
-    get_packed_options(OptList, "get",   CommandsList);
+operation_type(get)  -> transport;
+operation_type(put)  -> transport;
+operation_type(exec) -> execute;
+operation_type(_)    -> unknown.
 
-get_packed_options(OptList,    ["put"  | CommandsList]) ->
-    get_packed_options(OptList, "put",   CommandsList);
-
-get_packed_options(OptList,    ["exec" | CommandsList]) ->
-    get_packed_options(OptList, "exec",  CommandsList);
-
-get_packed_options(OptList,              CommandsList) ->
-    get_packed_options(OptList, "exec",  CommandsList).
+default_operation() -> exec.
 
 
 %%-----------------------------------------------------------------------------
@@ -153,9 +161,13 @@ get_packed_options(OptList,              CommandsList) ->
 %% Purpose  : Packs options into record
 %% Type     : #options{}
 %%-----------------------------------------------------------------------------
-get_packed_options(OptList, Operation, CommandsList) ->
+get_packed_options(OptList, Operation, Commands, Paths) ->
     #options{
-        operation       = list_to_atom(Operation),
+        operation       = Operation,
+        command         = string:join(Commands, " "),
+
+        path_from       = proplists:get_value(from,             Paths),
+        path_to         = proplists:get_value(to,               Paths),
 
         user            = proplists:get_value(user,             OptList),
         nodes           = proplists:get_value(nodes,            OptList),
@@ -169,17 +181,17 @@ get_packed_options(OptList, Operation, CommandsList) ->
                     case  proplists:get_value(global_timeout,   OptList) of
                         0     -> infinity;
                         Other -> Other * 1000
-                    end,
-
-        command         = string:join(CommandsList, " ")
+                    end
     }.
 
 
 %%-----------------------------------------------------------------------------
-%% Function : usage/0
+%% Function : usage/0 -> usage/1
 %% Purpose  : Prints usage instructions and exits the program.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-usage() ->
+usage() -> usage("").
+
+usage(Message) ->
     getopt:usage(?OPT_SPECS, ?MODULE, "command"),
-    commander_utils:commander_exit(fail).
+    commander_utils:commander_exit(fail, Message).
