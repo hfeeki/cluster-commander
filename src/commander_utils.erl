@@ -50,12 +50,12 @@ commander_exit(fail, Message) ->
 %% Purpose  : Save data received from node.
 %% Type     : io()
 %%-----------------------------------------------------------------------------
-do_save_data(Node, Data, "") ->
+do_save_data(FromNode, Data, "") ->
     DirectoryPath = ?PATH_DIR__DATA_OUTPUTS,
-    do_save_data(Node, Data, DirectoryPath);
+    do_save_data(FromNode, Data, DirectoryPath);
 
-do_save_data(Node, Data, DirectoryPath) ->
-    FilePath = filename:join([DirectoryPath, Node]),
+do_save_data(FromNode, Data, DirectoryPath) ->
+    FilePath = filename:join([DirectoryPath, FromNode]),
     filelib:ensure_dir(FilePath),
     file:write_file(FilePath, Data).
 
