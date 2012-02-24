@@ -70,7 +70,7 @@ init(Node, Job) ->
 %%-----------------------------------------------------------------------------
 stop(Node, Data, ExitStatus, SaveDataTo) ->
     commander_utils:print(Node, Data, ExitStatus),
-    commander_utils:save_data(Node, Data, SaveDataTo),
+    commander_utils:do_save_data(Node, Data, SaveDataTo),
     commander_dispatcher:done(Node).
 
 
