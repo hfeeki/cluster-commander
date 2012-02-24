@@ -54,7 +54,7 @@ main(Args) ->
     case commander_nodes:get_nodes(NodesOpts) of
         {ok, Nodes} ->
             % Launch workers
-            launch(Operation, SshProvider, Nodes, Job),
+            do_launch(Operation, SshProvider, Nodes, Job),
 
             % Wait until done or timeout
             timer:sleep(Options#options.global_timeout),
@@ -70,12 +70,12 @@ main(Args) ->
 %%%============================================================================
 
 %%-----------------------------------------------------------------------------
-%% Function : launch/4
+%% Function : do_launch/4
 %% Purpose  : Processes prerequisites and starts worker procs.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-launch(exec, SshProvider, Nodes, Job) ->
-    ssh_prerequisites(SshProvider),
+do_launch(exec, SshProvider, Nodes, Job) ->
+    do_ssh_prerequisites(SshProvider),
     Module = join_atoms([commander_executor_, SshProvider]),
     commander_dispatcher:start(Nodes),
     lists:foreach(
@@ -85,16 +85,16 @@ launch(exec, SshProvider, Nodes, Job) ->
         Nodes
     );
 
-launch(Operation, _, _, _) ->
+do_launch(Operation, _, _, _) ->
     Msg = io_lib:format("'~s' is not yet implemented. Sorry. :(", [Operation]),
     commander_utils:commander_exit(fail, Msg).
 
 
-ssh_prerequisites(os) -> none;
-ssh_prerequisites(otp) ->
+do_ssh_prerequisites(os) -> none;
+do_ssh_prerequisites(otp) ->
     filelib:ensure_dir(?PATH_DIR__DATA_SSH),
     file:make_dir(?PATH_DIR__DATA_SSH),
-    maybe_gen_key(),
+    do_maybe_gen_key(),
     crypto:start(),
     ssh:start().
 
@@ -104,16 +104,16 @@ join_atoms(ListOfAtoms) ->
 
 
 %%-----------------------------------------------------------------------------
-%% Function : maybe_gen_key/0 -> maybe_gen_key/1
+%% Function : do_maybe_gen_key/0 -> do_maybe_gen_key/1
 %% Purpose  : If SSH key not found, calls ssh-keygen to make one.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-maybe_gen_key() ->
-    maybe_gen_key(filelib:is_file(?PATH_FILE__ID_RSA)).
+do_maybe_gen_key() ->
+    do_maybe_gen_key(filelib:is_file(?PATH_FILE__ID_RSA)).
 
 
-maybe_gen_key(true) -> ok;
-maybe_gen_key(false) -> os:cmd(?OS_CMD__SSH_KEYGEN).
+do_maybe_gen_key(true) -> ok;
+do_maybe_gen_key(false) -> os:cmd(?OS_CMD__SSH_KEYGEN).
 
 
 %%-----------------------------------------------------------------------------
