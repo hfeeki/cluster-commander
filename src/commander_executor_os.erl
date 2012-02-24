@@ -38,6 +38,7 @@ init(Node, Job) ->
     Port = integer_to_list(Job#job.port),
     Timeout = integer_to_list(trunc(Job#job.timeout)),
     Command = Job#job.command,
+    SaveDataTo = Job#job.save_data_to,
 
     % Compile SSH command string
     UserAtHost = string:join([User, Node], "@"),
@@ -52,7 +53,7 @@ init(Node, Job) ->
     PortID = open_port({spawn, SSHCommand}, PortOptions),
 
     % Continue to pick-up output data
-    loop(Node, PortID).
+    loop(Node, PortID, SaveDataTo).
 
 
 %%-----------------------------------------------------------------------------
@@ -60,8 +61,9 @@ init(Node, Job) ->
 %% Purpose  : Print output and exit, informing dispatcher of the completion.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-stop(Node, Data, ExitCode) ->
+stop(Node, Data, ExitCode, SaveDataTo) ->
     commander_utils:print(Node, lists:flatten(Data), exit_status(ExitCode)),
+    commander_utils:do_save_data(Node, Data, SaveDataTo),
     commander_dispatcher:done(Node).
 
 
@@ -80,18 +82,18 @@ exit_status(_) -> fail.
 %% Purpose  : Main loop. Collect output of the executed SSH command.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-loop(Node, PortID) -> loop(Node, PortID, []).
+loop(Node, PortID, SaveDataTo) -> loop(Node, PortID, [], SaveDataTo).
 
-loop(Node, PortID, DataAcc) ->
+loop(Node, PortID, DataAcc, SaveDataTo) ->
     receive
         {PortID, {data, Data}} ->
-            loop(Node, PortID, [Data|DataAcc]);
+            loop(Node, PortID, [Data|DataAcc], SaveDataTo);
 
         {PortID, eof} ->
             port_close(PortID),
             receive
                 {PortID, {exit_status, ExitCode}} ->
                     Data = lists:reverse(DataAcc),
-                    stop(Node, Data, ExitCode)
+                    stop(Node, Data, ExitCode, SaveDataTo)
             end
     end.
