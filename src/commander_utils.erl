@@ -31,7 +31,17 @@ commander_exit(ok) -> halt(0);
 commander_exit(fail) -> commander_exit(fail, "").
 
 commander_exit(fail, Message) ->
-    print_info(fail, Message),
+    FailTruck =
+        <<"
+        UH-OH! YOU'VE BEEN HIT BY THE
+
+        |^^^^^^^^^^^^^^^^|
+        |   FAIL TRUCK   | Ô|ÓÓ;.., ___.
+        |_É_É______========|= _|__|É, ] |
+        (@ )Õ(@ )ÓÓÓÓ*|(@ )(@ )******(@)
+
+        ">>,
+    print_info(fail, [FailTruck, Message, <<"\n">>]),
     halt(1).
 
 
