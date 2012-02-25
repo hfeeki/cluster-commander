@@ -8,7 +8,7 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander_executor_otp).
--export([start/2, init/2]).
+-export([start/3, init/3]).
 
 
 -include("commander_config.hrl").
@@ -19,8 +19,8 @@
 %%% API
 %%%============================================================================
 
-start(Node, Job) ->
-    spawn(?MODULE, init, [Node, Job]).
+start(Node, Job, Operation) ->
+    spawn(?MODULE, init, [Node, Job, Operation]).
 
 
 %%%============================================================================
@@ -28,11 +28,11 @@ start(Node, Job) ->
 %%%============================================================================
 
 %%-----------------------------------------------------------------------------
-%% Function : init/2
+%% Function : init/3
 %% Purpose  : Attempt SSH connection
 %% Type     : loop/1 | stop/3
 %%-----------------------------------------------------------------------------
-init(Node, Job) ->
+init(Node, Job, _Operation) ->
     User       = Job#job.user,
     Port       = Job#job.port,
     Command    = Job#job.command,

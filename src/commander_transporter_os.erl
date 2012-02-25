@@ -2,12 +2,12 @@
 %%% Copyright (c) 2011 Siraaj Khandkar
 %%% Licensed under MIT license. See LICENSE file for details.
 %%%
-%%% File    : commander_executor_os.erl
+%%% File    : commander_transporter_os.erl
 %%% Author  : Siraaj Khandkar <siraaj@khandkar.net>
-%%% Purpose : Executor process (using Operating System's ssh command)
+%%% Purpose : Transporter process (using Operating System's scp command)
 %%%----------------------------------------------------------------------------
 
--module(commander_executor_os).
+-module(commander_transporter_os).
 -export([start/3, init/3]).
 
 
@@ -29,31 +29,41 @@ start(Node, Job, Operation) ->
 
 %%-----------------------------------------------------------------------------
 %% Function : init/3
-%% Purpose  : Initializes port to system's ssh command
+%% Purpose  : Initializes port to system's scp command
 %% Type     : loop/1
 %%-----------------------------------------------------------------------------
-init(Node, Job, _Operation) ->
-    % Read job options
+init(Node, Job, Operation) ->
+    %----- Read job options
     User       = Job#job.user,
     Port       = integer_to_list(Job#job.port),
     Timeout    = integer_to_list(trunc(Job#job.timeout)),
-    Command    = Job#job.command,
     SaveDataTo = Job#job.save_data_to,
 
-    % Compile SSH command string
-    UserAtHost = string:join([User, Node], "@"),
-    SSHOptions = string:join(
-        ["-2", "-p", Port, "-o", "ConnectTimeout="++Timeout],
+    %----- Compile scp command string
+    UserAtHost = User++"@"++Node,
+    Options = string:join(
+        ["-r", "-2", "-P", Port, "-o", "ConnectTimeout="++Timeout],
         " "
     ),
-    SSHCommand = string:join(["ssh", SSHOptions, UserAtHost, Command], " "),
 
-    % Spawn port
+    {PathFrom, PathTo} = make_paths(Operation, UserAtHost,
+                                   Job#job.path_from, Job#job.path_to),
+
+    SCPCommand = string:join(["scp", Options, PathFrom, PathTo], " "),
+
+    %----- Spawn port
     PortOptions = [stream, exit_status, use_stdio, stderr_to_stdout, in, eof],
-    PortID = open_port({spawn, SSHCommand}, PortOptions),
+    PortID = open_port({spawn, SCPCommand}, PortOptions),
 
-    % Continue to pick-up output data
+    %----- Continue to pick-up of output data
     loop(Node, PortID, SaveDataTo).
+
+
+make_paths(get, UserAtHost, PathFrom, PathTo) ->
+    {UserAtHost ++":"++PathFrom, PathTo};
+
+make_paths(put, UserAtHost, PathFrom, PathTo) ->
+    {PathFrom, UserAtHost++":"++PathTo}.
 
 
 %%-----------------------------------------------------------------------------
@@ -79,7 +89,7 @@ exit_status(_) -> fail.
 
 %%-----------------------------------------------------------------------------
 %% Function : loop/2 -> loop/3
-%% Purpose  : Main loop. Collect output of the executed SSH command.
+%% Purpose  : Main loop. Collect output of the executed scp command.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 loop(Node, PortID, SaveDataTo) -> loop(Node, PortID, [], SaveDataTo).

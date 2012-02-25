@@ -32,7 +32,7 @@ main(Args) ->
     Options = get_options_or_usage(Args),
 
     Operation   = Options#options.operation,
-    SshProvider = Options#options.ssh_provider,
+    SSHProvider = Options#options.ssh_provider,
 
     % Pack nodes options
     NodesOpts = #nodes_opts{
@@ -56,7 +56,7 @@ main(Args) ->
     case commander_nodes:get_nodes(NodesOpts) of
         {ok, Nodes} ->
             % Launch workers
-            do_launch(Operation, SshProvider, Nodes, Job),
+            do_launch(Operation, SSHProvider, Nodes, Job),
 
             % Wait until done or timeout
             timer:sleep(Options#options.global_timeout),
@@ -76,20 +76,26 @@ main(Args) ->
 %% Purpose  : Processes prerequisites and starts worker procs.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-do_launch(exec, SshProvider, Nodes, Job) ->
-    do_ssh_prerequisites(SshProvider),
-    Module = join_atoms([commander_executor_, SshProvider]),
+do_launch(Operation, SSHProviderRequested, Nodes, Job) ->
+    Handler = operation_handler(Operation),
+
+    % Temporary work-around until I implement OTP-backed transporter
+    SSHProvider = case Handler of
+        transporter -> os;
+        executor    -> SSHProviderRequested
+    end,
+
+    HandlerModule = join_atoms([?MODULE, Handler, SSHProvider], "_"),
+
+    do_ssh_prerequisites(SSHProvider),
     commander_dispatcher:start(Nodes),
+
     lists:foreach(
         fun(Node) ->
-            Module:start(Node, Job)
+            HandlerModule:start(Node, Job, Operation)
         end,
         Nodes
-    );
-
-do_launch(Operation, _, _, _) ->
-    Msg = io_lib:format("'~s' is not yet implemented. Sorry. :(", [Operation]),
-    commander_utils:commander_exit(fail, Msg).
+    ).
 
 
 do_ssh_prerequisites(os) -> none;
@@ -101,8 +107,8 @@ do_ssh_prerequisites(otp) ->
     ssh:start().
 
 
-join_atoms(ListOfAtoms) ->
-    list_to_atom(string:join([atom_to_list(A) || A <- ListOfAtoms], "")).
+join_atoms(Atoms, Separator) ->
+    list_to_atom(string:join([atom_to_list(A) || A <- Atoms], Separator)).
 
 
 %%-----------------------------------------------------------------------------
