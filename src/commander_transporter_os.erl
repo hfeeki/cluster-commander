@@ -67,8 +67,9 @@ init(Node, Job, Operation) ->
 
 
 make_paths(get, User, Node, PathFrom, PathTo) ->
+    filelib:ensure_dir(filename:join([PathTo, Node, "dummy_file_name"])),
     From = User++"@"++Node++":"++PathFrom,
-    To   = PathTo,
+    To   = filename:join(PathTo, Node),
     {From, To};
 
 make_paths(put, User, Node, PathFrom, PathTo) ->
