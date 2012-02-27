@@ -33,37 +33,48 @@ start(Node, Job, Operation) ->
 %% Type     : loop/1
 %%-----------------------------------------------------------------------------
 init(Node, Job, Operation) ->
-    %----- Read job options
+    %--------------------------------------------------------------------------
+    % Read job options
+    %--------------------------------------------------------------------------
     User       = Job#job.user,
     Port       = integer_to_list(Job#job.port),
     Timeout    = integer_to_list(trunc(Job#job.timeout)),
     SaveDataTo = Job#job.save_data_to,
 
-    %----- Compile scp command string
-    UserAtHost = User++"@"++Node,
+    %--------------------------------------------------------------------------
+    % Compile scp command string
+    %--------------------------------------------------------------------------
     Options = string:join(
         ["-r", "-2", "-P", Port, "-o", "ConnectTimeout="++Timeout],
         " "
     ),
 
-    {PathFrom, PathTo} = make_paths(Operation, UserAtHost,
-                                   Job#job.path_from, Job#job.path_to),
+    {PathFrom, PathTo} =
+        make_paths(Operation, User, Node, Job#job.path_from, Job#job.path_to),
 
     SCPCommand = string:join(["scp", Options, PathFrom, PathTo], " "),
 
-    %----- Spawn port
+    %--------------------------------------------------------------------------
+    % Spawn port
+    %--------------------------------------------------------------------------
     PortOptions = [stream, exit_status, use_stdio, stderr_to_stdout, in, eof],
     PortID = open_port({spawn, SCPCommand}, PortOptions),
 
-    %----- Continue to pick-up of output data
+    %--------------------------------------------------------------------------
+    % Continue to pick-up of output data
+    %--------------------------------------------------------------------------
     loop(Node, PortID, SaveDataTo).
 
 
-make_paths(get, UserAtHost, PathFrom, PathTo) ->
-    {UserAtHost ++":"++PathFrom, PathTo};
+make_paths(get, User, Node, PathFrom, PathTo) ->
+    From = User++"@"++Node++":"++PathFrom,
+    To   = PathTo,
+    {From, To};
 
-make_paths(put, UserAtHost, PathFrom, PathTo) ->
-    {PathFrom, UserAtHost++":"++PathTo}.
+make_paths(put, User, Node, PathFrom, PathTo) ->
+    From = PathFrom,
+    To   = User++"@"++Node++":"++PathTo,
+    {From, To}.
 
 
 %%-----------------------------------------------------------------------------
