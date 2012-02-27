@@ -100,11 +100,11 @@ do_launch(Operation, SSHProviderRequested, Nodes, Job) ->
 
 do_ssh_prerequisites(os) -> none;
 do_ssh_prerequisites(otp) ->
-    filelib:ensure_dir(?PATH_DIR__DATA_SSH),
-    file:make_dir(?PATH_DIR__DATA_SSH),
+    ok = filelib:ensure_dir(?PATH_DIR__DATA_SSH),
+    ok = file:make_dir(?PATH_DIR__DATA_SSH),
     do_maybe_gen_key(),
-    crypto:start(),
-    ssh:start().
+    ok = crypto:start(),
+    ok = ssh:start().
 
 
 join_atoms(Atoms, Separator) ->

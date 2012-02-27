@@ -59,8 +59,8 @@ do_save_data(FromNode, Data, "") ->
 
 do_save_data(FromNode, Data, DirectoryPath) ->
     FilePath = filename:join([DirectoryPath, FromNode]),
-    filelib:ensure_dir(FilePath),
-    file:write_file(FilePath, Data).
+    ok = filelib:ensure_dir(FilePath),
+    ok = file:write_file(FilePath, Data).
 
 
 %%-----------------------------------------------------------------------------
@@ -92,4 +92,4 @@ print(From, Data, _Flag, Color) ->
         Color, Data, ?TERM_COLOR_OFF, "\n"
     ],
 
-    io:format(Output).
+    ok = io:format(Output).
