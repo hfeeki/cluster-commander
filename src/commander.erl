@@ -100,8 +100,6 @@ do_launch(Operation, SSHProviderRequested, Nodes, Job) ->
 
 do_ssh_prerequisites(os) -> none;
 do_ssh_prerequisites(otp) ->
-    ok = filelib:ensure_dir(?PATH_DIR__DATA_SSH),
-    ok = file:make_dir(?PATH_DIR__DATA_SSH),
     do_maybe_gen_key(),
     ok = crypto:start(),
     ok = ssh:start().
@@ -121,7 +119,9 @@ do_maybe_gen_key() ->
 
 
 do_maybe_gen_key(true) -> ok;
-do_maybe_gen_key(false) -> os:cmd(?OS_CMD__SSH_KEYGEN).
+do_maybe_gen_key(false) ->
+    ok = filelib:ensure_dir(?PATH_FILE__ID_RSA),
+    os:cmd(?OS_CMD__SSH_KEYGEN).
 
 
 %%-----------------------------------------------------------------------------
