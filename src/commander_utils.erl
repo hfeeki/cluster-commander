@@ -59,8 +59,12 @@ do_save_data(FromNode, Data, "") ->
 
 do_save_data(FromNode, Data, DirectoryPath) ->
     FilePath = filename:join([DirectoryPath, FromNode]),
+    FormattedData = case (is_binary(Data) or is_list(Data)) of
+        true  -> Data;
+        false -> io_lib:format("~p~n", [Data])
+    end,
     ok = filelib:ensure_dir(FilePath),
-    ok = file:write_file(FilePath, Data).
+    ok = file:write_file(FilePath, FormattedData).
 
 
 %%-----------------------------------------------------------------------------
