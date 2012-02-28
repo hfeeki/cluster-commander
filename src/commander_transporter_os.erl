@@ -85,8 +85,8 @@ make_paths(put, User, Node, PathFrom, PathTo) ->
 %%-----------------------------------------------------------------------------
 stop(Node, Data, ExitCode, SaveDataTo) ->
     ExitStatus = exit_status(ExitCode),
-    commander_utils:print_data(Node, lists:flatten(Data), ExitStatus),
-    commander_utils:do_save_data(Node, Data, SaveDataTo),
+    commander_lib:print_data(Node, lists:flatten(Data), ExitStatus),
+    commander_lib:do_save_data(Node, Data, SaveDataTo),
     commander_dispatcher:done(Node).
 
 

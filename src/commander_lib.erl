@@ -2,12 +2,12 @@
 %%% Copyright (c) 2011 Siraaj Khandkar
 %%% Licensed under MIT license. See LICENSE file for details.
 %%%
-%%% File    : commander_utils.erl
+%%% File    : commander_lib.erl
 %%% Author  : Siraaj Khandkar <siraaj@khandkar.net>
-%%% Purpose : Miscellaneous functions used by more than one module.
+%%% Purpose : Miscellaneous functions used throughout the project.
 %%%----------------------------------------------------------------------------
 
--module(commander_utils).
+-module(commander_lib).
 -export(
     [
         commander_exit/1,

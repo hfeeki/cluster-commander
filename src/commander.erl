@@ -60,10 +60,10 @@ main(Args) ->
 
             % Wait until done or timeout
             timer:sleep(Options#options.global_timeout),
-            commander_utils:commander_exit(fail, "GLOBAL TIMEOUT EXCEEDED!");
+            commander_lib:commander_exit(fail, "GLOBAL TIMEOUT EXCEEDED!");
 
         {error, Reason} ->
-            commander_utils:commander_exit(fail, Reason)
+            commander_lib:commander_exit(fail, Reason)
     end.
 
 
@@ -200,4 +200,4 @@ usage() -> usage("").
 
 usage(Message) ->
     getopt:usage(?OPT_SPECS, ?MODULE, "command"),
-    commander_utils:commander_exit(fail, Message).
+    commander_lib:commander_exit(fail, Message).

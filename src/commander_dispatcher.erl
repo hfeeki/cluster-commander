@@ -36,7 +36,7 @@ done(Node) ->
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 dispatcher([]) ->
-    commander_utils:commander_exit(ok);
+    commander_lib:commander_exit(ok);
 
 dispatcher(Nodes) ->
     receive

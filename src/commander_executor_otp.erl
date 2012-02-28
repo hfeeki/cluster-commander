@@ -69,8 +69,8 @@ init(Node, Job, _Operation) ->
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 stop(Node, Data, ExitStatus, SaveDataTo) ->
-    commander_utils:print_data(Node, Data, ExitStatus),
-    commander_utils:do_save_data(Node, Data, SaveDataTo),
+    commander_lib:print_data(Node, Data, ExitStatus),
+    commander_lib:do_save_data(Node, Data, SaveDataTo),
     commander_dispatcher:done(Node).
 
 
