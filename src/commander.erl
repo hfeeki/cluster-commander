@@ -100,7 +100,7 @@ do_launch(Operation, SSHProviderRequested, Nodes, Job) ->
 
 do_ssh_prerequisites(os) -> none;
 do_ssh_prerequisites(otp) ->
-    do_maybe_gen_key(),
+    do_ensure_ssh_key(),
     ok = crypto:start(),
     ok = ssh:start().
 
@@ -110,16 +110,16 @@ join_atoms(Atoms, Separator) ->
 
 
 %%-----------------------------------------------------------------------------
-%% Function : do_maybe_gen_key/0 -> do_maybe_gen_key/1
+%% Function : do_ensure_ssh_key/0 -> do_ensure_ssh_key/1
 %% Purpose  : If SSH key not found, calls ssh-keygen to make one.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-do_maybe_gen_key() ->
-    do_maybe_gen_key(filelib:is_file(?PATH_FILE__ID_RSA)).
+do_ensure_ssh_key() ->
+    do_ensure_ssh_key(filelib:is_file(?PATH_FILE__ID_RSA)).
 
 
-do_maybe_gen_key(true) -> ok;
-do_maybe_gen_key(false) ->
+do_ensure_ssh_key(true) -> ok;
+do_ensure_ssh_key(false) ->
     ok = filelib:ensure_dir(?PATH_FILE__ID_RSA),
     os:cmd(?OS_CMD__SSH_KEYGEN).
 
