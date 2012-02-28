@@ -14,8 +14,8 @@
         commander_exit/2,
         do_save_data/3,
         print_info/2,
-        print/2,
-        print/3
+        print_data/2,
+        print_data/3
     ]
 ).
 
@@ -77,17 +77,17 @@ print_info(fail, Message) ->
 
 
 %%-----------------------------------------------------------------------------
-%% Function : print/2 -> print/3 -> print/4
+%% Function : print_data/2 -> print_data/3 -> print_data/4
 %% Purpose  : Adds header and color, then prints Data to stdout.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-print(From, Data) -> print(From, Data, ok).
+print_data(From, Data) -> print_data(From, Data, ok).
 
-print(From, Data, ok) -> print(From, Data, ok, ?TERM_COLOR_OFF);
-print(From, Data, fail) ->
-    print(From, io_lib:format("~p~n", [Data]), fail, ?TERM_COLOR_FAIL).
+print_data(From, Data, ok) -> print_data(From, Data, ok, ?TERM_COLOR_OFF);
+print_data(From, Data, fail) ->
+    print_data(From, io_lib:format("~p~n", [Data]), fail, ?TERM_COLOR_FAIL).
 
-print(From, Data, _Flag, Color) ->
+print_data(From, Data, _Flag, Color) ->
     Output = [
         % Header
         ?TERM_COLOR_EM, From, "\n", ?SEPARATOR, ?TERM_COLOR_OFF, "\n",
