@@ -77,7 +77,7 @@ main(Args) ->
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 do_launch(Operation, SSHProviderRequested, Nodes, Job) ->
-    Handler = operation_handler(Operation),
+    Handler = commander_lib:lookup_operation_handler(Operation),
 
     % Temporary work-around until I implement OTP-backed transporter
     SSHProvider = case Handler of
@@ -134,7 +134,7 @@ get_options_or_usage(Args) ->
         {ok, {OptList, [OperationCandidate|Commands]=CommandsList}} ->
             Operation = list_to_atom(OperationCandidate),
 
-            case operation_handler(Operation) of
+            case commander_lib:lookup_operation_handler(Operation) of
                 transporter when length(Commands) >= 2 ->
                     [PathFrom, PathTo | _] = Commands,
                     Paths = [{from, PathFrom}, {to, PathTo}],
@@ -147,19 +147,12 @@ get_options_or_usage(Args) ->
                     get_packed_options(OptList, Operation, Commands, []);
 
                 unknown ->
-                    get_packed_options(OptList, default_operation(), CommandsList, [])
+                    Default = commander_lib:lookup_default_operation(),
+                    get_packed_options(OptList, Default, CommandsList, [])
             end;
 
         {error, _} -> usage()
     end.
-
-
-operation_handler(get)  -> transporter;
-operation_handler(put)  -> transporter;
-operation_handler(exec) -> executor;
-operation_handler(_)    -> unknown.
-
-default_operation() -> exec.
 
 
 %%-----------------------------------------------------------------------------

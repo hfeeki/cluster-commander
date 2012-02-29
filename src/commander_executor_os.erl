@@ -62,20 +62,10 @@ init(Node, Job, _Operation) ->
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 stop(Node, Data, ExitCode, SaveDataTo) ->
-    ExitStatus = exit_status(ExitCode),
+    ExitStatus = commander_lib:lookup_exit_status(ExitCode),
     commander_lib:print_data(Node, lists:flatten(Data), ExitStatus),
     commander_lib:do_save_data(Node, Data, SaveDataTo),
     commander_dispatcher:done(Node).
-
-
-%%-----------------------------------------------------------------------------
-%% Function : exit_status()
-%% Purpose  : Quick lookup of our exit status based on command's exit code.
-%% In       : integer()
-%% Out      : atom()
-%%-----------------------------------------------------------------------------
-exit_status(0) -> ok;
-exit_status(_) -> fail.
 
 
 %%-----------------------------------------------------------------------------

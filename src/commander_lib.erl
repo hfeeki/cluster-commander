@@ -12,10 +12,16 @@
     [
         commander_exit/1,
         commander_exit/2,
+
         do_save_data/3,
+
         print_info/2,
         print_data/2,
-        print_data/3
+        print_data/3,
+
+        lookup_exit_status/1,
+        lookup_operation_handler/1,
+        lookup_default_operation/0
     ]
 ).
 
@@ -97,3 +103,20 @@ print_data(From, Data, _Flag, Color) ->
     ],
 
     ok = io:format(Output).
+
+
+%%%============================================================================
+%%% Lookup "tables"
+%%%============================================================================
+
+lookup_exit_status(0) -> ok;
+lookup_exit_status(_) -> fail.
+
+
+lookup_operation_handler(get)  -> transporter;
+lookup_operation_handler(put)  -> transporter;
+lookup_operation_handler(exec) -> executor;
+lookup_operation_handler(_)    -> unknown.
+
+
+lookup_default_operation() -> exec.
