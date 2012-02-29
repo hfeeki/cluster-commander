@@ -55,15 +55,21 @@ init(Node, Job, Operation) ->
     SCPCommand = string:join(["scp", Options, PathFrom, PathTo], " "),
 
     %--------------------------------------------------------------------------
-    % Spawn port
+    % Execute command and get output
     %--------------------------------------------------------------------------
-    PortOptions = [stream, exit_status, use_stdio, stderr_to_stdout, in, eof],
-    PortID = open_port({spawn, SCPCommand}, PortOptions),
+    {ExitStatus, Output} = commander_lib:os_cmd(SCPCommand),
 
     %--------------------------------------------------------------------------
-    % Continue to pick-up of output data
+    % Display and save output
     %--------------------------------------------------------------------------
-    loop(Node, PortID, SaveDataTo).
+    Status = commander_lib:lookup_exit_status(ExitStatus),
+    commander_lib:do_print_data(Node, Output, Status),
+    commander_lib:do_write_data(Node, Output, SaveDataTo),
+
+    %--------------------------------------------------------------------------
+    % Exit
+    %--------------------------------------------------------------------------
+    commander_dispatcher:done(Node).
 
 
 make_paths(get, User, Node, PathFrom, PathTo) ->
@@ -76,37 +82,3 @@ make_paths(put, User, Node, PathFrom, PathTo) ->
     From = PathFrom,
     To   = User++"@"++Node++":"++PathTo,
     {From, To}.
-
-
-%%-----------------------------------------------------------------------------
-%% Function : stop/3
-%% Purpose  : Print output and exit, informing dispatcher of the completion.
-%% Type     : none()
-%%-----------------------------------------------------------------------------
-stop(Node, Data, ExitCode, SaveDataTo) ->
-    ExitStatus = commander_lib:lookup_exit_status(ExitCode),
-    commander_lib:do_print_data(Node, lists:flatten(Data), ExitStatus),
-    commander_lib:do_write_data(Node, Data, SaveDataTo),
-    commander_dispatcher:done(Node).
-
-
-%%-----------------------------------------------------------------------------
-%% Function : loop/2 -> loop/3
-%% Purpose  : Main loop. Collect output of the executed scp command.
-%% Type     : none()
-%%-----------------------------------------------------------------------------
-loop(Node, PortID, SaveDataTo) -> loop(Node, PortID, [], SaveDataTo).
-
-loop(Node, PortID, DataAcc, SaveDataTo) ->
-    receive
-        {PortID, {data, Data}} ->
-            loop(Node, PortID, [Data|DataAcc], SaveDataTo);
-
-        {PortID, eof} ->
-            port_close(PortID),
-            receive
-                {PortID, {exit_status, ExitCode}} ->
-                    Data = lists:reverse(DataAcc),
-                    stop(Node, Data, ExitCode, SaveDataTo)
-            end
-    end.

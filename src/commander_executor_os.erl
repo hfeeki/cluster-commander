@@ -33,14 +33,18 @@ start(Node, Job, Operation) ->
 %% Type     : loop/1
 %%-----------------------------------------------------------------------------
 init(Node, Job, _Operation) ->
+    %--------------------------------------------------------------------------
     % Read job options
+    %--------------------------------------------------------------------------
     User       = Job#job.user,
     Port       = integer_to_list(Job#job.port),
     Timeout    = integer_to_list(trunc(Job#job.timeout)),
     Command    = Job#job.command,
     SaveDataTo = Job#job.save_data_to,
 
+    %--------------------------------------------------------------------------
     % Compile SSH command string
+    %--------------------------------------------------------------------------
     UserAtHost = string:join([User, Node], "@"),
     SSHOptions = string:join(
         ["-2", "-p", Port, "-o", "ConnectTimeout="++Timeout],
@@ -48,43 +52,19 @@ init(Node, Job, _Operation) ->
     ),
     SSHCommand = string:join(["ssh", SSHOptions, UserAtHost, Command], " "),
 
-    % Spawn port
-    PortOptions = [stream, exit_status, use_stdio, stderr_to_stdout, in, eof],
-    PortID = open_port({spawn, SSHCommand}, PortOptions),
+    %--------------------------------------------------------------------------
+    % Execute command and get output
+    %--------------------------------------------------------------------------
+    {ExitStatus, Output} = commander_lib:os_cmd(SSHCommand),
 
-    % Continue to pick-up output data
-    loop(Node, PortID, SaveDataTo).
+    %--------------------------------------------------------------------------
+    % Display and save output
+    %--------------------------------------------------------------------------
+    Status = commander_lib:lookup_exit_status(ExitStatus),
+    commander_lib:do_print_data(Node, Output, Status),
+    commander_lib:do_write_data(Node, Output, SaveDataTo),
 
-
-%%-----------------------------------------------------------------------------
-%% Function : stop/3
-%% Purpose  : Print output and exit, informing dispatcher of the completion.
-%% Type     : none()
-%%-----------------------------------------------------------------------------
-stop(Node, Data, ExitCode, SaveDataTo) ->
-    ExitStatus = commander_lib:lookup_exit_status(ExitCode),
-    commander_lib:do_print_data(Node, lists:flatten(Data), ExitStatus),
-    commander_lib:do_write_data(Node, Data, SaveDataTo),
+    %--------------------------------------------------------------------------
+    % Exit
+    %--------------------------------------------------------------------------
     commander_dispatcher:done(Node).
-
-
-%%-----------------------------------------------------------------------------
-%% Function : loop/2 -> loop/3
-%% Purpose  : Main loop. Collect output of the executed SSH command.
-%% Type     : none()
-%%-----------------------------------------------------------------------------
-loop(Node, PortID, SaveDataTo) -> loop(Node, PortID, [], SaveDataTo).
-
-loop(Node, PortID, DataAcc, SaveDataTo) ->
-    receive
-        {PortID, {data, Data}} ->
-            loop(Node, PortID, [Data|DataAcc], SaveDataTo);
-
-        {PortID, eof} ->
-            port_close(PortID),
-            receive
-                {PortID, {exit_status, ExitCode}} ->
-                    Data = lists:reverse(DataAcc),
-                    stop(Node, Data, ExitCode, SaveDataTo)
-            end
-    end.

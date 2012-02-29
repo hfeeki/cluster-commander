@@ -126,8 +126,10 @@ do_print_data(From, Data, _Flag, Color) ->
 %%% Lookup "tables"
 %%%----------------------------------------------------------------------------
 
-lookup_exit_status(0) -> ok;
-lookup_exit_status(_) -> fail.
+lookup_exit_status(0)     -> ok;
+lookup_exit_status(ok)    -> ok;
+lookup_exit_status(error) -> fail;
+lookup_exit_status(_)     -> fail.
 
 
 lookup_operation_handler(get)  -> transporter;
