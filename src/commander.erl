@@ -107,18 +107,26 @@ join_atoms(Atoms, Separator) ->
 
 
 %%-----------------------------------------------------------------------------
-%% Function : do_ensure_ssh_key/0 -> do_ensure_ssh_key/1
+%% Function : do_ensure_ssh_key/0 -> do_ensure_ssh_key/2
 %% Purpose  : If SSH key not found, calls ssh-keygen to make one.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 do_ensure_ssh_key() ->
-    do_ensure_ssh_key(filelib:is_file(?PATH_FILE__ID_RSA)).
+    do_ensure_ssh_key(key_exists, filelib:is_file(?PATH_FILE__ID_RSA)).
 
 
-do_ensure_ssh_key(true) -> ok;
-do_ensure_ssh_key(false) ->
-    ok = filelib:ensure_dir(?PATH_FILE__ID_RSA),
-    os:cmd(?OS_CMD__SSH_KEYGEN).
+do_ensure_ssh_key(key_exists, true) -> ok;
+do_ensure_ssh_key(key_exists, false) ->
+    do_ensure_ssh_key(key_dir, filelib:ensure_dir(?PATH_FILE__ID_RSA));
+
+do_ensure_ssh_key(key_dir, ok) ->
+    do_ensure_ssh_key(key_gen, commander_lib:os_cmd(?OS_CMD__SSH_KEYGEN));
+do_ensure_ssh_key(key_dir, Error) ->
+    commander_lib:commander_exit(fail, io_lib:format("~p~n", [Error]));
+
+do_ensure_ssh_key(key_gen, {ok,   _Output}) -> ok;
+do_ensure_ssh_key(key_gen, {error, Reason}) ->
+    commander_lib:commander_exit(fail, Reason).
 
 
 %%-----------------------------------------------------------------------------

@@ -28,7 +28,7 @@ get_nodes(#nodes_opts{nodes=Nodes}) when Nodes /= "" ->
     {ok, string:tokens(Nodes, ",")};
 
 get_nodes(#nodes_opts{nodes_group=pbs, try_all_nodes=MayBeTryAllNodes}) ->
-    {ok, pbs_nodes(MayBeTryAllNodes)};
+    pbs_nodes(MayBeTryAllNodes);
 
 get_nodes(#nodes_opts{nodes_group=Group}) ->
     configured_groups(Group).
@@ -75,7 +75,11 @@ configured_groups({ok, GroupsJsonBin}, Group) ->
 %% Type     : list(string())
 %%-----------------------------------------------------------------------------
 pbs_nodes(MayBeTryAllNodes) ->
-    {Tree, _} = xmerl_scan:string(os:cmd("pbsnodes -x"), [{validation, off}]),
+    pbs_nodes(commander_lib:os_cmd("pbsnodes -x"), MayBeTryAllNodes).
+
+pbs_nodes({error, Reason     }, _               ) -> {error, Reason};
+pbs_nodes({ok,    PBSNodesXML}, MayBeTryAllNodes) ->
+    {Tree, _} = xmerl_scan:string(PBSNodesXML, [{validation, off}]),
     ListOfNodeTrees = element(9, Tree),
     ListOfNodeData  = [pbs_node_data(Node) || Node <- ListOfNodeTrees],
     ListOfNodeNames = [
@@ -85,7 +89,7 @@ pbs_nodes(MayBeTryAllNodes) ->
             false -> is_node_available(Node#node_data.states)
         end
     ],
-    ListOfNodeNames.
+    {ok, ListOfNodeNames}.
 
 
 %%-----------------------------------------------------------------------------
