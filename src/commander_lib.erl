@@ -20,7 +20,9 @@
 
         lookup_exit_status/1,
         lookup_operation_handler/1,
-        lookup_default_operation/0
+        lookup_default_operation/0,
+
+        os_cmd/1
     ]
 ).
 
@@ -131,3 +133,37 @@ lookup_operation_handler(_)    -> unknown.
 
 
 lookup_default_operation() -> exec.
+
+
+%%%============================================================================
+%%% Utils
+%%%============================================================================
+
+os_cmd(Command) ->
+    PortOptions = [stream, exit_status, use_stdio, stderr_to_stdout, in, eof],
+    PortID = open_port({spawn, Command}, PortOptions),
+    {ExitCode, Output} = pickup_output(PortID, []),
+
+    case lookup_exit_status(ExitCode) of
+        fail -> {error, Output};
+        ok   -> {ok,    Output}
+    end.
+
+
+%%%============================================================================
+%%% Internal
+%%%============================================================================
+
+pickup_output(PortID, DataAcc) ->
+    receive
+        {PortID, {data, Data}} ->
+            pickup_output(PortID, [Data|DataAcc]);
+
+        {PortID, eof} ->
+            port_close(PortID),
+            receive
+                {PortID, {exit_status, ExitCode}} ->
+                    Output = lists:flatten(lists:reverse(DataAcc)),
+                    {ExitCode, Output}
+            end
+    end.
