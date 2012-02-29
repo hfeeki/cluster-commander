@@ -8,7 +8,7 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander_transporter_os).
--export([start/3, init/3]).
+-export([start/3, main/3]).
 
 
 -include("commander_config.hrl").
@@ -20,19 +20,14 @@
 %%%============================================================================
 
 start(Node, Job, Operation) ->
-    spawn(?MODULE, init, [Node, Job, Operation]).
+    spawn(?MODULE, main, [Node, Job, Operation]).
 
 
 %%%============================================================================
 %%% Internal
 %%%============================================================================
 
-%%-----------------------------------------------------------------------------
-%% Function : init/3
-%% Purpose  : Initializes port to system's scp command
-%% Type     : loop/1
-%%-----------------------------------------------------------------------------
-init(Node, Job, Operation) ->
+main(Node, Job, Operation) ->
     %--------------------------------------------------------------------------
     % Read job options
     %--------------------------------------------------------------------------
@@ -42,7 +37,7 @@ init(Node, Job, Operation) ->
     SaveDataTo = Job#job.save_data_to,
 
     %--------------------------------------------------------------------------
-    % Compile scp command string
+    % Compile SCP command string
     %--------------------------------------------------------------------------
     Options = string:join(
         ["-r", "-2", "-P", Port, "-o", "ConnectTimeout="++Timeout],
