@@ -64,7 +64,7 @@ init(Node, Job, _Operation) ->
 stop(Node, Data, ExitCode, SaveDataTo) ->
     ExitStatus = commander_lib:lookup_exit_status(ExitCode),
     commander_lib:do_print_data(Node, lists:flatten(Data), ExitStatus),
-    commander_lib:do_save_data(Node, Data, SaveDataTo),
+    commander_lib:do_write_data(Node, Data, SaveDataTo),
     commander_dispatcher:done(Node).
 
 

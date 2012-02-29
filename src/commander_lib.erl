@@ -13,8 +13,7 @@
         commander_exit/1,
         commander_exit/2,
 
-        do_save_data/3,
-
+        do_write_data/3,
         do_print_info/2,
         do_print_data/2,
         do_print_data/3,
@@ -63,15 +62,15 @@ commander_exit(fail, Message) ->
 %%%============================================================================
 
 %%-----------------------------------------------------------------------------
-%% Function : do_save_data/3
+%% Function : do_write_data/3
 %% Purpose  : Save data received from node.
 %% Type     : io()
 %%-----------------------------------------------------------------------------
-do_save_data(FromNode, Data, "") ->
+do_write_data(FromNode, Data, "") ->
     DirectoryPath = ?PATH_DIR__DATA_OUTPUTS,
-    do_save_data(FromNode, Data, DirectoryPath);
+    do_write_data(FromNode, Data, DirectoryPath);
 
-do_save_data(FromNode, Data, DirectoryPath) ->
+do_write_data(FromNode, Data, DirectoryPath) ->
     FilePath = filename:join([DirectoryPath, FromNode]),
     FormattedData = case (is_binary(Data) or is_list(Data)) of
         true  -> Data;
