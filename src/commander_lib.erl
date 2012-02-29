@@ -15,9 +15,9 @@
 
         do_save_data/3,
 
-        print_info/2,
-        print_data/2,
-        print_data/3,
+        do_print_info/2,
+        do_print_data/2,
+        do_print_data/3,
 
         lookup_exit_status/1,
         lookup_operation_handler/1,
@@ -54,7 +54,7 @@ commander_exit(fail, Message) ->
         (@ )Õ(@ )ÓÓÓÓ*|(@ )(@ )******(@)
 
         ">>,
-    print_info(fail, [FailTruck, Message, <<"\n">>]),
+    do_print_info(fail, [FailTruck, Message, <<"\n">>]),
     halt(1).
 
 
@@ -86,26 +86,26 @@ do_save_data(FromNode, Data, DirectoryPath) ->
 %%%============================================================================
 
 %%-----------------------------------------------------------------------------
-%% Function : print_info/2
+%% Function : do_print_info/2
 %% Purpose  : Inform the user of something that happened in the program.
 %% Type     : io()
 %%-----------------------------------------------------------------------------
-print_info(fail, Message) ->
+do_print_info(fail, Message) ->
     ok = io:format([?TERM_COLOR_FAIL, Message, ?TERM_COLOR_OFF, "\n"]).
 
 
 %%-----------------------------------------------------------------------------
-%% Function : print_data/2 -> print_data/3 -> print_data/4
+%% Function : do_print_data/2 -> do_print_data/3 -> do_print_data/4
 %% Purpose  : Adds header and color, then prints Data to stdout.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-print_data(From, Data) -> print_data(From, Data, ok).
+do_print_data(From, Data) -> do_print_data(From, Data, ok).
 
-print_data(From, Data, ok) -> print_data(From, Data, ok, ?TERM_COLOR_OFF);
-print_data(From, Data, fail) ->
-    print_data(From, io_lib:format("~p~n", [Data]), fail, ?TERM_COLOR_FAIL).
+do_print_data(From, Data, ok) -> do_print_data(From, Data, ok, ?TERM_COLOR_OFF);
+do_print_data(From, Data, fail) ->
+    do_print_data(From, io_lib:format("~p~n", [Data]), fail, ?TERM_COLOR_FAIL).
 
-print_data(From, Data, _Flag, Color) ->
+do_print_data(From, Data, _Flag, Color) ->
     Output = [
         % Header
         ?TERM_COLOR_EM, From, "\n", ?SEPARATOR, ?TERM_COLOR_OFF, "\n",
