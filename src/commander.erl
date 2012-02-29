@@ -24,9 +24,6 @@
 %% Purpose  : Entry point. Gets options, a list of nodes and spawns workers.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-main([]) ->
-    usage();
-
 main(Args) ->
     % Get options
     Options = get_options_or_usage(Args),
@@ -129,6 +126,7 @@ do_ensure_ssh_key(false) ->
 %% Purpose  : Parses and packs CLI options and arguments into #options{} record
 %% Type     : #options{} | usage()
 %%-----------------------------------------------------------------------------
+get_options_or_usage([]  ) -> usage();
 get_options_or_usage(Args) ->
     case getopt:parse(?OPT_SPECS, Args) of
         {ok, {OptList, [OperationCandidate|Commands]=CommandsList}} ->
