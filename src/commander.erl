@@ -136,6 +136,7 @@ get_options_or_usage(Args) ->
 
             case commander_lib:lookup_operation_handler(Operation) of
                 transporter when length(Commands) >= 2 ->
+                    % Splitting-off tail to ignore any additional arguments:
                     [PathFrom, PathTo | _] = Commands,
                     Paths = [{from, PathFrom}, {to, PathTo}],
                     get_packed_options(OptList, Operation, [], Paths);
