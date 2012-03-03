@@ -97,9 +97,12 @@ Roadmap
 
 * CLI option to filter nodes through a RegEx pattern
 * user-editable config files to override defaults
-* sftp support (get/put)
-* gated hosts (chained OS ssh/scp commands)
-* simultaneous display of resource usage on all nodes on one screen
+* ~~sftp support (get/put) via 'scp' command~~
+* sftp support (get/put) via OTP ssh app
+* gated hosts:
+    - chained OS ssh/scp commands?
+    - setup tunnels?
+* Persistent, interactive sessions
 * common cluster operations scripts:
     - cleanly shutdown a subset/group of nodes:
         - cleanly stop current jobs
