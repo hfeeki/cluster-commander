@@ -24,10 +24,9 @@
 %% Purpose  : Entry point. Gets options, a list of nodes and spawns workers.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-main(Args) ->
-    % Get options
-    Options = get_options_or_usage(Args),
-
+main(Args            ) when is_list(Args) -> main(get_options(Args));
+main({error, Reason })                    -> usage(Reason);
+main({ok,    Options})                    ->
     Operation   = Options#options.operation,
     SSHProvider = Options#options.ssh_provider,
 
@@ -128,13 +127,16 @@ do_ensure_ssh_key(key_gen, {error, Reason}) ->
 
 
 %%-----------------------------------------------------------------------------
-%% Function : get_options_or_usage/1
+%% Function : get_options/1
 %% Purpose  : Parses and packs CLI options and arguments into #options{} record
-%% Type     : #options{} | usage()
+%% Type     : {ok, #options{}} | {error, term()}
 %%-----------------------------------------------------------------------------
-get_options_or_usage([]  ) -> usage();
-get_options_or_usage(Args) ->
+get_options([]  ) -> {error, "Not enough arguments."};
+get_options(Args) ->
     case getopt:parse(?OPT_SPECS, Args) of
+        {ok, {_,       []}} ->
+            {error, "Not enough arguments."};
+
         {ok, {OptList, [OperationCandidate|Commands]=CommandsList}} ->
             Operation = list_to_atom(OperationCandidate),
 
@@ -146,7 +148,7 @@ get_options_or_usage(Args) ->
                     get_packed_options(OptList, Operation, [], Paths);
 
                 transport ->
-                    usage("Please specify 2 paths: origin and destination.");
+                    {error, "Please specify 2 paths: origin and destination."};
 
                 execution ->
                     get_packed_options(OptList, Operation, Commands, []);
@@ -156,7 +158,8 @@ get_options_or_usage(Args) ->
                     get_packed_options(OptList, Default, CommandsList, [])
             end;
 
-        {error, _} -> usage()
+        {error, Reason} ->
+            {error, io_lib:format("~p~n", [Reason])}
     end.
 
 
@@ -166,7 +169,7 @@ get_options_or_usage(Args) ->
 %% Type     : #options{}
 %%-----------------------------------------------------------------------------
 get_packed_options(OptList, Operation, Commands, Paths) ->
-    #options{
+    {ok, #options{
         operation       = Operation,
         command         = string:join(Commands, " "),
 
@@ -186,16 +189,14 @@ get_packed_options(OptList, Operation, Commands, Paths) ->
                         0     -> infinity;
                         Other -> Other * 1000
                     end
-    }.
+    }}.
 
 
 %%-----------------------------------------------------------------------------
-%% Function : usage/0 -> usage/1
+%% Function : usage/1
 %% Purpose  : Prints usage instructions and exits the program.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-usage() -> usage("").
-
 usage(Message) ->
     getopt:usage(?OPT_SPECS, ?MODULE, "command"),
     commander_lib:commander_exit(fail, Message).
