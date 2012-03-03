@@ -112,3 +112,4 @@ Roadmap
     - SSH
 * Configurable latency threshold parameter(s) to determine whether we consider
   a node "available"
+* Organize how generation of missing keys is handled.
