@@ -74,22 +74,20 @@ main(Args) ->
 %% Type     : none()
 %%-----------------------------------------------------------------------------
 do_launch(Operation, SSHProviderRequested, Nodes, Job) ->
-    Handler = commander_lib:lookup_operation_handler(Operation),
-
-    % Temporary work-around until I implement OTP-backed transporter
-    SSHProvider = case Handler of
-        transporter -> os;
-        executor    -> SSHProviderRequested
+    % Temporary work-around until I implement OTP-backed transport (SCP)
+    SSHProvider = case commander_lib:lookup_operation_type(Operation) of
+        transport -> os;
+        execution -> SSHProviderRequested
     end,
 
-    HandlerModule = join_atoms([?MODULE, Handler, SSHProvider], "_"),
+    OperatorModule = join_atoms([?MODULE, operator, SSHProvider], "_"),
 
     do_ssh_prerequisites(SSHProvider),
     commander_dispatcher:start(Nodes),
 
     lists:foreach(
         fun(Node) ->
-            HandlerModule:start(Node, Job, Operation)
+            OperatorModule:start(Node, Job, Operation)
         end,
         Nodes
     ).
@@ -140,17 +138,17 @@ get_options_or_usage(Args) ->
         {ok, {OptList, [OperationCandidate|Commands]=CommandsList}} ->
             Operation = list_to_atom(OperationCandidate),
 
-            case commander_lib:lookup_operation_handler(Operation) of
-                transporter when length(Commands) >= 2 ->
+            case commander_lib:lookup_operation_type(Operation) of
+                transport when length(Commands) >= 2 ->
                     % Splitting-off tail to ignore any additional arguments:
                     [PathFrom, PathTo | _] = Commands,
                     Paths = [{from, PathFrom}, {to, PathTo}],
                     get_packed_options(OptList, Operation, [], Paths);
 
-                transporter ->
+                transport ->
                     usage("Please specify 2 paths: origin and destination.");
 
-                executor ->
+                execution ->
                     get_packed_options(OptList, Operation, Commands, []);
 
                 unknown ->

@@ -19,7 +19,7 @@
         do_print_data/3,
 
         lookup_exit_status/1,
-        lookup_operation_handler/1,
+        lookup_operation_type/1,
         lookup_default_operation/0,
 
         os_cmd/1
@@ -132,10 +132,10 @@ lookup_exit_status(error) -> fail;
 lookup_exit_status(_)     -> fail.
 
 
-lookup_operation_handler(get)  -> transporter;
-lookup_operation_handler(put)  -> transporter;
-lookup_operation_handler(exec) -> executor;
-lookup_operation_handler(_)    -> unknown.
+lookup_operation_type(get)  -> transport;
+lookup_operation_type(put)  -> transport;
+lookup_operation_type(exec) -> execution;
+lookup_operation_type(_)    -> unknown.
 
 
 lookup_default_operation() -> exec.

@@ -2,12 +2,12 @@
 %%% Copyright (c) 2011 Siraaj Khandkar
 %%% Licensed under MIT license. See LICENSE file for details.
 %%%
-%%% File    : commander_executor_otp.erl
+%%% File    : coommander_operator_otp.erl
 %%% Author  : Siraaj Khandkar <siraaj@khandkar.net>
-%%% Purpose : Executor process (using Erlang/OTP ssh app)
+%%% Purpose : Operator backed by the Erlang/OTP ssh app.
 %%%----------------------------------------------------------------------------
 
--module(commander_executor_otp).
+-module(commander_operator_otp).
 -export([start/3, init/3]).
 
 
