@@ -169,27 +169,29 @@ get_options(Args) ->
 %% Type     : #options{}
 %%-----------------------------------------------------------------------------
 get_packed_options(OptList, Operation, Commands, Paths) ->
-    {ok, #options{
-        operation       = Operation,
-        command         = string:join(Commands, " "),
+    {ok,
+        #options{
+            operation      = Operation,
+            command        = string:join(Commands, " "),
 
-        path_from       = proplists:get_value(from,             Paths),
-        path_to         = proplists:get_value(to,               Paths),
+            path_from      = proplists:get_value(from,           Paths),
+            path_to        = proplists:get_value(to,             Paths),
 
-        user            = proplists:get_value(user,             OptList),
-        nodes           = proplists:get_value(nodes,            OptList),
-        nodes_group     = proplists:get_value(nodes_group,      OptList),
-        ssh_provider    = proplists:get_value(ssh_provider,     OptList),
-        port            = proplists:get_value(port,             OptList),
-        try_all_nodes   = proplists:get_value(try_all_nodes,    OptList),
-        save_data_to    = proplists:get_value(save_data_to,     OptList),
-        host_timeout    = proplists:get_value(host_timeout,     OptList),
-        global_timeout  =
-                    case  proplists:get_value(global_timeout,   OptList) of
-                        0     -> infinity;
-                        Other -> Other * 1000
-                    end
-    }}.
+            user           = proplists:get_value(user,           OptList),
+            nodes          = proplists:get_value(nodes,          OptList),
+            nodes_group    = proplists:get_value(nodes_group,    OptList),
+            ssh_provider   = proplists:get_value(ssh_provider,   OptList),
+            port           = proplists:get_value(port,           OptList),
+            try_all_nodes  = proplists:get_value(try_all_nodes,  OptList),
+            save_data_to   = proplists:get_value(save_data_to,   OptList),
+            host_timeout   = proplists:get_value(host_timeout,   OptList),
+            global_timeout =
+                        case proplists:get_value(global_timeout, OptList) of
+                            0     -> infinity;
+                            Other -> Other * 1000
+                        end
+        }
+    }.
 
 
 %%-----------------------------------------------------------------------------
