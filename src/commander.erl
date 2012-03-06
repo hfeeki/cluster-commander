@@ -61,14 +61,19 @@ main({ok,    Options})                    ->
             commander_lib:commander_exit(fail, Reason);
 
         {ok, Nodes} ->
-            do_ssh_prerequisites(SSHProvider),
+            case do_ssh_prerequisites(SSHProvider) of
+                {error, Error} ->
+                    ErrorText = io_lib:format("~p~n", [Error]),
+                    commander_lib:commander_exit(fail, ErrorText);
 
-            % Dispatch workers
-            commander_dispatcher:start(Nodes, OperatorModule, Job, Operation),
+                ok ->
+                    % Dispatch workers
+                    commander_dispatcher:start(Nodes, OperatorModule, Job, Operation),
 
-            % Wait until done or timeout
-            timer:sleep(Options#options.global_timeout),
-            commander_lib:commander_exit(fail, "GLOBAL TIMEOUT EXCEEDED!")
+                    % Wait until done or timeout
+                    timer:sleep(Options#options.global_timeout),
+                    commander_lib:commander_exit(fail, "GLOBAL TIMEOUT EXCEEDED!")
+            end
     end.
 
 
@@ -76,11 +81,22 @@ main({ok,    Options})                    ->
 %%% Internal
 %%%============================================================================
 
-do_ssh_prerequisites(os) -> none;
+do_ssh_prerequisites(os)  -> ok;
 do_ssh_prerequisites(otp) ->
-    do_ensure_ssh_key(),
-    ok = crypto:start(),
-    ok = ssh:start().
+    do_ssh_prerequisites(otp, key, do_ensure_ssh_key()).
+
+
+do_ssh_prerequisites(otp, key, ok) ->
+    do_ssh_prerequisites(otp, crypto, crypto:start());
+do_ssh_prerequisites(otp, key, Error) ->
+    {error, Error};
+
+do_ssh_prerequisites(otp, crypto, ok) ->
+    do_ssh_prerequisites(otp, ssh, ssh:start());
+do_ssh_prerequisites(otp, crypto, Error) ->
+    {error, Error};
+
+do_ssh_prerequisites(otp, ssh, ok) -> ok.
 
 
 join_atoms(Atoms, Separator) ->
@@ -102,12 +118,10 @@ do_ensure_ssh_key(key_exists, false) ->
 
 do_ensure_ssh_key(key_dir, ok) ->
     do_ensure_ssh_key(key_gen, commander_lib:os_cmd(?OS_CMD__SSH_KEYGEN));
-do_ensure_ssh_key(key_dir, Error) ->
-    commander_lib:commander_exit(fail, io_lib:format("~p~n", [Error]));
+do_ensure_ssh_key(key_dir, Error) -> {error, Error};
 
 do_ensure_ssh_key(key_gen, {ok,   _Output}) -> ok;
-do_ensure_ssh_key(key_gen, {error, Reason}) ->
-    commander_lib:commander_exit(fail, Reason).
+do_ensure_ssh_key(key_gen, {error, Reason}) -> {error, Reason}.
 
 
 %%-----------------------------------------------------------------------------
