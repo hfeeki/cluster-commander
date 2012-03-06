@@ -125,7 +125,9 @@ do_ssh_prerequisites(otp, crypto, ok) ->
 do_ssh_prerequisites(otp, crypto, Error) ->
     {error, Error};
 
-do_ssh_prerequisites(otp, ssh, ok) -> ok.
+do_ssh_prerequisites(otp, ssh, ok) -> ok;
+do_ssh_prerequisites(otp, ssh, Error) ->
+    {error, Error}.
 
 
 join_atoms(Atoms, Separator) ->
