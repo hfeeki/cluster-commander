@@ -8,7 +8,7 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander_operator_os).
--export([start/3, main/3]).
+-export([start/2, main/2]).
 
 
 -include("commander_config.hrl").
@@ -19,20 +19,20 @@
 %%% API
 %%%============================================================================
 
-start(Node, Job, Operation) ->
-    spawn_monitor(?MODULE, main, [Node, Job, Operation]).
+start(Node, Job) ->
+    spawn_monitor(?MODULE, main, [Node, Job]).
 
 
 %%%============================================================================
 %%% Internal
 %%%============================================================================
 
-main(Node, Job, Operation) ->
+main(Node, Job) ->
     % Ensure prerequisites
-    ok = do_operation_prerequisites(Operation, Node, Job),
+    ok = do_operation_prerequisites(Node, Job),
 
     % Compile command string
-    OSCommandString = get_command_string(Node, Operation, Job),
+    OSCommandString = get_command_string(Node, Job),
 
     % Execute command and get output
     {ExitStatus, Output} = commander_lib:os_cmd(OSCommandString),
@@ -43,8 +43,9 @@ main(Node, Job, Operation) ->
     commander_lib:do_write_data(Node, Output, Job#job.save_data_to).
 
 
-get_command_string(Node, Operation, Job) ->
+get_command_string(Node, Job) ->
     % Unpack options
+    Operation  = Job#job.operation,
     User       = Job#job.user,
     Port       = integer_to_list(Job#job.port),
     Timeout    = integer_to_list(trunc(Job#job.timeout)),
@@ -75,8 +76,7 @@ get_command_string(Node, Operation, Job) ->
     end.
 
 
-do_operation_prerequisites(get, Node, Job) ->
-    PathWithNodeDir = filename:join([Job#job.path_to, Node, "dummyfilename"]),
-    filelib:ensure_dir(PathWithNodeDir);
+do_operation_prerequisites(Node, #job{operation=get, path_to=PathTo}) ->
+    filelib:ensure_dir(filename:join([PathTo, Node, "dummy_file_name"]));
 
-do_operation_prerequisites(_Op, _Node, _Job) -> ok.
+do_operation_prerequisites(_Node, _Job) -> ok.

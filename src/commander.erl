@@ -47,6 +47,7 @@ main({ok,    Options})                    ->
 
     % Pack job options
     Job = #job{
+        operation    = Operation,
         user         = Options#options.user,
         command      = Options#options.command,
         save_data_to = Options#options.save_data_to,
@@ -73,7 +74,7 @@ main({ok,    Options})                    ->
 
                     % Launch workers
                     Workers = [
-                        OperatorModule:start(Node, Job, Operation)
+                        OperatorModule:start(Node, Job)
                         || Node <- Nodes
                     ],
 
