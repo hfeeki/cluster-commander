@@ -9,36 +9,41 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander_dispatcher).
--export([start/1, done/1]).
+-export([start/4]).
 
 
 %%%============================================================================
 %%% API
 %%%============================================================================
 
-start(Nodes) ->
+start(Nodes, OperatorModule, Job, Operation) ->
     register(dispatcher_proc,
-        spawn(fun() -> dispatcher(Nodes) end)
+        spawn(fun() -> init(Nodes, OperatorModule, Job, Operation) end)
     ).
-
-
-done(Node) ->
-    dispatcher_proc ! {done, Node}.
 
 
 %%%============================================================================
 %%% Internal
 %%%============================================================================
 
+init(Nodes, OperatorModule, Job, Operation) ->
+    Workers = [OperatorModule:start(Node, Job, Operation) || Node <- Nodes],
+    queue_loop(Workers).
+
 %%-----------------------------------------------------------------------------
-%% Function : dispatcher/1
+%% Function : queue_loop/1
 %% Purpose  : Waits for job completions, then exits the program.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-dispatcher([]) ->
+queue_loop([]) ->
     commander_lib:commander_exit(ok);
 
-dispatcher(Nodes) ->
+queue_loop(Workers) ->
     receive
-        {done, Node} -> dispatcher(Nodes -- [Node])
+        {'DOWN', Mref, _, Pid, normal} ->
+            queue_loop(lists:delete({Pid, Mref}, Workers));
+
+        {'DOWN', Mref, _, Pid, Info} ->
+            commander_lib:do_print_info(fail, io_lib:format("~p~n", [Info])),
+            queue_loop(lists:delete({Pid, Mref}, Workers))
     end.

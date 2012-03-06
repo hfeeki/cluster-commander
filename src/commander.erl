@@ -27,8 +27,15 @@
 main(Args            ) when is_list(Args) -> main(get_options(Args));
 main({error, Reason })                    -> usage(Reason);
 main({ok,    Options})                    ->
-    Operation   = Options#options.operation,
-    SSHProvider = Options#options.ssh_provider,
+    Operation = Options#options.operation,
+
+    % Temporary work-around until I implement OTP-backed transport (SCP)
+    SSHProvider = case commander_lib:lookup_operation_type(Operation) of
+        transport -> os;
+        execution -> Options#options.ssh_provider
+    end,
+
+    OperatorModule = join_atoms([?MODULE, operator, SSHProvider], "_"),
 
     % Pack nodes options
     NodesOpts = #nodes_opts{
@@ -51,8 +58,10 @@ main({ok,    Options})                    ->
     % Get a list of target nodes
     case commander_nodes:get_nodes(NodesOpts) of
         {ok, Nodes} ->
-            % Launch workers
-            do_launch(Operation, SSHProvider, Nodes, Job),
+            do_ssh_prerequisites(SSHProvider),
+
+            % Dispatch workers
+            commander_dispatcher:start(Nodes, OperatorModule, Job, Operation),
 
             % Wait until done or timeout
             timer:sleep(Options#options.global_timeout),
@@ -66,31 +75,6 @@ main({ok,    Options})                    ->
 %%%============================================================================
 %%% Internal
 %%%============================================================================
-
-%%-----------------------------------------------------------------------------
-%% Function : do_launch/4
-%% Purpose  : Processes prerequisites and starts worker procs.
-%% Type     : none()
-%%-----------------------------------------------------------------------------
-do_launch(Operation, SSHProviderRequested, Nodes, Job) ->
-    % Temporary work-around until I implement OTP-backed transport (SCP)
-    SSHProvider = case commander_lib:lookup_operation_type(Operation) of
-        transport -> os;
-        execution -> SSHProviderRequested
-    end,
-
-    OperatorModule = join_atoms([?MODULE, operator, SSHProvider], "_"),
-
-    do_ssh_prerequisites(SSHProvider),
-    commander_dispatcher:start(Nodes),
-
-    lists:foreach(
-        fun(Node) ->
-            OperatorModule:start(Node, Job, Operation)
-        end,
-        Nodes
-    ).
-
 
 do_ssh_prerequisites(os) -> none;
 do_ssh_prerequisites(otp) ->

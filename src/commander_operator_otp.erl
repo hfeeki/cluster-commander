@@ -20,7 +20,7 @@
 %%%============================================================================
 
 start(Node, Job, Operation) ->
-    spawn(?MODULE, init, [Node, Job, Operation]).
+    spawn_monitor(?MODULE, init, [Node, Job, Operation]).
 
 
 %%%============================================================================
@@ -70,8 +70,7 @@ init(Node, Job, _Operation) ->
 %%-----------------------------------------------------------------------------
 stop(Node, Data, ExitStatus, SaveDataTo) ->
     commander_lib:do_print_data(Node, Data, ExitStatus),
-    commander_lib:do_write_data(Node, Data, SaveDataTo),
-    commander_dispatcher:done(Node).
+    commander_lib:do_write_data(Node, Data, SaveDataTo).
 
 
 %%-----------------------------------------------------------------------------

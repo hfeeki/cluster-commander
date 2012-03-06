@@ -20,7 +20,7 @@
 %%%============================================================================
 
 start(Node, Job, Operation) ->
-    spawn(?MODULE, main, [Node, Job, Operation]).
+    spawn_monitor(?MODULE, main, [Node, Job, Operation]).
 
 
 %%%============================================================================
@@ -40,10 +40,7 @@ main(Node, Job, Operation) ->
     % Display and save output
     Status = commander_lib:lookup_exit_status(ExitStatus),
     commander_lib:do_print_data(Node, Output, Status),
-    commander_lib:do_write_data(Node, Output, Job#job.save_data_to),
-
-    % Exit
-    commander_dispatcher:done(Node).
+    commander_lib:do_write_data(Node, Output, Job#job.save_data_to).
 
 
 get_command_string(Node, Operation, Job) ->
