@@ -68,8 +68,10 @@ main({ok,    Options})                    ->
                     commander_lib:commander_exit(fail, ErrorText);
 
                 ok ->
+                    % Start global timer
+                    Timer = erlang:start_timer(GlobalTimeout, self(), {}),
+
                     % Launch workers
-                    Timer  = spawn_monitor(timer, sleep, [GlobalTimeout]),
                     Workers = [
                         OperatorModule:start(Node, Job, Operation)
                         || Node <- Nodes
@@ -93,9 +95,9 @@ main({ok,    Options})                    ->
 wait_for_completions(_, []) ->
     commander_lib:commander_exit(ok);
 
-wait_for_completions({TimerPID, TimerRef}=Timer, Workers) ->
+wait_for_completions(Timer, Workers) ->
     receive
-        {'DOWN', TimerRef, _, TimerPID, normal} ->
+        {timeout, Timer, {}} ->
             commander_lib:commander_exit(fail, "GLOBAL TIMEOUT EXCEEDED!");
 
         {'DOWN', Ref, _, PID, normal} ->
