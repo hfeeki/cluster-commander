@@ -27,7 +27,8 @@
 main(Args            ) when is_list(Args) -> main(get_options(Args));
 main({error, Reason })                    -> usage(Reason);
 main({ok,    Options})                    ->
-    Operation = Options#options.operation,
+    Operation     = Options#options.operation,
+    GlobalTimeout = Options#options.global_timeout,
 
     % Temporary work-around until I implement OTP-backed transport (SCP)
     SSHProvider = case commander_lib:lookup_operation_type(Operation) of
@@ -67,12 +68,15 @@ main({ok,    Options})                    ->
                     commander_lib:commander_exit(fail, ErrorText);
 
                 ok ->
-                    % Dispatch workers
-                    commander_dispatcher:start(Nodes, OperatorModule, Job, Operation),
+                    % Launch workers
+                    Timer  = spawn_monitor(timer, sleep, [GlobalTimeout]),
+                    Workers = [
+                        OperatorModule:start(Node, Job, Operation)
+                        || Node <- Nodes
+                    ],
 
-                    % Wait until done or timeout
-                    timer:sleep(Options#options.global_timeout),
-                    commander_lib:commander_exit(fail, "GLOBAL TIMEOUT EXCEEDED!")
+                    % Wait for completions
+                    wait_for_completions(Timer, Workers)
             end
     end.
 
@@ -80,6 +84,28 @@ main({ok,    Options})                    ->
 %%%============================================================================
 %%% Internal
 %%%============================================================================
+
+%%-----------------------------------------------------------------------------
+%% Function : wait_for_completions/1
+%% Purpose  : Waits for job completions, then exits the program.
+%% Type     : none()
+%%-----------------------------------------------------------------------------
+wait_for_completions(_, []) ->
+    commander_lib:commander_exit(ok);
+
+wait_for_completions({TimerPID, TimerRef}=Timer, Workers) ->
+    receive
+        {'DOWN', TimerRef, _, TimerPID, normal} ->
+            commander_lib:commander_exit(fail, "GLOBAL TIMEOUT EXCEEDED!");
+
+        {'DOWN', Ref, _, PID, normal} ->
+            wait_for_completions(Timer, lists:delete({PID, Ref}, Workers));
+
+        {'DOWN', Ref, _, PID, Info} ->
+            commander_lib:do_print_info(fail, io_lib:format("~p~n", [Info])),
+            wait_for_completions(Timer, lists:delete({PID, Ref}, Workers))
+    end.
+
 
 do_ssh_prerequisites(os)  -> ok;
 do_ssh_prerequisites(otp) ->
