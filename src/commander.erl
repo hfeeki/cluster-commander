@@ -36,7 +36,7 @@ main({ok,    Options})                    ->
         execution -> Options#options.ssh_provider
     end,
 
-    OperatorModule = join_atoms([?MODULE, operator, SSHProvider], "_"),
+    WorkerModule = join_atoms([?MODULE, worker, SSHProvider], "_"),
 
     % Pack nodes options
     NodesOpts = #nodes_opts{
@@ -74,7 +74,7 @@ main({ok,    Options})                    ->
 
                     % Start workers
                     Workers = [
-                        spawn_monitor(OperatorModule, start, [Node, Job])
+                        spawn_monitor(WorkerModule, start, [Node, Job])
                         || Node <- Nodes
                     ],
 

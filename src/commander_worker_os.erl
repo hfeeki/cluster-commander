@@ -2,12 +2,12 @@
 %%% Copyright (c) 2011 Siraaj Khandkar
 %%% Licensed under MIT license. See LICENSE file for details.
 %%%
-%%% File    : commander_operator_os.erl
+%%% File    : commander_worker_os.erl
 %%% Author  : Siraaj Khandkar <siraaj@khandkar.net>
-%%% Purpose : Operator backed by the operating system's "ssh"|"scp" commands.
+%%% Purpose : Worker backed by the operating system's "ssh"|"scp" commands.
 %%%----------------------------------------------------------------------------
 
--module(commander_operator_os).
+-module(commander_worker_os).
 -export([start/2]).
 
 
