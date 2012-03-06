@@ -57,6 +57,9 @@ main({ok,    Options})                    ->
 
     % Get a list of target nodes
     case commander_nodes:get_nodes(NodesOpts) of
+        {error, Reason} ->
+            commander_lib:commander_exit(fail, Reason);
+
         {ok, Nodes} ->
             do_ssh_prerequisites(SSHProvider),
 
@@ -65,10 +68,7 @@ main({ok,    Options})                    ->
 
             % Wait until done or timeout
             timer:sleep(Options#options.global_timeout),
-            commander_lib:commander_exit(fail, "GLOBAL TIMEOUT EXCEEDED!");
-
-        {error, Reason} ->
-            commander_lib:commander_exit(fail, Reason)
+            commander_lib:commander_exit(fail, "GLOBAL TIMEOUT EXCEEDED!")
     end.
 
 
