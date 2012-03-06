@@ -8,7 +8,7 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander_operator_os).
--export([start/2, main/2]).
+-export([start/2]).
 
 
 -include("commander_config.hrl").
@@ -20,14 +20,6 @@
 %%%============================================================================
 
 start(Node, Job) ->
-    spawn_monitor(?MODULE, main, [Node, Job]).
-
-
-%%%============================================================================
-%%% Internal
-%%%============================================================================
-
-main(Node, Job) ->
     % Ensure prerequisites
     ok = do_operation_prerequisites(Node, Job),
 
@@ -42,6 +34,10 @@ main(Node, Job) ->
     commander_lib:do_print_data(Node, Output, Status),
     commander_lib:do_write_data(Node, Output, Job#job.save_data_to).
 
+
+%%%============================================================================
+%%% Internal
+%%%============================================================================
 
 get_command_string(Node, Job) ->
     % Unpack options

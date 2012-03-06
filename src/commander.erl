@@ -72,9 +72,9 @@ main({ok,    Options})                    ->
                     % Start global timer
                     Timer = erlang:start_timer(GlobalTimeout, self(), {}),
 
-                    % Launch workers
+                    % Start workers
                     Workers = [
-                        OperatorModule:start(Node, Job)
+                        spawn_monitor(OperatorModule, start, [Node, Job])
                         || Node <- Nodes
                     ],
 

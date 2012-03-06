@@ -8,7 +8,7 @@
 %%%----------------------------------------------------------------------------
 
 -module(commander_operator_otp).
--export([start/2, init/2]).
+-export([start/2]).
 
 
 -include("commander_config.hrl").
@@ -19,20 +19,12 @@
 %%% API
 %%%============================================================================
 
-start(Node, Job) ->
-    spawn_monitor(?MODULE, init, [Node, Job]).
-
-
-%%%============================================================================
-%%% Internal
-%%%============================================================================
-
 %%-----------------------------------------------------------------------------
-%% Function : init/3
+%% Function : start/2
 %% Purpose  : Attempt SSH connection
-%% Type     : loop/1 | stop/3
+%% Type     : collect_data/1 | stop/4
 %%-----------------------------------------------------------------------------
-init(Node, Job) ->
+start(Node, Job) ->
     User       = Job#job.user,
     Port       = Job#job.port,
     Command    = Job#job.command,
@@ -54,7 +46,7 @@ init(Node, Job) ->
             case ssh_connection:session_channel(ConnRef, Timeout) of
                 {ok, ChannId} ->
                     ssh_connection:exec(ConnRef, ChannId, Command, Timeout),
-                    loop(Node, SaveDataTo);
+                    collect_data(Node, SaveDataTo);
                 {error, Reason} ->
                     stop(Node, Reason, fail, SaveDataTo)
             end;
@@ -63,8 +55,12 @@ init(Node, Job) ->
     end.
 
 
+%%%============================================================================
+%%% Internal
+%%%============================================================================
+
 %%-----------------------------------------------------------------------------
-%% Function : stop/3
+%% Function : stop/4
 %% Purpose  : Print output and exit, informing dispatcher of the completion.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
@@ -74,21 +70,21 @@ stop(Node, Data, ExitStatus, SaveDataTo) ->
 
 
 %%-----------------------------------------------------------------------------
-%% Function : loop/1 -> loop/2
+%% Function : collect_data/2 -> collect_data/3
 %% Purpose  : Main loop. Collect output of the executed SSH command.
 %% Type     : none()
 %%-----------------------------------------------------------------------------
-loop(Node, SaveDataTo) -> loop(Node, [], SaveDataTo).
+collect_data(Node, SaveDataTo) -> collect_data(Node, [], SaveDataTo).
 
-loop(Node, DataAcc, SaveDataTo) ->
+collect_data(Node, DataAcc, SaveDataTo) ->
     receive
         {ssh_cm, _, {data, _, _, Data}} ->
-            loop(Node, [Data|DataAcc], SaveDataTo);
+            collect_data(Node, [Data|DataAcc], SaveDataTo);
 
         {ssh_cm, _, {closed, _}} ->
             Data = lists:reverse(DataAcc),
             stop(Node, Data, ok, SaveDataTo);
 
         {ssh_cm, _} ->
-            loop(Node, DataAcc, SaveDataTo)
+            collect_data(Node, DataAcc, SaveDataTo)
     end.
