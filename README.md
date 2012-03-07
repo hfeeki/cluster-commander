@@ -1,6 +1,7 @@
 # Cluster Commander #
 
-Cluster management tool. Concurrently runs command(s) on groups of nodes.
+Cluster management tool. Concurrently runs commands on, and
+uploads/downloads files to groups of nodes.
 
 By default, reads a list of nodes from `pbsnodes` command (and skips nodes
 marked as 'down' and/or 'offline', overridden with `-a` CLI option).
