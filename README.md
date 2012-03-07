@@ -40,31 +40,35 @@ $ cp ./bin/commander /some/dir/in/your/path/
 
 Usage
 =====
-    commander   [OPTION]... [COMMAND_STRING]
+```sh
+commander   [OPTION]... [COMMAND_STRING]
 
-      SHORT     LONG              DESCRIPTION                  DEFAULTS TO
-      -------------------------------------------------------------------------
-      -u        --user            User                         <CURRENT_USER>
-      -g        --group           Nodes group                  pbs
-      -s        --ssh             SSH provider ('os' | 'otp')  otp
-      -t        --host-timeout    Host timeout                 5  <SECS>
-      -T        --global-timeout  Global timeout               10 <SECS>
-      -p        --port            SSH port number              22
+  SHORT     LONG              DESCRIPTION                  DEFAULTS TO
+  -------------------------------------------------------------------------
+  -u        --user            User                         <CURRENT_USER>
+  -g        --group           Nodes group                  pbs
+  -s        --ssh             SSH provider ('os' | 'otp')  otp
+  -t        --host-timeout    Host timeout                 5  <SECS>
+  -T        --global-timeout  Global timeout               10 <SECS>
+  -p        --port            SSH port number              22
 
-      -a        --try-all-nodes   Attempt to connect to all    <OFF>
-                                  nodes, regardless of their
-                                  current state.
+  -a        --try-all-nodes   Attempt to connect to all    <OFF>
+                              nodes, regardless of their
+                              current state.
 
-      -n        --nodes           Nodes list                   <EMPTY>
-                                  (comma-separated). Overrides
-                                  all other sources of nodes.
+  -n        --nodes           Nodes list                   <EMPTY>
+                              (comma-separated). Overrides
+                              all other sources of nodes.
+```
 
 If the target command contains options itself, it must be quoted to prevent
 commander from attempting to interpret those options, for example:
 
-    commander uptime
-    commander ls /
-    commander "ls -l /"
+```sh
+commander uptime
+commander ls /
+commander 'ls -l /'
+```
 
 
 Caveats
