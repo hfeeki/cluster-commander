@@ -169,56 +169,36 @@ get_options(Args) ->
 %% Type     : #options{}
 %%-----------------------------------------------------------------------------
 get_packed_options(OptList, Operation, Commands, Paths) ->
-    Options = #options{
-        operation      = Operation,
-        command        = string:join(Commands, " "),
-
-        path_from      = proplists:get_value(from,           Paths),
-        path_to        = proplists:get_value(to,             Paths),
-
-        user           = proplists:get_value(user,           OptList),
-        nodes          = proplists:get_value(nodes,          OptList),
-        nodes_group    = proplists:get_value(nodes_group,    OptList),
-        ssh_provider   = proplists:get_value(ssh_provider,   OptList),
-        port           = proplists:get_value(port,           OptList),
-        try_all_nodes  = proplists:get_value(try_all_nodes,  OptList),
-        save_data_to   = proplists:get_value(save_data_to,   OptList),
-        host_timeout   = proplists:get_value(host_timeout,   OptList),
-        global_timeout =
-                    case proplists:get_value(global_timeout, OptList) of
-                        0     -> infinity;
-                        Other -> Other * 1000
-                    end
-    },
-
-    Operation     = Options#options.operation,
-    GlobalTimeout = Options#options.global_timeout,
+    GlobalTimeout = case proplists:get_value(global_timeout, OptList) of
+        0     -> infinity;
+        Other -> Other * 1000
+    end,
 
     % Temporary work-around until I implement OTP-backed transport (SCP)
     SSHProvider = case commander_lib:lookup_operation_type(Operation) of
         transport -> os;
-        execution -> Options#options.ssh_provider
+        execution -> proplists:get_value(ssh_provider, OptList)
     end,
 
     WorkerModule = join_atoms([?MODULE, worker, SSHProvider], "_"),
 
     % Pack nodes options
     NodesOpts = #nodes_opts{
-        nodes         = Options#options.nodes,
-        nodes_group   = Options#options.nodes_group,
-        try_all_nodes = Options#options.try_all_nodes
+        nodes         = proplists:get_value(nodes,         OptList),
+        nodes_group   = proplists:get_value(nodes_group,   OptList),
+        try_all_nodes = proplists:get_value(try_all_nodes, OptList)
     },
 
     % Pack job options
     Job = #job{
         operation    = Operation,
-        user         = Options#options.user,
-        command      = Options#options.command,
-        save_data_to = Options#options.save_data_to,
-        timeout      = Options#options.host_timeout,
-        port         = Options#options.port,
-        path_from    = Options#options.path_from,
-        path_to      = Options#options.path_to
+        command      = string:join(Commands, " "),
+        user         = proplists:get_value(user,         OptList),
+        save_data_to = proplists:get_value(save_data_to, OptList),
+        timeout      = proplists:get_value(host_timeout, OptList),
+        port         = proplists:get_value(port,         OptList),
+        path_from    = proplists:get_value(from,         Paths),
+        path_to      = proplists:get_value(to,           Paths)
     },
 
     {ok, {SSHProvider, WorkerModule, Job, NodesOpts, GlobalTimeout}}.
