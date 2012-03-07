@@ -40,9 +40,9 @@ $ cp ./bin/commander /some/dir/in/your/path/
 
 Usage
 =====
-```sh
-$ commander   [OPTIONS] [exec]    [COMMAND_STRING]
-$ commander   [OPTIONS] [put|get] [FROM_PATH] [TO_PATH]
+```
+commander   [OPTIONS] [exec]    [COMMAND_STRING]
+commander   [OPTIONS] [put|get] [FROM_PATH] [TO_PATH]
 
   SHORT     LONG              DESCRIPTION                  DEFAULTS TO
   -------------------------------------------------------------------------
