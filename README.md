@@ -75,13 +75,14 @@ $ commander 'ls -la /'
 # Get uptime for all hosts, with a short host timeout and no global timeout
 $ commander -t 2 -T 0 -a uptime
 
-# Disable timeouts and download /etc/hosts from all available nodes in group01
-$ commander -t0 -T0 -g group01 get /etc/hosts ./tmp
+# Disable timeouts and download /etc/hosts from all available nodes in
+# group "compute_nodes_01"
+$ commander -t0 -T0 -g compute_nodes_01 get /etc/hosts ./tmp
 $ ls ./tmp/*/*
-./tmp/group01-01/hosts  ./tmp/group01-03/hosts  ./tmp/group01-05/hosts
-./tmp/group01-07/hosts  ./tmp/group01-09/hosts
-./tmp/group01-02/hosts  ./tmp/group01-04/hosts  ./tmp/group01-06/hosts
-./tmp/group01-08/hosts  ./tmp/group01-10/hosts
+./tmp/node-01-01/hosts  ./tmp/node-01-03/hosts  ./tmp/node-01-05/hosts
+./tmp/node-01-07/hosts  ./tmp/node-01-09/hosts
+./tmp/node-01-02/hosts  ./tmp/node-01-04/hosts  ./tmp/node-01-06/hosts
+./tmp/node-01-08/hosts  ./tmp/node-01-10/hosts
 
 # Disable timeouts and push an identical /etc/hosts file to all available nodes
 $ commander -t 0 -T 0 put ./tmp/etc_hosts /etc/hosts
