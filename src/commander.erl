@@ -70,7 +70,8 @@ main({ok,    Options})                    ->
 
                 ok ->
                     % Start global timer
-                    Timer = erlang:start_timer(GlobalTimeout, self(), {}),
+                    % (start_timer/3 BIF does not support 'infinity')
+                    Timeout = spawn_monitor(timer, sleep, [GlobalTimeout]),
 
                     % Start workers
                     Workers = [
@@ -79,7 +80,7 @@ main({ok,    Options})                    ->
                     ],
 
                     % Wait for completions
-                    wait_for_completions(Timer, Workers)
+                    wait_for_completions(Timeout, Workers)
             end
     end.
 
@@ -96,17 +97,17 @@ main({ok,    Options})                    ->
 wait_for_completions(_, []) ->
     commander_lib:commander_exit(ok);
 
-wait_for_completions(Timer, Workers) ->
+wait_for_completions({TimeoutPID, TimeoutRef}=Timeout, Workers) ->
     receive
-        {timeout, Timer, {}} ->
+        {'DOWN', TimeoutRef, _, TimeoutPID, normal} ->
             commander_lib:commander_exit(fail, "GLOBAL TIMEOUT EXCEEDED!");
 
         {'DOWN', Ref, _, PID, normal} ->
-            wait_for_completions(Timer, lists:delete({PID, Ref}, Workers));
+            wait_for_completions(Timeout, lists:delete({PID, Ref}, Workers));
 
         {'DOWN', Ref, _, PID, Info} ->
             commander_lib:do_print_info(fail, io_lib:format("~p~n", [Info])),
-            wait_for_completions(Timer, lists:delete({PID, Ref}, Workers))
+            wait_for_completions(Timeout, lists:delete({PID, Ref}, Workers))
     end.
 
 
