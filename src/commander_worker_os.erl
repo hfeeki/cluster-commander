@@ -51,7 +51,12 @@ get_command_string(Node, Job) ->
 
     % Build substrings
     UserAtNode    = User++"@"++Node,
-    OptionsCommon = Port++" -o ConnectTimeout="++Timeout++" -2 ",
+    OptionsCommon = Port
+                    ++" -o ConnectTimeout="++Timeout
+                    ++" -o StrictHostKeyChecking=no"
+                    ++" -o PasswordAuthentication=no"
+                    ++" -2 ",
+
     OptionsSCP    = "-r -P "++OptionsCommon,
     OptionsSSH    = "   -p "++OptionsCommon,
 
