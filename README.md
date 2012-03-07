@@ -87,7 +87,10 @@ $ ls ./tmp/*/*
 $ commander -t 0 -T 0 put ./tmp/etc_hosts /etc/hosts
 
 # Attempt to run a script on all nodes, with a global deadline of 1 minute
-$ commander -t0 -T60 -a /opt/collect-data.sh --somearg
+$ commander -t0 -T60 -a /opt/collect-data.sh
+
+# Same as above, but pass an argument to the script
+$ commander -t0 -T60 -a '/opt/collect-data.sh --somearg'
 ```
 
 
