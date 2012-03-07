@@ -41,7 +41,8 @@ $ cp ./bin/commander /some/dir/in/your/path/
 Usage
 =====
 ```sh
-commander   [OPTION]... [COMMAND_STRING]
+$ commander   [OPTIONS] [exec]    [COMMAND_STRING]
+$ commander   [OPTIONS] [put|get] [FROM_PATH] [TO_PATH]
 
   SHORT     LONG              DESCRIPTION                  DEFAULTS TO
   -------------------------------------------------------------------------
@@ -62,12 +63,31 @@ commander   [OPTION]... [COMMAND_STRING]
 ```
 
 If the target command contains options itself, it must be quoted to prevent
-commander from attempting to interpret those options, for example:
+commander from attempting to interpret those options.
 
+
+Examples
+--------
 ```sh
-commander uptime
-commander ls /
-commander 'ls -l /'
+$ commander ls /
+$ commander 'ls -la /'
+
+# Get uptime for all hosts, with a short host timeout and no global timeout
+$ commander -t 2 -T 0 -a uptime
+
+# Disable timeouts and download /etc/hosts from all available nodes in group01
+$ commander -t0 -T0 -g group01 get /etc/hosts ./tmp
+$ ls ./tmp/*/*
+./tmp/group01-01/hosts  ./tmp/group01-03/hosts  ./tmp/group01-05/hosts
+./tmp/group01-07/hosts  ./tmp/group01-09/hosts
+./tmp/group01-02/hosts  ./tmp/group01-04/hosts  ./tmp/group01-06/hosts
+./tmp/group01-08/hosts  ./tmp/group01-10/hosts
+
+# Disable timeouts and push an identical /etc/hosts file to all available nodes
+$ commander -t 0 -T 0 put ./tmp/etc_hosts /etc/hosts
+
+# Attempt to run a script on all nodes, with a global deadline of 1 minute
+$ commander -t0 -T60 -a /opt/collect-data.sh --somearg
 ```
 
 
