@@ -14,11 +14,13 @@ Alternatively (or additionaly), groups of nodes can be defined in
         "fs-02",
         "fs-03"
     ],
+
     "compute_nodes_01": [
         "node-01-01",
         "node-01-02",
         "node-01-03"
     ],
+
     "compute_nodes_02": [
         "node-02-01",
         "node-02-02",
