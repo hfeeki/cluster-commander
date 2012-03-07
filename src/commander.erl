@@ -4,7 +4,8 @@
 %%%
 %%% File    : commander.erl
 %%% Author  : Siraaj Khandkar <siraaj@khandkar.net>
-%%% Purpose : Executes a command on all available cluster nodes.
+%%% Purpose : Entry-point module of cluster-commander. Parses arguments and
+%%%           dispatches jobs.
 %%%----------------------------------------------------------------------------
 
 -module(commander).
@@ -62,7 +63,7 @@ main({ok,    {SSHProvider, WorkerModule, Job, NodesOpts, GlobalTimeout}}) ->
 %%-----------------------------------------------------------------------------
 %% Function : wait_for_completions/1
 %% Purpose  : Waits for job completions, then exits the program.
-%% Type     : none()
+%% Type     : no_return()
 %%-----------------------------------------------------------------------------
 wait_for_completions(_, []) ->
     commander_lib:commander_exit(ok);
@@ -81,6 +82,11 @@ wait_for_completions({TimeoutPID, TimeoutRef}=Timeout, Workers) ->
     end.
 
 
+%%-----------------------------------------------------------------------------
+%% Function : do_ssh_prerequisites/1 -> do_ssh_prerequisites/3
+%% Purpose  : Ensures existance of ssh keys and starts prerequisite apps.
+%% Type     : ok | {error, term()}
+%%-----------------------------------------------------------------------------
 do_ssh_prerequisites(os)  -> ok;
 do_ssh_prerequisites(otp) ->
     do_ssh_prerequisites(otp, key, do_ensure_ssh_key()).
@@ -101,6 +107,11 @@ do_ssh_prerequisites(otp, ssh, Error) ->
     {error, Error}.
 
 
+%%-----------------------------------------------------------------------------
+%% Function : join_atoms/2
+%% Purpose  : Joins two atoms with a given separator string. Shortcut
+%% Type     : atom()
+%%-----------------------------------------------------------------------------
 join_atoms(Atoms, Separator) ->
     list_to_atom(string:join([atom_to_list(A) || A <- Atoms], Separator)).
 
@@ -108,7 +119,7 @@ join_atoms(Atoms, Separator) ->
 %%-----------------------------------------------------------------------------
 %% Function : do_ensure_ssh_key/0 -> do_ensure_ssh_key/2
 %% Purpose  : If SSH key not found, calls ssh-keygen to make one.
-%% Type     : none()
+%% Type     : ok | {error, term()}
 %%-----------------------------------------------------------------------------
 do_ensure_ssh_key() ->
     do_ensure_ssh_key(key_exists, filelib:is_file(?PATH_FILE__ID_RSA)).
@@ -129,7 +140,7 @@ do_ensure_ssh_key(key_gen, {error, Reason}) -> {error, Reason}.
 %%-----------------------------------------------------------------------------
 %% Function : get_options/1
 %% Purpose  : Parses and packs CLI options and arguments into #options{} record
-%% Type     : {ok, #options{}} | {error, term()}
+%% Type     : {ok, term()}} | {error, term()}
 %%-----------------------------------------------------------------------------
 get_options([]  ) -> {error, "Not enough arguments."};
 get_options(Args) ->
@@ -164,9 +175,9 @@ get_options(Args) ->
 
 
 %%-----------------------------------------------------------------------------
-%% Function : get_packed_options/3
-%% Purpose  : Packs options into record
-%% Type     : #options{}
+%% Function : get_packed_options/4
+%% Purpose  : Packs options into records
+%% Type     : {ok, tuple()}
 %%-----------------------------------------------------------------------------
 get_packed_options(OptList, Operation, Commands, Paths) ->
     GlobalTimeout = case proplists:get_value(global_timeout, OptList) of
@@ -207,7 +218,7 @@ get_packed_options(OptList, Operation, Commands, Paths) ->
 %%-----------------------------------------------------------------------------
 %% Function : usage/1
 %% Purpose  : Prints usage instructions and exits the program.
-%% Type     : none()
+%% Type     : no_return()
 %%-----------------------------------------------------------------------------
 usage(Message) ->
     getopt:usage(?OPT_SPECS, ?MODULE, "command"),
