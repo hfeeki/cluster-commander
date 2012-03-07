@@ -32,8 +32,10 @@ Alternatively (or additionaly), groups of nodes can be defined in
 
 Build / Install
 ===============
-    make
-    cp ./bin/commander /some/dir/in/your/path/
+```sh
+$ make
+$ cp ./bin/commander /some/dir/in/your/path/
+```
 
 
 Usage
