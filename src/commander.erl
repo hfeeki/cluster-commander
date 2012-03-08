@@ -27,13 +27,15 @@
 %%-----------------------------------------------------------------------------
 main(Args            ) when is_list(Args) -> main(get_options(Args));
 main({error, Reason })                    -> usage(Reason);
-main({ok,    Options}) ->
-    Job = proplists:get_value(job, Options),
-    NodesOpts = proplists:get_value(nodes_opts, Options),
-    SSHProvider = proplists:get_value(ssh_provider, Options),
-    WorkerModule = proplists:get_value(worker_module, Options),
-    GlobalTimeout = proplists:get_value(global_timeout, Options),
-    RequestedNumWorkers = proplists:get_value(requested_num_workers, Options),
+main({ok,    {
+                {job, Job},
+                {nodes_opts, NodesOpts},
+                {ssh_provider, SSHProvider},
+                {worker_module, WorkerModule},
+                {global_timeout, GlobalTimeout},
+                {requested_num_workers, RequestedNumWorkers}
+             }
+    }) ->
 
     % Get a list of target nodes
     case commander_nodes:get_nodes(NodesOpts) of
@@ -236,14 +238,14 @@ get_packed_options(OptList, Operation, Commands, Paths) ->
         path_to      = proplists:get_value(to,           Paths)
     },
 
-    Options = [
-        {ssh_provider, SSHProvider},
-        {requested_num_workers, RequestedNumWorkers},
-        {worker_module, WorkerModule},
+    Options = {
         {job, Job},
         {nodes_opts, NodesOpts},
-        {global_timeout, GlobalTimeout}
-    ],
+        {ssh_provider, SSHProvider},
+        {worker_module, WorkerModule},
+        {global_timeout, GlobalTimeout},
+        {requested_num_workers, RequestedNumWorkers}
+    },
 
     {ok, Options}.
 
