@@ -248,9 +248,11 @@ get_packed_options(OptList, Operation, Commands, Paths) ->
     {ok, Options}.
 
 
-get_num_workers(undefined, os,  _)                    -> ?DEFAULT_NUM_WORKERS;
-get_num_workers(undefined, otp, NumNodes)             -> NumNodes;
-get_num_workers(Number, _, _) when is_integer(Number) -> Number.
+get_num_workers(undefined, os,  NumNodes) when NumNodes < ?DEFAULT_NUM_WORKERS
+                                          -> NumNodes;
+get_num_workers(undefined, os,  _)        -> ?DEFAULT_NUM_WORKERS;
+get_num_workers(undefined, otp, NumNodes) -> NumNodes;
+get_num_workers(Number, _, _)             -> Number.
 
 
 %%-----------------------------------------------------------------------------
