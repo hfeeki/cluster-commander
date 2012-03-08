@@ -110,27 +110,33 @@ Alternatively (or additionally), static groups of nodes can be defined in
 Configure SSH
 -------------
 Do you already have password-less key-based access to all your nodes?
-    * YES: do the following and you're all set:
-```sh
-$ mkdir -p ~/.cluster-commander/ssh/
-$ cp ~/.ssh/id_rsa ~/.cluster-commander/ssh/id_rsa
-```
-    * NO:
-        - Do you have password-protected key-based access to your nodes?
-            - YES: you have 3 options:
-                a) remove the password from the private key and
-                   re-evaluate this whole, "Configure SSH" section
 
-                b) generate a new, password-less key and
-                   re-evaluate this whole, "Configure SSH" section
+* YES: do the following and you're all set:
 
-                c) start ssh-agent and use '-s os' CLI option
+    ```sh
+    $ mkdir -p ~/.cluster-commander/ssh/
+    $ cp ~/.ssh/id_rsa ~/.cluster-commander/ssh/id_rsa
+    ```
 
-            - NO:
-                - Generate a new key, get it on your nodes somehow and
-                  re-evaluate this whole, "Configure SSH", section
+* NO:
+    - Do you have password-protected key-based access to your nodes?
+        - YES:
+            - you have 3 options:
+                - remove the password from the private key and
+                  re-evaluate this whole, "Configure SSH" section
 
-NOTE:
+                - generate a new, password-less key and
+                  re-evaluate this whole, "Configure SSH" section
+
+                - start ssh-agent and use '-s os' CLI option
+
+        - NO:
+            - Generate a new key, get it on your nodes somehow and
+              re-evaluate this whole, "Configure SSH", section
+
+
+Note
+----
 If there's just no way that a password-less key is acceptable to you, you can
 just always use '-s os' option to use system's 'ssh' command as the alternative
 back-end (in which case ssh-agent must be up and running already).
@@ -141,10 +147,11 @@ That said, according to Ingela Andin, there's is a solution to that in the
 codebase, it just hasn't yet been ported to the SSH application (due to the
 prior-mentioned priorities).
 
-Sources:
-    * http://erlang.org/pipermail/erlang-questions/2010-April/050637.html
-    * https://github.com/erlang/otp/tree/master/lib/ssh/src
-    * https://github.com/erlang/otp/tree/master/lib/public_key/src
+SOURCES:
+
+* http://erlang.org/pipermail/erlang-questions/2010-April/050637.html
+* https://github.com/erlang/otp/tree/master/lib/ssh/src
+* https://github.com/erlang/otp/tree/master/lib/public_key/src
 
 
 Roadmap
