@@ -51,14 +51,19 @@ start(QueuePID, Job) ->
                 {ok, ConnRef} ->
                     case ssh_connection:session_channel(ConnRef, Timeout) of
                         {ok, ChannId} ->
-                            ssh_connection:exec(ConnRef, ChannId, Command, Timeout),
-                            do_output(Node, collect_data(), ok, SaveDataTo);
+                            ssh_connection:exec(ConnRef, ChannId,
+                                                Command, Timeout),
+
+                            Data = collect_data(),
+                            commander_lib:do_output(Node, Data,
+                                                      ok, SaveDataTo);
 
                         {error, Reason} ->
-                            do_output(Node, Reason, fail, SaveDataTo)
+                            commander_lib:do_output(Node, Reason,
+                                                    fail, SaveDataTo)
                     end;
                 {error, Reason} ->
-                    do_output(Node, Reason, fail, SaveDataTo)
+                    commander_lib:do_output(Node, Reason, fail, SaveDataTo)
             end,
 
             % Continue working
@@ -72,16 +77,6 @@ start(QueuePID, Job) ->
 %%%============================================================================
 %%% Internal
 %%%============================================================================
-
-%%-----------------------------------------------------------------------------
-%% Function : do_output/4
-%% Purpose  : Print write output.
-%% Type     : io()
-%%-----------------------------------------------------------------------------
-do_output(Node, Data, ExitStatus, SaveDataTo) ->
-    commander_lib:do_print_data(Node, Data, ExitStatus),
-    commander_lib:do_write_data(Node, Data, SaveDataTo).
-
 
 %%-----------------------------------------------------------------------------
 %% Function : collect_data/0 -> collect_data/1

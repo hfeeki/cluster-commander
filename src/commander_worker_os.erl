@@ -20,6 +20,9 @@
 %%%============================================================================
 
 start(QueuePID, Job) ->
+    % Pull-out needed options
+    SaveDataTo = Job#job.save_data_to,
+
     % Request work
     QueuePID ! {request_work, self()},
 
@@ -36,7 +39,7 @@ start(QueuePID, Job) ->
 
             % Display and save output
             Status = commander_lib:lookup_exit_status(ExitStatus),
-            do_output(Node, Output, Status, Job#job.save_data_to),
+            commander_lib:do_output(Node, Output, Status, SaveDataTo),
 
             % Continue working
             start(QueuePID, Job);
@@ -49,16 +52,6 @@ start(QueuePID, Job) ->
 %%%============================================================================
 %%% Internal
 %%%============================================================================
-
-%%-----------------------------------------------------------------------------
-%% Function : do_output/4
-%% Purpose  : Print write output.
-%% Type     : io()
-%%-----------------------------------------------------------------------------
-do_output(Node, Data, ExitStatus, SaveDataTo) ->
-    commander_lib:do_print_data(Node, Data, ExitStatus),
-    commander_lib:do_write_data(Node, Data, SaveDataTo).
-
 
 get_command_string(Node, Job) ->
     % Unpack options
