@@ -45,22 +45,25 @@ Usage
 commander   [OPTIONS] [exec]    [COMMAND_STRING]
 commander   [OPTIONS] [put|get] [FROM_PATH] [TO_PATH]
 
-  SHORT     LONG              DESCRIPTION                  DEFAULTS TO
-  -------------------------------------------------------------------------
-  -u        --user            User                         <CURRENT_USER>
-  -g        --group           Nodes group                  pbs
-  -s        --ssh             SSH provider ('os' | 'otp')  otp
-  -t        --host-timeout    Host timeout                 5  <SECS>
-  -T        --global-timeout  Global timeout               10 <SECS>
-  -p        --port            SSH port number              22
+SHORT     LONG              DESCRIPTION                    DEFAULTS TO
+-------------------------------------------------------------------------
+-u        --user            User                           <CURRENT_USER>
+-g        --group           Nodes group                    pbs
+-s        --ssh             SSH provider ('os' | 'otp')    otp
+-t        --host-timeout    Host timeout                   5  <SECS>
+-T        --global-timeout  Global timeout                 10 <SECS>
+-p        --port            SSH port number                22
+-d        --save-data-to    Directory to save outputs to.   ~/.cluster-commander/outputs
+-w        --workers         Number of concurrent workers.  OS SSH: 25
+                                                           OTP SSH: <NUMBER_OF_NODES>
 
-  -a        --try-all-nodes   Attempt to connect to all    <OFF>
-                              nodes, regardless of their
-                              current state.
+-a        --try-all-nodes   Attempt to connect to all      <OFF>
+                            nodes, regardless of their
+                            current state.
 
-  -n        --nodes           Nodes list                   <EMPTY>
-                              (comma-separated). Overrides
-                              all other sources of nodes.
+-n        --nodes           Nodes list                     <EMPTY>
+                            (comma-separated). Overrides
+                            all other sources of nodes.
 ```
 
 If the target command contains options itself, it must be quoted to prevent
