@@ -21,10 +21,11 @@
 
 %%-----------------------------------------------------------------------------
 %% Function : start/2
-%% Purpose  : Attempt SSH connection
-%% Type     : collect_data/1 | stop/4
+%% Purpose  : Requests nodes from queue and executes job on them.
+%% Type     : start/2 | ok
 %%-----------------------------------------------------------------------------
-start(Node, Job) ->
+start(QueuePID, Job) ->
+    % Pull-out options
     User       = Job#job.user,
     Port       = Job#job.port,
     Command    = Job#job.command,
@@ -41,17 +42,30 @@ start(Node, Job) ->
         | ?CONNECT_OPTIONS
     ],
 
-    case ssh:connect(Node, Port, ConnectOptions) of
-        {ok, ConnRef} ->
-            case ssh_connection:session_channel(ConnRef, Timeout) of
-                {ok, ChannId} ->
-                    ssh_connection:exec(ConnRef, ChannId, Command, Timeout),
-                    collect_data(Node, SaveDataTo);
+    % Request work
+    QueuePID ! {request_work, self()},
+
+    receive
+        {work, Node} ->
+            case ssh:connect(Node, Port, ConnectOptions) of
+                {ok, ConnRef} ->
+                    case ssh_connection:session_channel(ConnRef, Timeout) of
+                        {ok, ChannId} ->
+                            ssh_connection:exec(ConnRef, ChannId, Command, Timeout),
+                            do_output(Node, collect_data(), ok, SaveDataTo);
+
+                        {error, Reason} ->
+                            do_output(Node, Reason, fail, SaveDataTo)
+                    end;
                 {error, Reason} ->
-                    stop(Node, Reason, fail, SaveDataTo)
-            end;
-        {error, Reason} ->
-            stop(Node, Reason, fail, SaveDataTo)
+                    do_output(Node, Reason, fail, SaveDataTo)
+            end,
+
+            % Continue working
+            start(QueuePID, Job);
+
+        % No more work, so exit
+        all_done -> ok
     end.
 
 
@@ -60,31 +74,30 @@ start(Node, Job) ->
 %%%============================================================================
 
 %%-----------------------------------------------------------------------------
-%% Function : stop/4
-%% Purpose  : Print output and exit, informing dispatcher of the completion.
-%% Type     : none()
+%% Function : do_output/4
+%% Purpose  : Print write output.
+%% Type     : io()
 %%-----------------------------------------------------------------------------
-stop(Node, Data, ExitStatus, SaveDataTo) ->
+do_output(Node, Data, ExitStatus, SaveDataTo) ->
     commander_lib:do_print_data(Node, Data, ExitStatus),
     commander_lib:do_write_data(Node, Data, SaveDataTo).
 
 
 %%-----------------------------------------------------------------------------
-%% Function : collect_data/2 -> collect_data/3
-%% Purpose  : Main loop. Collect output of the executed SSH command.
-%% Type     : none()
+%% Function : collect_data/0 -> collect_data/1
+%% Purpose  : Collect output of the executed SSH command.
+%% Type     : list()
 %%-----------------------------------------------------------------------------
-collect_data(Node, SaveDataTo) -> collect_data(Node, [], SaveDataTo).
+collect_data() -> collect_data([]).
 
-collect_data(Node, DataAcc, SaveDataTo) ->
+collect_data(DataAcc) ->
     receive
         {ssh_cm, _, {data, _, _, Data}} ->
-            collect_data(Node, [Data|DataAcc], SaveDataTo);
+            collect_data([Data|DataAcc]);
 
         {ssh_cm, _, {closed, _}} ->
-            Data = lists:reverse(DataAcc),
-            stop(Node, Data, ok, SaveDataTo);
+            lists:reverse(DataAcc);
 
         {ssh_cm, _} ->
-            collect_data(Node, DataAcc, SaveDataTo)
+            collect_data(DataAcc)
     end.

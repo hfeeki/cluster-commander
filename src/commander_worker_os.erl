@@ -19,25 +19,46 @@
 %%% API
 %%%============================================================================
 
-start(Node, Job) ->
-    % Ensure prerequisites
-    ok = do_operation_prerequisites(Node, Job),
+start(QueuePID, Job) ->
+    % Request work
+    QueuePID ! {request_work, self()},
 
-    % Compile command string
-    OSCommandString = get_command_string(Node, Job),
+    receive
+        {work, Node} ->
+            % Ensure prerequisites
+            ok = do_operation_prerequisites(Node, Job),
 
-    % Execute command and get output
-    {ExitStatus, Output} = commander_lib:os_cmd(OSCommandString),
+            % Compile command string
+            OSCommandString = get_command_string(Node, Job),
 
-    % Display and save output
-    Status = commander_lib:lookup_exit_status(ExitStatus),
-    commander_lib:do_print_data(Node, Output, Status),
-    commander_lib:do_write_data(Node, Output, Job#job.save_data_to).
+            % Execute command and get output
+            {ExitStatus, Output} = commander_lib:os_cmd(OSCommandString),
+
+            % Display and save output
+            Status = commander_lib:lookup_exit_status(ExitStatus),
+            do_output(Node, Output, Status, Job#job.save_data_to),
+
+            % Continue working
+            start(QueuePID, Job);
+
+        % No more work, so exit
+        all_done -> ok
+    end.
 
 
 %%%============================================================================
 %%% Internal
 %%%============================================================================
+
+%%-----------------------------------------------------------------------------
+%% Function : do_output/4
+%% Purpose  : Print write output.
+%% Type     : io()
+%%-----------------------------------------------------------------------------
+do_output(Node, Data, ExitStatus, SaveDataTo) ->
+    commander_lib:do_print_data(Node, Data, ExitStatus),
+    commander_lib:do_write_data(Node, Data, SaveDataTo).
+
 
 get_command_string(Node, Job) ->
     % Unpack options

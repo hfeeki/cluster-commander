@@ -40,18 +40,24 @@ main({ok,    {SSHProvider, WorkerModule, Job, NodesOpts, GlobalTimeout}}) ->
                     commander_lib:commander_exit(fail, ErrorText);
 
                 ok ->
+                    QueuePID = self(),
+                    NumWorkers = case SSHProvider of
+                        os  -> 25;
+                        otp -> length(Nodes)
+                    end,
+
                     % Start global timer
                     % (start_timer/3 BIF does not support 'infinity')
                     Timeout = spawn_monitor(timer, sleep, [GlobalTimeout]),
 
                     % Start workers
                     Workers = [
-                        spawn_monitor(WorkerModule, start, [Node, Job])
-                        || Node <- Nodes
+                        spawn_monitor(WorkerModule, start, [QueuePID, Job])
+                        || _ <- lists:seq(1, NumWorkers)
                     ],
 
-                    % Wait for completions
-                    wait_for_completions(Timeout, Workers)
+                    % Distribute work and wait for completions
+                    process_queue(Timeout, Workers, Nodes)
             end
     end.
 
@@ -61,24 +67,36 @@ main({ok,    {SSHProvider, WorkerModule, Job, NodesOpts, GlobalTimeout}}) ->
 %%%============================================================================
 
 %%-----------------------------------------------------------------------------
-%% Function : wait_for_completions/1
-%% Purpose  : Waits for job completions, then exits the program.
+%% Function : process_queue/3
+%% Purpose  : Distributes work to workers, waits for worker exits,
+%%            then exits the program.
 %% Type     : no_return()
 %%-----------------------------------------------------------------------------
-wait_for_completions(_, []) ->
+process_queue(_Timeout, _Workers=[], _Nodes) ->
     commander_lib:commander_exit(ok);
 
-wait_for_completions({TimeoutPID, TimeoutRef}=Timeout, Workers) ->
+process_queue({TimeoutPID, TimeoutRef}=Timeout, Workers, Nodes) ->
     receive
+        {request_work, WorkerPID} ->
+            case Nodes of
+                [] ->
+                    WorkerPID ! all_done,
+                    process_queue(Timeout, Workers, Nodes);
+
+                [Node|RemNodes] ->
+                    WorkerPID ! {work, Node},
+                    process_queue(Timeout, Workers, RemNodes)
+            end;
+
         {'DOWN', TimeoutRef, _, TimeoutPID, normal} ->
             commander_lib:commander_exit(fail, "GLOBAL TIMEOUT EXCEEDED!");
 
         {'DOWN', Ref, _, PID, normal} ->
-            wait_for_completions(Timeout, lists:delete({PID, Ref}, Workers));
+            process_queue(Timeout, lists:delete({PID, Ref}, Workers), Nodes);
 
         {'DOWN', Ref, _, PID, Info} ->
             commander_lib:do_print_info(fail, io_lib:format("~p~n", [Info])),
-            wait_for_completions(Timeout, lists:delete({PID, Ref}, Workers))
+            process_queue(Timeout, lists:delete({PID, Ref}, Workers), Nodes)
     end.
 
 
