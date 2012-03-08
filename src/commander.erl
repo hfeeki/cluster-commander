@@ -250,6 +250,11 @@ get_packed_options(OptList, Operation, Commands, Paths) ->
     {ok, Options}.
 
 
+%%-----------------------------------------------------------------------------
+%% Function : get_num_workers/3
+%% Purpose  : How many workers should we start?
+%% Type     : integer()
+%%-----------------------------------------------------------------------------
 get_num_workers(undefined, os,  NumNodes) when NumNodes < ?DEFAULT_NUM_WORKERS
                                           -> NumNodes;
 get_num_workers(undefined, os,  _)        -> ?DEFAULT_NUM_WORKERS;
