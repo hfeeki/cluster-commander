@@ -27,7 +27,7 @@
 %%-----------------------------------------------------------------------------
 main(Args            ) when is_list(Args) -> main(get_options(Args));
 main({error, Reason })                    -> usage(Reason);
-main({ok,    {SSHProvider, WorkerModule, Job, NodesOpts, GlobalTimeout}}) ->
+main({ok,    {SSHProvider, RequestedNumWorkers, WorkerModule, Job, NodesOpts, GlobalTimeout}}) ->
     % Get a list of target nodes
     case commander_nodes:get_nodes(NodesOpts) of
         {error, Reason} ->
@@ -40,18 +40,16 @@ main({ok,    {SSHProvider, WorkerModule, Job, NodesOpts, GlobalTimeout}}) ->
                     commander_lib:commander_exit(fail, ErrorText);
 
                 ok ->
-                    QueuePID = self(),
-                    NumWorkers = case SSHProvider of
-                        os  -> 25;
-                        otp -> length(Nodes)
-                    end,
-
                     % Start global timer
                     % (start_timer/3 BIF does not support 'infinity')
                     Timeout = spawn_monitor(timer, sleep, [GlobalTimeout]),
 
                     % Start workers
-                    Workers = [
+                    QueuePID   = self(),
+                    NumWorkers = get_num_workers(RequestedNumWorkers,
+                                                 SSHProvider,
+                                                 length(Nodes)),
+                    Workers  = [
                         spawn_monitor(WorkerModule, start, [QueuePID, Job])
                         || _ <- lists:seq(1, NumWorkers)
                     ],
@@ -198,7 +196,8 @@ get_options(Args) ->
 %% Type     : {ok, tuple()}
 %%-----------------------------------------------------------------------------
 get_packed_options(OptList, Operation, Commands, Paths) ->
-    GlobalTimeout = case proplists:get_value(global_timeout, OptList) of
+    RequestedNumWorkers = proplists:get_value(workers,        OptList),
+    GlobalTimeout  = case proplists:get_value(global_timeout, OptList) of
         0     -> infinity;
         Other -> Other * 1000
     end,
@@ -230,7 +229,12 @@ get_packed_options(OptList, Operation, Commands, Paths) ->
         path_to      = proplists:get_value(to,           Paths)
     },
 
-    {ok, {SSHProvider, WorkerModule, Job, NodesOpts, GlobalTimeout}}.
+    {ok, {SSHProvider, RequestedNumWorkers, WorkerModule, Job, NodesOpts, GlobalTimeout}}.
+
+
+get_num_workers(undefined, os,  _)                    -> ?DEFAULT_NUM_WORKERS;
+get_num_workers(undefined, otp, NumNodes)             -> NumNodes;
+get_num_workers(Number, _, _) when is_integer(Number) -> Number.
 
 
 %%-----------------------------------------------------------------------------

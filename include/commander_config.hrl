@@ -7,6 +7,7 @@
 %%% Purpose : Global configuration knobs.
 %%%----------------------------------------------------------------------------
 
+-define(DEFAULT_NUM_WORKERS, 25).
 -define(PORT, 22).
 -define(TIMEOUT, 5).
 -define(GLOBAL_TIMEOUT, ?TIMEOUT * 2).
@@ -77,13 +78,16 @@
         "SSH port number"
         },
 
-        {try_all_nodes,  $a, "try-all-nodes", {boolean, false},
+        {try_all_nodes,  $a, "try-all-nodes",  {boolean, false},
         "Attempt to connect to all nodes, regardless of their current state."
         },
 
         {save_data_to,   $d, "save-data-to",   {string, ?PATH_DIR__DATA_OUTPUTS},
         "Directory to save data (outputs) to."
-        }
+        },
 
+        {workers,        $w, "workers",        integer,
+        "Number of concurrent worker."
+        }
     ]
 ).
