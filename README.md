@@ -67,6 +67,12 @@ $ commander -t0 -T60 -a '/opt/collect-data.sh --somearg'
 Bootstrap
 =========
 
+Prerequisites
+-------------
+* Erlang R13 (but only developing/testing on R14B03)
+* Git
+* GNU Make (not REALLY needed, but simpler to build if you have it)
+
 Download, build and install
 ---------------------------
 ```sh
