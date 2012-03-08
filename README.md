@@ -3,41 +3,6 @@
 Cluster management tool. Concurrently runs commands on, and
 uploads/downloads files to groups of nodes.
 
-By default, reads a list of nodes from `pbsnodes` command (and skips nodes
-marked as 'down' and/or 'offline', overridden with `-a` CLI option).
-Alternatively (or additionaly), groups of nodes can be defined in
-`~/.cluster-commander/groups.json`, for example:
-
-```json
-{
-    "file_servers": [
-        "fs-01",
-        "fs-02",
-        "fs-03"
-    ],
-
-    "compute_nodes_01": [
-        "node-01-01",
-        "node-01-02",
-        "node-01-03"
-    ],
-
-    "compute_nodes_02": [
-        "node-02-01",
-        "node-02-02",
-        "node-02-03"
-    ]
-}
-```
-
-
-Build / Install
-===============
-```sh
-$ make
-$ cp ./bin/commander /some/dir/in/your/path/
-```
-
 
 Usage
 =====
@@ -99,12 +64,87 @@ $ commander -t0 -T60 -a '/opt/collect-data.sh --somearg'
 ```
 
 
-Caveats
-=======
-Assumes a password-less ssh key (current limitation in Erlang/OTP ssh app). If
-this is not acceptable, you can use '-s os' option to use system's 'ssh'
-command as the alternative back-end (in which case ssh-agent must be up and
-running already).
+Bootstrap
+=========
+
+Download, build and install
+---------------------------
+```sh
+$ git clone git://github.com/ibnfirnas/cluster-commander.git
+$ cd cluster-commander
+$ make
+$ cp ./bin/commander /some/dir/in/your/path/
+```
+
+Configure nodes
+---------------
+By default, reads a list of nodes from `pbsnodes` command (and skips nodes
+marked as 'down' and/or 'offline', overridden with `-a` CLI option).
+
+Alternatively (or additionally), static groups of nodes can be defined in
+`~/.cluster-commander/groups.json`, for example:
+
+```json
+{
+    "file_servers": [
+        "fs-01",
+        "fs-02",
+        "fs-03"
+    ],
+
+    "compute_nodes_01": [
+        "node-01-01",
+        "node-01-02",
+        "node-01-03"
+    ],
+
+    "compute_nodes_02": [
+        "node-02-01",
+        "node-02-02",
+        "node-02-03"
+    ]
+}
+```
+
+
+Configure SSH
+-------------
+Do you already have password-less key-based access to all your nodes?
+    * YES: do the following and you're all set:
+```sh
+$ mkdir -p ~/.cluster-commander/ssh/
+$ cp ~/.ssh/id_rsa ~/.cluster-commander/ssh/id_rsa
+```
+    * NO:
+        - Do you have password-protected key-based access to your nodes?
+            - YES: you have 3 options:
+                a) remove the password from the private key and
+                   re-evaluate this whole, "Configure SSH" section
+
+                b) generate a new, password-less key and
+                   re-evaluate this whole, "Configure SSH" section
+
+                c) start ssh-agent and use '-s os' CLI option
+
+            - NO:
+                - Generate a new key, get it on your nodes somehow and
+                  re-evaluate this whole, "Configure SSH", section
+
+NOTE:
+If there's just no way that a password-less key is acceptable to you, you can
+just always use '-s os' option to use system's 'ssh' command as the alternative
+back-end (in which case ssh-agent must be up and running already).
+
+Erlang/OTP's SSH app, currently, only supports password-less private keys.
+Because Erlang's focus has been on servers and automation, not interactive use.
+That said, according to Ingela Andin, there's is a solution to that in the
+codebase, it just hasn't yet been ported to the SSH application (due to the
+prior-mentioned priorities).
+
+Sources:
+    * http://erlang.org/pipermail/erlang-questions/2010-April/050637.html
+    * https://github.com/erlang/otp/tree/master/lib/ssh/src
+    * https://github.com/erlang/otp/tree/master/lib/public_key/src
 
 
 Roadmap
