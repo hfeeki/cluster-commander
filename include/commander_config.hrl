@@ -9,8 +9,8 @@
 
 -define(DEFAULT_NUM_WORKERS, 25).
 -define(PORT, 22).
--define(TIMEOUT, 5).
--define(GLOBAL_TIMEOUT, ?TIMEOUT * 2).
+-define(TIMEOUT, 0).
+-define(GLOBAL_TIMEOUT, 0).
 -define(UNAVAILABLE_STATES, ["down", "offline"]).
 
 -define(DEFAULT_USER, string:strip(os:cmd("whoami"), both, $\n)).
