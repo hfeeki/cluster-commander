@@ -62,6 +62,7 @@ get_command_string(Node, Job) ->
     Command    = Job#job.command,
     PathFrom   = Job#job.path_from,
     PathTo     = Job#job.path_to,
+    MayBeQuiet = maybe_quiet(Job#job.quiet),
 
     % Build substrings
     UserAtNode    = User++"@"++Node,
@@ -69,7 +70,8 @@ get_command_string(Node, Job) ->
                     ++" -o ConnectTimeout="++Timeout
                     ++" -o StrictHostKeyChecking=no"
                     ++" -o PasswordAuthentication=no"
-                    ++" -2 ",
+                    ++" -2 "
+                    ++MayBeQuiet,
 
     OptionsSCP    = "-r -P "++OptionsCommon,
     OptionsSSH    = "   -p "++OptionsCommon,
@@ -89,6 +91,10 @@ get_command_string(Node, Job) ->
         exec ->
             string:join(["ssh", OptionsSSH, UserAtNode, Command], " ")
     end.
+
+
+maybe_quiet(true)  -> "-q";
+maybe_quiet(false) -> "".
 
 
 do_operation_prerequisites(Node, #job{operation=get, path_to=PathTo}) ->

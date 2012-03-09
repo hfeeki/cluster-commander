@@ -78,6 +78,10 @@
         "SSH port number"
         },
 
+        {quiet,          $q, "quiet",          {boolean, false},
+        "Enable SSH quiet mode."
+        },
+
         {try_all_nodes,  $a, "try-all-nodes",  {boolean, false},
         "Attempt to connect to all nodes, regardless of their current state."
         },

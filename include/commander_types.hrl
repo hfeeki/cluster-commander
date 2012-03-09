@@ -22,6 +22,7 @@
         save_data_to = undefined :: string(),
         timeout      = undefined :: integer(),
         port         = undefined :: integer(),
+        quiet        = undefined :: boolean(),
         path_from    = undefined :: string(),
         path_to      = undefined :: string()
     }

@@ -234,6 +234,7 @@ get_packed_options(OptList, Operation, Commands, Paths) ->
         save_data_to = proplists:get_value(save_data_to, OptList),
         timeout      = proplists:get_value(host_timeout, OptList),
         port         = proplists:get_value(port,         OptList),
+        quiet        = proplists:get_value(quiet,        OptList),
         path_from    = proplists:get_value(from,         Paths),
         path_to      = proplists:get_value(to,           Paths)
     },
