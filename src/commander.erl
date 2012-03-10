@@ -16,6 +16,11 @@
 -include("commander_types.hrl").
 
 
+-ifdef(TEST).
+-include_lib("eunit/include/eunit.hrl").
+-endif.
+
+
 %%%============================================================================
 %%% API
 %%%============================================================================
@@ -271,3 +276,17 @@ get_num_workers(Number, _, _)             -> Number.
 usage(Message) ->
     getopt:usage(?OPT_SPECS, ?MODULE, "command"),
     commander_lib:commander_exit(fail, Message).
+
+
+%%%============================================================================
+%%% Tests
+%%%============================================================================
+
+-ifdef(TEST).
+
+
+join_atoms_test() ->
+    test_atom = join_atoms([test, atom], "_").
+
+
+-endif.
