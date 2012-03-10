@@ -1,4 +1,5 @@
-# Cluster Commander #
+Cluster Commander
+=================
 
 Cluster management tool. Concurrently runs commands on, and
 uploads/downloads files to groups of nodes.
@@ -8,7 +9,7 @@ uploads/downloads files to groups of nodes.
 
 
 Usage
-=====
+-----
 ```
 commander   [OPTIONS] [exec]    [COMMAND_STRING]
 commander   [OPTIONS] [put|get] [FROM_PATH] [TO_PATH]
@@ -38,8 +39,8 @@ If the target command contains options itself, it must be quoted to prevent
 commander from attempting to interpret those options.
 
 
-Examples
---------
+### Examples
+
 ```sh
 # Use quotes when remote command contains options
 $ commander ls /
@@ -68,16 +69,16 @@ $ commander -T60 -a '/opt/collect-data.sh --somearg'
 
 
 Bootstrap
-=========
+---------
 
-Prerequisites
--------------
+### Prerequisites
+
 * Erlang R13+ (developing on R14B03, testing on R14B02-04, R15B)
 * Git
 * GNU Make (not REALLY needed, but simpler to build if you have it)
 
-Download, build and install
----------------------------
+### Download, build and install
+
 ```sh
 $ git clone git://github.com/ibnfirnas/cluster-commander.git
 $ cd cluster-commander
@@ -85,8 +86,8 @@ $ make
 $ cp ./bin/commander /some/dir/in/your/path/
 ```
 
-Configure nodes
----------------
+### Configure nodes
+
 By default, reads a list of nodes from `pbsnodes` command (and skips nodes
 marked as 'down' and/or 'offline', overridden with `-a` CLI option).
 
@@ -116,8 +117,8 @@ Alternatively (or additionally), static groups of nodes can be defined in
 ```
 
 
-Configure SSH
--------------
+### Configure SSH
+
 Do you already have password-less key-based access to all your nodes?
 
 * YES: do the following and you're all set:
@@ -144,8 +145,8 @@ Do you already have password-less key-based access to all your nodes?
               re-evaluate this whole, "Configure SSH", section
 
 
-Note
-----
+#### Note
+
 If there's just no way that a password-less key is acceptable to you, you can
 just always use '-s os' option to use system's 'ssh' command as the alternative
 back-end (in which case ssh-agent must be up and running already).
@@ -156,7 +157,7 @@ That said, according to Ingela Andin, there's is a solution to that in the
 codebase, it just hasn't yet been ported to the SSH application (due to the
 prior-mentioned priorities).
 
-SOURCES:
+##### SOURCES:
 
 * http://erlang.org/pipermail/erlang-questions/2010-April/050637.html
 * https://github.com/erlang/otp/tree/master/lib/ssh/src
@@ -164,7 +165,7 @@ SOURCES:
 
 
 Roadmap
-=======
+-------
 * ~~Use rebar and manage dependencies, releases, etc.~~
 * ~~Use getopt and allow overriding defaults (set with macros)~~
 * ~~Polish executable script~~
