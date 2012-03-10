@@ -14,3 +14,9 @@ link:
 
 clean:
 	@./rebar clean
+
+test:
+	@./rebar compile eunit skip_deps=true
+
+test-all:
+	@./rebar compile eunit
