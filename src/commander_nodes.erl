@@ -15,6 +15,11 @@
 -include("commander_types.hrl").
 
 
+-ifdef(TEST).
+-include_lib("eunit/include/eunit.hrl").
+-endif.
+
+
 %%%============================================================================
 %%% API
 %%%============================================================================
@@ -132,3 +137,43 @@ is_node_available([State|StatesTail]) ->
         true -> false;
         false -> is_node_available(StatesTail)
     end.
+
+
+%%%============================================================================
+%%% Tests
+%%%============================================================================
+
+-ifdef(TEST).
+
+
+is_node_available_test() ->
+    TrueCases  = [
+        ["busy"],
+        ["free"],
+        ["job-exclusive"],
+        ["job-sharing"],
+        ["reserve"],
+        ["state-unknown"],
+        ["time-shared"]
+    ],
+
+    FalseCases = [
+        ["down"],
+        ["offline"]
+    ],
+
+    lists:foreach(
+        fun(Case) ->
+            true = is_node_available(Case)
+        end,
+        TrueCases
+    ),
+
+    lists:foreach(
+        fun(Case) ->
+            false = is_node_available(Case)
+        end,
+        FalseCases
+    ).
+
+-endif.
