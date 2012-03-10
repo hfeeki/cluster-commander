@@ -4,6 +4,9 @@ Cluster management tool. Concurrently runs commands on, and
 uploads/downloads files to groups of nodes.
 
 
+[![Build Status](https://secure.travis-ci.org/ibnfirnas/cluster-commander.png?branch=master)](http://travis-ci.org/ibnfirnas/cluster-commander)
+
+
 Usage
 =====
 ```
