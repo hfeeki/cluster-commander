@@ -235,6 +235,8 @@ get_packed_options(OptList, Operation, Commands, Paths) ->
     Job = #job{
         operation    = Operation,
         command      = string:join(Commands, " "),
+        os_cmd_ssh   = proplists:get_value(os_cmd_ssh,   OptList),
+        os_cmd_scp   = proplists:get_value(os_cmd_scp,   OptList),
         user         = proplists:get_value(user,         OptList),
         save_data_to = proplists:get_value(save_data_to, OptList),
         timeout      = proplists:get_value(host_timeout, OptList),

@@ -17,6 +17,8 @@
 -record(job,
     {
         operation    = undefined :: atom(),
+        os_cmd_ssh   = undefined :: string(),
+        os_cmd_scp   = undefined :: string(),
         user         = undefined :: string(),
         command      = undefined :: string(),
         save_data_to = undefined :: string(),

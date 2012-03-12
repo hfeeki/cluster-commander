@@ -66,6 +66,14 @@
         "SSH provider"
         },
 
+        {os_cmd_ssh, undefined, "os-cmd-ssh", {string, "ssh"},
+        "System command for 'ssh'"
+        },
+
+        {os_cmd_scp, undefined, "os-cmd-scp", {string, "scp"},
+        "System command for 'scp'"
+        },
+
         {host_timeout,   $t, "host-timeout",   {integer, ?TIMEOUT},
         "Host timeout"
         },

@@ -56,6 +56,8 @@ start(QueuePID, Job) ->
 get_command_string(Node, Job) ->
     % Unpack options
     Operation  = Job#job.operation,
+    OSCmdSSH   = Job#job.os_cmd_ssh,
+    OSCmdSCP   = Job#job.os_cmd_scp,
     User       = Job#job.user,
     Port       = integer_to_list(Job#job.port),
     Timeout    = integer_to_list(trunc(Job#job.timeout)),
@@ -81,15 +83,15 @@ get_command_string(Node, Job) ->
         get  ->
             From = UserAtNode++":"++PathFrom,
             To   = filename:join(PathTo, Node),
-            string:join(["scp", OptionsSCP, From, To], " ");
+            string:join([OSCmdSCP, OptionsSCP, From, To], " ");
 
         put  ->
             From = PathFrom,
             To   = UserAtNode++":"++PathTo,
-            string:join(["scp", OptionsSCP, From, To], " ");
+            string:join([OSCmdSCP, OptionsSCP, From, To], " ");
 
         exec ->
-            string:join(["ssh", OptionsSSH, UserAtNode, Command], " ")
+            string:join([OSCmdSSH, OptionsSSH, UserAtNode, Command], " ")
     end.
 
 
