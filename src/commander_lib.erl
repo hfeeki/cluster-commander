@@ -121,9 +121,18 @@ do_print_info(fail, Message) ->
 %%-----------------------------------------------------------------------------
 do_print_data(From, Data) -> do_print_data(From, Data, ok).
 
-do_print_data(From, Data, ok) -> do_print_data(From, Data, ok, ?TERM_COLOR_OFF);
+
+do_print_data(From, Data, ok) ->
+    do_print_data(From, Data, ok, ?TERM_COLOR_OFF);
+
+do_print_data(From, Data, fail) when is_list(Data) ->
+    DataFormatted = io_lib:format("~p~n", [lists:flatten(Data)]),
+    do_print_data(From, DataFormatted, fail, ?TERM_COLOR_FAIL);
+
 do_print_data(From, Data, fail) ->
-    do_print_data(From, io_lib:format("~p~n", [Data]), fail, ?TERM_COLOR_FAIL).
+    DataFormatted = io_lib:format("~p~n", [Data]),
+    do_print_data(From, DataFormatted, fail, ?TERM_COLOR_FAIL).
+
 
 do_print_data(From, Data, _Flag, Color) ->
     Output = [
