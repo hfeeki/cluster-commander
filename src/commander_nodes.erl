@@ -1,10 +1,8 @@
 %%%----------------------------------------------------------------------------
-%%% Copyright (c) 2011 Siraaj Khandkar
-%%% Licensed under MIT license. See LICENSE file for details.
-%%%
-%%% File    : commander_nodes.erl
-%%% Author  : Siraaj Khandkar <siraaj@khandkar.net>
-%%% Purpose : Target nodes finding functions.
+%%% @author Siraaj Khandkar <siraaj@khandkar.net>
+%%%  [http://ibnfirnas.github.com]
+%%% @copyright 2011-2012 Siraaj Khandkar
+%%% @doc Target nodes finding functions.
 %%%----------------------------------------------------------------------------
 
 -module(commander_nodes).

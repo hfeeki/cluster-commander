@@ -1,10 +1,8 @@
 %%%----------------------------------------------------------------------------
-%%% Copyright (c) 2011 Siraaj Khandkar
-%%% Licensed under MIT license. See LICENSE file for details.
-%%%
-%%% File    : commander_lib.erl
-%%% Author  : Siraaj Khandkar <siraaj@khandkar.net>
-%%% Purpose : Miscellaneous functions used throughout the project.
+%%% @author Siraaj Khandkar <siraaj@khandkar.net>
+%%%  [http://ibnfirnas.github.com]
+%%% @copyright 2011-2012 Siraaj Khandkar
+%%% @doc Miscellaneous functions used throughout the project.
 %%%----------------------------------------------------------------------------
 
 -module(commander_lib).

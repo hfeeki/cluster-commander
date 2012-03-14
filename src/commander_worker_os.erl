@@ -1,10 +1,8 @@
 %%%----------------------------------------------------------------------------
-%%% Copyright (c) 2011 Siraaj Khandkar
-%%% Licensed under MIT license. See LICENSE file for details.
-%%%
-%%% File    : commander_worker_os.erl
-%%% Author  : Siraaj Khandkar <siraaj@khandkar.net>
-%%% Purpose : Worker backed by the operating system's "ssh"|"scp" commands.
+%%% @author Siraaj Khandkar <siraaj@khandkar.net>
+%%%  [http://ibnfirnas.github.com]
+%%% @copyright 2011-2012 Siraaj Khandkar
+%%% @doc Worker backed by the operating system's "ssh"|"scp" commands.
 %%%----------------------------------------------------------------------------
 
 -module(commander_worker_os).
