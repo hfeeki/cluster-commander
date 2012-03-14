@@ -126,7 +126,10 @@ process_queue({TimeoutPID, TimeoutRef}=Timeout, Workers, Nodes) ->
 
 %%-----------------------------------------------------------------------------
 %% @doc Ensures existance of ssh keys and starts prerequisite apps.
-%% @spec do_ssh_prerequisites(SSHProvider::atom()) -> ok | {error, term()}
+%% @spec do_ssh_prerequisites(SSHProvider::atom()) -> ok | {error, Error}
+%% where
+%%  Error = term()
+%% @end
 %%-----------------------------------------------------------------------------
 do_ssh_prerequisites(os)  -> ok;
 do_ssh_prerequisites(otp) ->
@@ -149,8 +152,11 @@ do_ssh_prerequisites(otp, ssh, Error) ->
 
 
 %%-----------------------------------------------------------------------------
-%% @doc Joins two atoms with a given separator string. Shortcut
-%% @spec join_atoms(ListOfAtoms:list(), Separator:string()) -> atom()
+%% @doc Joins two atoms with a given separator string.
+%% @spec join_atoms(ListOfAtoms::list(), Separator::string()) -> Atom
+%% where
+%%  Atom = atom()
+%% @end
 %%-----------------------------------------------------------------------------
 join_atoms(Atoms, Separator) ->
     list_to_atom(string:join([atom_to_list(A) || A <- Atoms], Separator)).
@@ -158,7 +164,10 @@ join_atoms(Atoms, Separator) ->
 
 %%-----------------------------------------------------------------------------
 %% @doc If SSH key not found, calls ssh-keygen to make one.
-%% @spec do_ensure_ssh_key() -> ok | {error, term()}
+%% @spec do_ensure_ssh_key() -> ok | {error, Error}
+%% where
+%%  Error = term()
+%% @end
 %%-----------------------------------------------------------------------------
 do_ensure_ssh_key() ->
     do_ensure_ssh_key(key_exists, filelib:is_file(?PATH_FILE__ID_RSA)).
@@ -295,7 +304,10 @@ get_num_workers(Number, _, _)             -> Number.
 
 %%-----------------------------------------------------------------------------
 %% @doc Prints usage instructions and exits the program.
-%% @spec usage(Message::string()) -> halt(integer())
+%% @spec usage(Message::string()) -> halt(ExitCode)
+%% where
+%%  ExitCode = integer()
+%% @end
 %%-----------------------------------------------------------------------------
 usage(Message) ->
     getopt:usage(?OPT_SPECS, ?MODULE, "command"),
