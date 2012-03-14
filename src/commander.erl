@@ -1,11 +1,10 @@
 %%%----------------------------------------------------------------------------
-%%% Copyright (c) 2011 Siraaj Khandkar
-%%% Licensed under MIT license. See LICENSE file for details.
-%%%
-%%% File    : commander.erl
-%%% Author  : Siraaj Khandkar <siraaj@khandkar.net>
-%%% Purpose : Entry-point module of cluster-commander. Parses arguments and
-%%%           dispatches jobs.
+%%% @author Siraaj Khandkar <siraaj@khandkar.net>
+%%%  [http://ibnfirnas.github.com]
+%%% @copyright 2011-2012 Siraaj Khandkar
+%%% @doc Entry-point module of cluster-commander.
+%%%      Parses arguments and dispatches jobs.
+%%% @end
 %%%----------------------------------------------------------------------------
 
 -module(commander).
@@ -26,9 +25,14 @@
 %%%============================================================================
 
 %%-----------------------------------------------------------------------------
-%% Function : main/1
-%% Purpose  : Entry point. Gets options, a list of nodes and spawns workers.
-%% Type     : none()
+%% @doc Entry point. Gets options, a list of nodes and spawns workers.
+%%
+%% @spec main(Args) -> halt(ExitStatus::integer())
+%% where
+%%  Args = list()
+%%       | {error, Reason::term()}
+%%       | {ok, Options::tuple()}
+%% @end
 %%-----------------------------------------------------------------------------
 main(Args            ) when is_list(Args) -> main(get_options(Args));
 main({error, Reason })                    -> usage(Reason);
@@ -79,10 +83,18 @@ main({ok,    {
 %%%============================================================================
 
 %%-----------------------------------------------------------------------------
-%% Function : process_queue/3
-%% Purpose  : Distributes work to workers, waits for worker exits,
-%%            then exits the program.
-%% Type     : no_return()
+%% @private
+%%
+%% @doc Distributes work to workers, waits for worker exits,
+%%      then exits the program.
+%% @end
+%%
+%% @spec process_queue(Timeout, Workers, Nodes) -> halt(ExitStatus::integer())
+%% where
+%%  Timeout = {pid(), reference()}
+%%  Workers = list({pid(), reference()})
+%%  Nodes = list(string())
+%% @end
 %%-----------------------------------------------------------------------------
 process_queue(_Timeout, _Workers=[], _Nodes) ->
     commander_lib:commander_exit(ok);
@@ -113,9 +125,8 @@ process_queue({TimeoutPID, TimeoutRef}=Timeout, Workers, Nodes) ->
 
 
 %%-----------------------------------------------------------------------------
-%% Function : do_ssh_prerequisites/1 -> do_ssh_prerequisites/3
-%% Purpose  : Ensures existance of ssh keys and starts prerequisite apps.
-%% Type     : ok | {error, term()}
+%% @doc Ensures existance of ssh keys and starts prerequisite apps.
+%% @spec do_ssh_prerequisites(SSHProvider::atom()) -> ok | {error, term()}
 %%-----------------------------------------------------------------------------
 do_ssh_prerequisites(os)  -> ok;
 do_ssh_prerequisites(otp) ->
@@ -138,18 +149,16 @@ do_ssh_prerequisites(otp, ssh, Error) ->
 
 
 %%-----------------------------------------------------------------------------
-%% Function : join_atoms/2
-%% Purpose  : Joins two atoms with a given separator string. Shortcut
-%% Type     : atom()
+%% @doc Joins two atoms with a given separator string. Shortcut
+%% @spec join_atoms(ListOfAtoms:list(), Separator:string()) -> atom()
 %%-----------------------------------------------------------------------------
 join_atoms(Atoms, Separator) ->
     list_to_atom(string:join([atom_to_list(A) || A <- Atoms], Separator)).
 
 
 %%-----------------------------------------------------------------------------
-%% Function : do_ensure_ssh_key/0 -> do_ensure_ssh_key/2
-%% Purpose  : If SSH key not found, calls ssh-keygen to make one.
-%% Type     : ok | {error, term()}
+%% @doc If SSH key not found, calls ssh-keygen to make one.
+%% @spec do_ensure_ssh_key() -> ok | {error, term()}
 %%-----------------------------------------------------------------------------
 do_ensure_ssh_key() ->
     do_ensure_ssh_key(key_exists, filelib:is_file(?PATH_FILE__ID_RSA)).
@@ -168,9 +177,12 @@ do_ensure_ssh_key(key_gen, {error, Reason}) -> {error, Reason}.
 
 
 %%-----------------------------------------------------------------------------
-%% Function : get_options/1
-%% Purpose  : Parses and packs CLI options and arguments into #options{} record
-%% Type     : {ok, term()}} | {error, term()}
+%% @doc Parses and packs CLI options and arguments into #options{} record
+%% @spec get_options(Args::list()) -> {ok, Options} | {error, Reason}
+%% where
+%%  Options = tuple()
+%%  Reason = string()
+%% @end
 %%-----------------------------------------------------------------------------
 get_options([]  ) -> {error, "Not enough arguments."};
 get_options(Args) ->
@@ -205,9 +217,15 @@ get_options(Args) ->
 
 
 %%-----------------------------------------------------------------------------
-%% Function : get_packed_options/4
-%% Purpose  : Packs options into records
-%% Type     : {ok, tuple()}
+%% @doc Packs options into records
+%% @spec get_packed_options(OptList, Operation, Commands, Paths) -> {ok, Opts}
+%% where
+%%  OptList = list()
+%%  Operation = atom()
+%%  Commands = list()
+%%  Paths = proplist()
+%%  Opts = tuple()
+%% @end
 %%-----------------------------------------------------------------------------
 get_packed_options(OptList, Operation, Commands, Paths) ->
     RequestedNumWorkers = proplists:get_value(workers,        OptList),
@@ -259,9 +277,14 @@ get_packed_options(OptList, Operation, Commands, Paths) ->
 
 
 %%-----------------------------------------------------------------------------
-%% Function : get_num_workers/3
-%% Purpose  : How many workers should we start?
-%% Type     : integer()
+%% @doc How many workers should we start?
+%% @spec get_num_workers(NumberRequested, SSHProvider, NumberOfNodes) -> N
+%% where
+%%  N = integer()
+%%  NumberRequested = integer()
+%%  NumberOfNodes = integer()
+%%  SSHProvider = atom()
+%% @end
 %%-----------------------------------------------------------------------------
 get_num_workers(undefined, os,  NumNodes) when NumNodes < ?DEFAULT_NUM_WORKERS
                                           -> NumNodes;
@@ -271,9 +294,8 @@ get_num_workers(Number, _, _)             -> Number.
 
 
 %%-----------------------------------------------------------------------------
-%% Function : usage/1
-%% Purpose  : Prints usage instructions and exits the program.
-%% Type     : no_return()
+%% @doc Prints usage instructions and exits the program.
+%% @spec usage(Message::string()) -> halt(integer())
 %%-----------------------------------------------------------------------------
 usage(Message) ->
     getopt:usage(?OPT_SPECS, ?MODULE, "command"),
