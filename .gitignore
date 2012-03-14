@@ -1,5 +1,6 @@
 bin/*
 data/*
 deps/*
+doc/*
 ebin/*
 .eunit/*
