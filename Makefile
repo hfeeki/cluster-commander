@@ -1,4 +1,4 @@
-all: clean getdeps compile link
+all: clean getdeps compile link doc-all
 
 build: compile link
 
@@ -13,6 +13,12 @@ link:
 	@./rebar escriptize
 	@mkdir -p bin
 	@mv commander bin/
+
+doc:
+	@./rebar doc skip_deps=true
+
+doc-all:
+	@./rebar doc
 
 clean:
 	@./rebar clean
