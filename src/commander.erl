@@ -27,11 +27,12 @@
 %%-----------------------------------------------------------------------------
 %% @doc Entry point. Gets options, a list of nodes and spawns workers.
 %%
-%% @spec main(Args) -> halt(ExitStatus::integer())
+%% @spec main(Args) -> halt(ExitCode)
 %% where
 %%  Args = list()
 %%       | {error, Reason::term()}
 %%       | {ok, Options::tuple()}
+%%  ExitCode = integer()
 %% @end
 %%-----------------------------------------------------------------------------
 main(Args            ) when is_list(Args) -> main(get_options(Args));
@@ -89,11 +90,12 @@ main({ok,    {
 %%      then exits the program.
 %% @end
 %%
-%% @spec process_queue(Timeout, Workers, Nodes) -> halt(ExitStatus::integer())
+%% @spec process_queue(Timeout, Workers, Nodes) -> halt(ExitCode)
 %% where
 %%  Timeout = {pid(), reference()}
 %%  Workers = list({pid(), reference()})
 %%  Nodes = list(string())
+%%  ExitCode = integer()
 %% @end
 %%-----------------------------------------------------------------------------
 process_queue(_Timeout, _Workers=[], _Nodes) ->
