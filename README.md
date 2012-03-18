@@ -188,7 +188,7 @@ Roadmap
     - Plug-in dynamic groups: define an external command whose output supplies
       a whitespace-delimited list of nodes
 
-* CLI option to filter nodes through a RegEx pattern
+* ~~CLI option to filter nodes through a RegEx pattern~~
 * user-editable config files to override defaults
 * ~~sftp support (get/put) via 'scp' command~~
 * sftp support (get/put) via OTP ssh app
