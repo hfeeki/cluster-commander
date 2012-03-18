@@ -34,6 +34,9 @@ SHORT     LONG              DESCRIPTION                    DEFAULTS TO
                             (whitespace-separated).
                             Overrides all other sources
                             of nodes.
+
+-f      --filter-pattern    RegEx pattern to filter a      ""
+                            list of nodes through.
 ```
 
 If the target command contains options itself, it must be quoted to prevent
