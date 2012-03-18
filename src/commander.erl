@@ -12,7 +12,7 @@
 
 
 -include("commander_config.hrl").
--include("commander_types.hrl").
+-include("commander_records.hrl").
 
 
 -ifdef(TEST).

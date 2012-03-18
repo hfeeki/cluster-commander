@@ -2,9 +2,9 @@
 %%% Copyright (c) 2011 Siraaj Khandkar
 %%% Licensed under MIT license. See LICENSE file for details.
 %%%
-%%% File    : commander_types.hrl
+%%% File    : commander_records.hrl
 %%% Author  : Siraaj Khandkar <siraaj@khandkar.net>
-%%% Purpose : Data types/structures definitions.
+%%% Purpose : Records definitions.
 %%%----------------------------------------------------------------------------
 
 -record(node_data,
