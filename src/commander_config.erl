@@ -96,9 +96,10 @@ get_packed_options(OptList, Operation, Commands, Paths) ->
 
     % Pack nodes options
     NodesOpts = #nodes_opts{
-        nodes         = proplists:get_value(nodes,         OptList),
-        nodes_group   = proplists:get_value(nodes_group,   OptList),
-        try_all_nodes = proplists:get_value(try_all_nodes, OptList)
+        nodes          = proplists:get_value(nodes,          OptList),
+        nodes_group    = proplists:get_value(nodes_group,    OptList),
+        filter_pattern = proplists:get_value(filter_pattern, OptList),
+        try_all_nodes  = proplists:get_value(try_all_nodes,  OptList)
     },
 
     % Pack job options

@@ -58,6 +58,10 @@
         "Nodes list (comma separated). Overrides all other sources of nodes."
         },
 
+        {filter_pattern, $f, "filter-pattern", {string, ""},
+        "RegEx pattern to filter a list of nodes through."
+        },
+
         {nodes_group,    $g, "group",          {atom, ?DEFAULT_NODES_GROUP},
         "Nodes group"
         },

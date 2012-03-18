@@ -28,14 +28,25 @@
 %% Purpose  : Gets a list of nodes for the requested group.
 %% Type     : {ok, list()} | {error, Reason}
 %%-----------------------------------------------------------------------------
-get_nodes(#nodes_opts{nodes=Nodes}) when Nodes /= "" ->
-    {ok, string:tokens(Nodes, ",")};
+get_nodes(#nodes_opts{nodes=Nodes}=Options) when Nodes /= "" ->
+    Pattern = Options#nodes_opts.filter_pattern,
+    get_nodes(filter, {ok, string:tokens(Nodes, ",")}, Pattern);
 
-get_nodes(#nodes_opts{nodes_group=pbs, try_all_nodes=MayBeTryAllNodes}) ->
-    pbs_nodes(MayBeTryAllNodes);
+get_nodes(#nodes_opts{nodes_group=pbs}=Options) ->
+    Pattern = Options#nodes_opts.filter_pattern,
+    MayBeTryAllNodes = Options#nodes_opts.try_all_nodes,
+    get_nodes(filter, pbs_nodes(MayBeTryAllNodes), Pattern);
 
-get_nodes(#nodes_opts{nodes_group=Group}) ->
-    configured_groups(Group).
+get_nodes(#nodes_opts{nodes_group=Group}=Options) ->
+    Pattern = Options#nodes_opts.filter_pattern,
+    get_nodes(filter, configured_groups(Group), Pattern).
+
+
+get_nodes(filter, {ok, Nodes}, Pattern) ->
+    MatchedNodes = [N || N <- Nodes, commander_lib:is_match(N, Pattern)],
+    {ok, MatchedNodes};
+
+get_nodes(filter, {error, Reason}, _) -> {error, Reason}.
 
 
 %%%============================================================================

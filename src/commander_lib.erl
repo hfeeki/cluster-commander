@@ -22,6 +22,7 @@
         lookup_operation_type/1,
         lookup_default_operation/0,
 
+        is_match/2,
         os_cmd/1
     ]
 ).
@@ -167,6 +168,10 @@ lookup_default_operation() -> exec.
 %%%----------------------------------------------------------------------------
 %%% Utils
 %%%----------------------------------------------------------------------------
+
+is_match(String, REPattern) ->
+    re:run(String, REPattern, [{capture, none}]) =:= match.
+
 
 os_cmd(Command) ->
     PortOptions = [stream, exit_status, use_stdio, stderr_to_stdout, in, eof],

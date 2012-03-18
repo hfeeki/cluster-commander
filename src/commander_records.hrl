@@ -34,6 +34,7 @@
     {
         nodes           = undefined :: string(),
         nodes_group     = undefined :: atom(),
+        filter_pattern  = ""        :: string(),
         try_all_nodes   = undefined :: boolean()
     }
 ).
