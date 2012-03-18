@@ -28,7 +28,9 @@ SHORT     LONG              DESCRIPTION                    DEFAULTS TO
 
 -a        --try-all-nodes   Attempt to connect to all      <OFF>
                             nodes, regardless of their
-                            current state.
+                            current state (only relevant
+                            for the built-in, dynamic
+                            "pbs" group).
 
 -n        --nodes           Nodes list                     <EMPTY>
                             (whitespace-separated).
