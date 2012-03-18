@@ -3,6 +3,7 @@
 %%%  [http://ibnfirnas.github.com]
 %%% @copyright 2011-2012 Siraaj Khandkar
 %%% @doc Miscellaneous functions used throughout the project.
+%%% @end
 %%%----------------------------------------------------------------------------
 
 -module(commander_lib).

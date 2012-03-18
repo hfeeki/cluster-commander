@@ -3,6 +3,7 @@
 %%%  [http://ibnfirnas.github.com]
 %%% @copyright 2011-2012 Siraaj Khandkar
 %%% @doc Worker backed by the operating system's "ssh"|"scp" commands.
+%%% @end
 %%%----------------------------------------------------------------------------
 
 -module(commander_worker_os).
