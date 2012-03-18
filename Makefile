@@ -25,6 +25,7 @@ doc-all:
 
 clean:
 	@$(REBAR) clean
+	@rm -rf {bin,ebin,doc}
 
 test:
 	@$(REBAR) compile eunit skip_deps=true
