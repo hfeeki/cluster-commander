@@ -13,7 +13,7 @@ compile:
 	@cp deps/*/ebin/{getopt.beam,mochijson2.beam,ejson.beam} ebin/
 
 link:
-	@$(REBAR) escriptize
+	@$(REBAR) escriptize skip_deps=true
 	@mkdir -p bin
 	@mv commander bin/
 
