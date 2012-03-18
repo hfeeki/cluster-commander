@@ -1,30 +1,33 @@
+REBAR=./rebar
+
+
 all: clean getdeps compile link doc-all
 
 build: compile link
 
 getdeps:
-	@./rebar get-deps
+	@$(REBAR) get-deps
 
 compile:
-	@./rebar compile
+	@$(REBAR) compile
 	@cp deps/*/ebin/*.beam ebin/
 
 link:
-	@./rebar escriptize
+	@$(REBAR) escriptize
 	@mkdir -p bin
 	@mv commander bin/
 
 doc:
-	@./rebar doc skip_deps=true
+	@$(REBAR) doc skip_deps=true
 
 doc-all:
-	@./rebar doc
+	@$(REBAR) doc
 
 clean:
-	@./rebar clean
+	@$(REBAR) clean
 
 test:
-	@./rebar compile eunit skip_deps=true
+	@$(REBAR) compile eunit skip_deps=true
 
 test-all:
-	@./rebar compile eunit
+	@$(REBAR) compile eunit
