@@ -31,8 +31,9 @@ SHORT     LONG              DESCRIPTION                    DEFAULTS TO
                             current state.
 
 -n        --nodes           Nodes list                     <EMPTY>
-                            (comma-separated). Overrides
-                            all other sources of nodes.
+                            (whitespace-separated).
+                            Overrides all other sources
+                            of nodes.
 ```
 
 If the target command contains options itself, it must be quoted to prevent

@@ -55,7 +55,8 @@
         },
 
         {nodes,          $n, "nodes",          {string, ""},
-        "Nodes list (comma separated). Overrides all other sources of nodes."
+        "Nodes list (whitespace-separated). Overrides all other sources of
+        nodes."
         },
 
         {filter_pattern, $f, "filter-pattern", {string, ""},

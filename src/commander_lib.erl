@@ -22,6 +22,7 @@
         lookup_operation_type/1,
         lookup_default_operation/0,
 
+        split/1,
         is_match/2,
         os_cmd/1
     ]
@@ -168,6 +169,20 @@ lookup_default_operation() -> exec.
 %%%----------------------------------------------------------------------------
 %%% Utils
 %%%----------------------------------------------------------------------------
+
+%%----------------------------------------------------------------------------
+%% @doc Split a given string on arbitrary whitespace characters:
+%%      space, tab, newline.
+%% @end
+%%
+%% @spec split(string()) -> ListOfSubstrings
+%% where
+%%  ListOfSubstrings = list(string())
+%% @end
+%%----------------------------------------------------------------------------
+split(String) ->
+    [binary_to_list(S) || S <- re:split(String, "[\s\t\n]+")--[<<>>]].
+
 
 is_match(String, REPattern) ->
     re:run(String, REPattern, [{capture, none}]) =:= match.

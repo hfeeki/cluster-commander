@@ -30,7 +30,7 @@
 %%-----------------------------------------------------------------------------
 get_nodes(#nodes_opts{nodes=Nodes}=Options) when Nodes /= "" ->
     Pattern = Options#nodes_opts.filter_pattern,
-    get_nodes(filter, {ok, string:tokens(Nodes, ",")}, Pattern);
+    get_nodes(filter, {ok, commander_lib:split(Nodes)}, Pattern);
 
 get_nodes(#nodes_opts{nodes_group=pbs}=Options) ->
     Pattern = Options#nodes_opts.filter_pattern,
