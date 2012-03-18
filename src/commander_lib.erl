@@ -181,7 +181,7 @@ lookup_default_operation() -> exec.
 %% @end
 %%----------------------------------------------------------------------------
 split(String) ->
-    [binary_to_list(S) || S <- re:split(String, "[\s\t\n]+")--[<<>>]].
+    re:split(String, "[\s\t\n]+", [{return, list}, trim]).
 
 
 is_match(String, REPattern) ->
