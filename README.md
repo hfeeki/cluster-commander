@@ -120,6 +120,10 @@ Alternatively (or additionally), static groups of nodes can be defined in
 }
 ```
 
+Group name "all" is reserved. It is used as a built-in meta-group for all nodes
+from all groups defined in groups.json file. This adds a lot of flexibility
+when combined with '-f' option.
+
 
 ### Configure SSH
 
