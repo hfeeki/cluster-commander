@@ -10,7 +10,7 @@ getdeps:
 
 compile:
 	@$(REBAR) compile
-	@cp deps/*/ebin/*.beam ebin/
+	@cp deps/*/ebin/{getopt.beam,mochijson2.beam,ejson.beam} ebin/
 
 link:
 	@$(REBAR) escriptize
