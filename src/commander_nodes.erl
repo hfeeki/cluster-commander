@@ -29,16 +29,16 @@
 %% Type     : {ok, list()} | {error, Reason}
 %%-----------------------------------------------------------------------------
 get_nodes(#nodes_opts{nodes=Nodes}=Options) when Nodes /= "" ->
-    Pattern = Options#nodes_opts.filter_pattern,
+    Pattern = Options#nodes_opts.filter_nodes,
     get_nodes(filter, {ok, commander_lib:split(Nodes)}, Pattern);
 
 get_nodes(#nodes_opts{nodes_group=pbs}=Options) ->
-    Pattern = Options#nodes_opts.filter_pattern,
+    Pattern = Options#nodes_opts.filter_nodes,
     MayBeTryAllNodes = Options#nodes_opts.try_all_nodes,
     get_nodes(filter, pbs_nodes(MayBeTryAllNodes), Pattern);
 
 get_nodes(#nodes_opts{nodes_group=Group}=Options) ->
-    Pattern = Options#nodes_opts.filter_pattern,
+    Pattern = Options#nodes_opts.filter_nodes,
     get_nodes(filter, configured_groups(Group), Pattern).
 
 

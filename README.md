@@ -37,8 +37,8 @@ SHORT     LONG              DESCRIPTION                    DEFAULTS TO
                             Overrides all other sources
                             of nodes.
 
--f      --filter-pattern    RegEx pattern to filter a      ""
-                            list of nodes through.
+-f      --filter-nodes      RegEx pattern to filter each   ""
+                            node name through.
 ```
 
 If the target command contains options itself, it must be quoted to prevent

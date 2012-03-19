@@ -59,8 +59,8 @@
         nodes."
         },
 
-        {filter_pattern, $f, "filter-pattern", {string, ""},
-        "RegEx pattern to filter a list of nodes through."
+        {filter_nodes,   $f, "filter-nodes",   {string, ""},
+        "RegEx pattern to filter each node name through."
         },
 
         {nodes_group,    $g, "group",          {atom, ?DEFAULT_NODES_GROUP},
