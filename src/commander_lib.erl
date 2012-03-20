@@ -126,6 +126,9 @@ do_print_data(From, Data) -> do_print_data(From, Data, ok).
 do_print_data(From, Data, ok) ->
     do_print_data(From, Data, ok, ?TERM_COLOR_OFF);
 
+do_print_data(From, Data, fail) when is_binary(Data) ->
+    do_print_data(From, Data, fail, ?TERM_COLOR_FAIL);
+
 do_print_data(From, Data, fail) when is_list(Data) ->
     DataFormatted = lists:flatten(Data),
     do_print_data(From, DataFormatted, fail, ?TERM_COLOR_FAIL);
