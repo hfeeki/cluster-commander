@@ -63,6 +63,10 @@
         "RegEx pattern to filter each node name through."
         },
 
+        {filter_outputs, $F, "filter-outputs", {string, ""},
+        "RegEx pattern to filter each output through."
+        },
+
         {nodes_group,    $g, "group",          {atom, ?DEFAULT_NODES_GROUP},
         "Nodes group"
         },

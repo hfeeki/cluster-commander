@@ -13,6 +13,7 @@
         commander_exit/2,
 
         do_output/4,
+        do_output/5,
         do_write_data/3,
         do_print_info/2,
         do_print_data/2,
@@ -45,6 +46,11 @@
 %% Purpose  : Wrapper to print and write output.
 %% Type     : io()
 %%-----------------------------------------------------------------------------
+do_output(Node, Data, ExitStatus, SaveDataTo, FilterPattern) ->
+    FilteredData = re:replace(Data, FilterPattern, "", [{return, binary}]),
+    do_output(Node, FilteredData, ExitStatus, SaveDataTo).
+
+
 do_output(Node, Data, ExitStatus, SaveDataTo) ->
     commander_lib:do_print_data(Node, Data, ExitStatus),
     commander_lib:do_write_data(Node, Data, SaveDataTo).

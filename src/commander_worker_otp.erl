@@ -29,6 +29,7 @@ start(QueuePID, Job) ->
     Port       = Job#job.port,
     Command    = Job#job.command,
     SaveDataTo = Job#job.save_data_to,
+    OutputFilterPattern = Job#job.filter_outputs,
     Timeout =
         case  Job#job.timeout of
             0 -> infinity;
@@ -55,7 +56,8 @@ start(QueuePID, Job) ->
 
                             Data = collect_data(),
                             commander_lib:do_output(Node, Data,
-                                                      ok, SaveDataTo);
+                                                      ok, SaveDataTo,
+                                                      OutputFilterPattern);
 
                         {error, Reason} ->
                             commander_lib:do_output(Node, Reason,

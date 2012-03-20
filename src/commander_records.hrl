@@ -16,17 +16,18 @@
 
 -record(job,
     {
-        operation    = undefined :: atom(),
-        os_cmd_ssh   = undefined :: string(),
-        os_cmd_scp   = undefined :: string(),
-        user         = undefined :: string(),
-        command      = undefined :: string(),
-        save_data_to = undefined :: string(),
-        timeout      = undefined :: integer(),
-        port         = undefined :: integer(),
-        quiet        = undefined :: boolean(),
-        path_from    = undefined :: string(),
-        path_to      = undefined :: string()
+        operation      = undefined :: atom(),
+        os_cmd_ssh     = undefined :: string(),
+        os_cmd_scp     = undefined :: string(),
+        user           = undefined :: string(),
+        command        = undefined :: string(),
+        filter_outputs = ""        :: string(),
+        save_data_to   = undefined :: string(),
+        timeout        = undefined :: integer(),
+        port           = undefined :: integer(),
+        quiet          = undefined :: boolean(),
+        path_from      = undefined :: string(),
+        path_to        = undefined :: string()
     }
 ).
 

@@ -104,17 +104,18 @@ get_packed_options(OptList, Operation, Commands, Paths) ->
 
     % Pack job options
     Job = #job{
-        operation    = Operation,
-        command      = string:join(Commands, " "),
-        os_cmd_ssh   = proplists:get_value(os_cmd_ssh,   OptList),
-        os_cmd_scp   = proplists:get_value(os_cmd_scp,   OptList),
-        user         = proplists:get_value(user,         OptList),
-        save_data_to = proplists:get_value(save_data_to, OptList),
-        timeout      = proplists:get_value(host_timeout, OptList),
-        port         = proplists:get_value(port,         OptList),
-        quiet        = proplists:get_value(quiet,        OptList),
-        path_from    = proplists:get_value(from,         Paths),
-        path_to      = proplists:get_value(to,           Paths)
+        operation      = Operation,
+        command        = string:join(Commands, " "),
+        os_cmd_ssh     = proplists:get_value(os_cmd_ssh,     OptList),
+        os_cmd_scp     = proplists:get_value(os_cmd_scp,     OptList),
+        user           = proplists:get_value(user,           OptList),
+        filter_outputs = proplists:get_value(filter_outputs, OptList),
+        save_data_to   = proplists:get_value(save_data_to,   OptList),
+        timeout        = proplists:get_value(host_timeout,   OptList),
+        port           = proplists:get_value(port,           OptList),
+        quiet          = proplists:get_value(quiet,          OptList),
+        path_from      = proplists:get_value(from, Paths),
+        path_to        = proplists:get_value(to,   Paths)
     },
 
     Options = {

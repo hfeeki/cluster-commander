@@ -21,6 +21,7 @@
 start(QueuePID, Job) ->
     % Pull-out needed options
     SaveDataTo = Job#job.save_data_to,
+    OutputFilterPattern = Job#job.filter_outputs,
 
     % Request work
     QueuePID ! {request_work, self()},
@@ -38,7 +39,9 @@ start(QueuePID, Job) ->
 
             % Display and save output
             Status = commander_lib:lookup_exit_status(ExitStatus),
-            commander_lib:do_output(Node, Output, Status, SaveDataTo),
+            commander_lib:do_output(Node, Output,
+                                    Status, SaveDataTo,
+                                    OutputFilterPattern),
 
             % Continue working
             start(QueuePID, Job);
