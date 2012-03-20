@@ -19,15 +19,15 @@
 %%%============================================================================
 
 start(QueuePID, Job) ->
-    % Pull-out needed options
-    SaveDataTo = Job#job.save_data_to,
-    OutputFilterPattern = Job#job.filter_outputs,
-
     % Request work
     QueuePID ! {request_work, self()},
 
     receive
         {work, Node} ->
+            % Pull-out needed options
+            SaveDataTo = Job#job.save_data_to,
+            OutputFilterPattern = Job#job.filter_outputs,
+
             % Ensure prerequisites
             ok = do_operation_prerequisites(Node, Job),
 

@@ -24,29 +24,29 @@
 %% Type     : start/2 | ok
 %%-----------------------------------------------------------------------------
 start(QueuePID, Job) ->
-    % Pull-out options
-    User       = Job#job.user,
-    Port       = Job#job.port,
-    Command    = Job#job.command,
-    SaveDataTo = Job#job.save_data_to,
-    OutputFilterPattern = Job#job.filter_outputs,
-    Timeout =
-        case  Job#job.timeout of
-            0 -> infinity;
-            OtherTimeout -> OtherTimeout * 1000
-        end,
-
-    ConnectOptions = [
-        {user, User},
-        {connect_timeout, Timeout}
-        | ?CONNECT_OPTIONS
-    ],
-
     % Request work
     QueuePID ! {request_work, self()},
 
     receive
         {work, Node} ->
+            % Pull-out options
+            User       = Job#job.user,
+            Port       = Job#job.port,
+            Command    = Job#job.command,
+            SaveDataTo = Job#job.save_data_to,
+            OutputFilterPattern = Job#job.filter_outputs,
+            Timeout =
+                case  Job#job.timeout of
+                    0 -> infinity;
+                    OtherTimeout -> OtherTimeout * 1000
+                end,
+
+            ConnectOptions = [
+                {user, User},
+                {connect_timeout, Timeout}
+                | ?CONNECT_OPTIONS
+            ],
+
             case ssh:connect(Node, Port, ConnectOptions) of
                 {ok, ConnRef} ->
                     case ssh_connection:session_channel(ConnRef, Timeout) of
