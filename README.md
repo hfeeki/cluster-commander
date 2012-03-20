@@ -19,6 +19,7 @@ SHORT     LONG              DESCRIPTION                    DEFAULTS TO
 -u        --user            User                           <CURRENT_USER>
 -g        --group           Nodes group                    pbs
 -s        --ssh             SSH provider ('os' | 'otp')    otp
+-q        --quiet           Enable SSH quiet mode.         <OFF>
 -t        --host-timeout    Host timeout                   0 (infinity)
 -T        --global-timeout  Global timeout                 0 (infinity)
 -p        --port            SSH port number                22
