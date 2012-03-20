@@ -39,6 +39,13 @@ SHORT     LONG              DESCRIPTION                    DEFAULTS TO
 
 -f      --filter-nodes      RegEx pattern to filter each   ""
                             node name through.
+
+-F      --filter-outputs    RegEx pattern to filter each   ""
+                            output through. (Very useful
+                            for things like suppression
+                            of mendatory banners without
+                            loosing useful stderr output
+                            (as you do with '-q' option)).
 ```
 
 If the target command contains options itself, it must be quoted to prevent
