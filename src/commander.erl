@@ -74,7 +74,13 @@ main({ok,    {
                     ],
 
                     % Distribute work and wait for completions
-                    process_queue(Timeout, Workers, Nodes)
+                    case process_queue(Timeout, Workers, Nodes) of
+                        ok ->
+                            commander_lib:commander_exit(ok);
+
+                        {error, Reason} ->
+                            commander_lib:commander_exit(fail, Reason)
+                    end
             end
     end.
 
@@ -90,18 +96,16 @@ main({ok,    {
 %%      then exits the program.
 %% @end
 %%
-%% @spec process_queue(Timeout, Workers, Nodes) -> halt(ExitCode)
+%% @spec process_queue(Timeout, Workers, Nodes) -> ok | {error, Reason}
 %% where
 %%  Timeout = {pid(), reference()}
 %%  Workers = list({pid(), reference()})
 %%  Nodes = list(string())
-%%  ExitCode = integer()
+%%  Reason = string()
 %% @end
 %%-----------------------------------------------------------------------------
-process_queue(_Timeout, _Workers=[], _Nodes) ->
-    commander_lib:commander_exit(ok);
-
-process_queue({TimeoutPID, TimeoutRef}=Timeout, Workers, Nodes) ->
+process_queue(                        _Timeout, _Workers=[], _Nodes) -> ok;
+process_queue({TimeoutPID, TimeoutRef}=Timeout,  Workers,     Nodes) ->
     receive
         {request_work, WorkerPID} ->
             case Nodes of
@@ -115,7 +119,7 @@ process_queue({TimeoutPID, TimeoutRef}=Timeout, Workers, Nodes) ->
             end;
 
         {'DOWN', TimeoutRef, _, TimeoutPID, normal} ->
-            commander_lib:commander_exit(fail, "GLOBAL TIMEOUT EXCEEDED!");
+            {error, "GLOBAL TIMEOUT EXCEEDED!"};
 
         {'DOWN', Ref, _, PID, normal} ->
             process_queue(Timeout, lists:delete({PID, Ref}, Workers), Nodes);
