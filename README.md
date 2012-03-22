@@ -38,14 +38,16 @@ SHORT     LONG              DESCRIPTION                    DEFAULTS TO
                             Overrides all other sources
                             of nodes.
 
--f      --filter-nodes      RegEx pattern to filter each   ""
-                            node name through.
+-f      --filter-nodes      INclude matched RegEx pattern, ""
+                            to filter each node NAME
+                            through.
 
--F      --filter-outputs    RegEx pattern to filter each   ""
-                            output through. (Very useful
-                            for things like suppression
-                            of mendatory banners without
-                            loosing useful stderr output
+-F      --filter-outputs    EXclude matched RegEx pattern, ""
+                            to filter each OUTPUT through.
+                            (Very useful for things like
+                            suppression of mendatory banners
+                            without loosing useful stderr
+                            output from OS's `ssh` command
                             (as you do with '-q' option)).
 ```
 
