@@ -10,7 +10,9 @@ getdeps:
 
 compile:
 	@$(REBAR) compile
-	@cp deps/*/ebin/{getopt.beam,mochijson2.beam,ejson.beam} ebin/
+	@cp  deps/getopt/ebin/getopt.beam        ebin/
+	@cp  deps/mochiweb/ebin/mochijson2.beam  ebin/
+	@cp  deps/ejson/ebin/ejson.beam          ebin/
 
 link:
 	@$(REBAR) escriptize skip_deps=true
