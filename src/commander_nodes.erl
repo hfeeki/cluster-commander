@@ -43,7 +43,8 @@ get_nodes(#nodes_opts{nodes_group=Group}=Options) ->
 
 
 get_nodes(filter, {ok, Nodes}, Pattern) ->
-    MatchedNodes = [N || N <- Nodes, commander_lib:is_match(N, Pattern)],
+    UniqueNodes = sets:to_list(sets:from_list(Nodes)),
+    MatchedNodes = [N || N <- UniqueNodes, commander_lib:is_match(N, Pattern)],
     {ok, MatchedNodes};
 
 get_nodes(filter, {error, Reason}, _) -> {error, Reason}.
