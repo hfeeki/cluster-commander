@@ -60,7 +60,6 @@ build_plt: compile
 			erts \
 			et \
 			eunit \
-			gs \
 			hipe \
 			inets \
 			kernel \
