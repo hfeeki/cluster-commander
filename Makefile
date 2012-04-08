@@ -1,4 +1,5 @@
 REBAR=./rebar
+PLT_FILE=./.dialyzer.plt
 
 
 all: clean getdeps compile link doc-all
@@ -34,3 +35,44 @@ test:
 
 test-all:
 	@$(REBAR) compile eunit
+
+dialyze: compile
+	dialyzer \
+		--plt \
+			$(PLT_FILE) \
+		-c \
+			ebin \
+		-Wunmatched_returns \
+		-Werror_handling \
+		-Wrace_conditions \
+		-Wbehaviours \
+		-Wunderspecs
+
+build_plt: compile
+	dialyzer \
+		--build_plt \
+		--output_plt \
+			$(PLT_FILE) \
+		--apps \
+			compiler \
+			crypto \
+			edoc \
+			erts \
+			et \
+			eunit \
+			gs \
+			hipe \
+			inets \
+			kernel \
+			mnesia \
+			observer \
+			public_key \
+			runtime_tools \
+			sasl \
+			ssh \
+			ssl \
+			stdlib \
+			syntax_tools \
+			tools \
+			webtool \
+			xmerl
