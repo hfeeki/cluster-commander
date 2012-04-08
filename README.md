@@ -220,9 +220,4 @@ Roadmap
     - cleanly shutdown a subset/group of nodes:
         - cleanly stop current jobs
 * Tests...
-* Test a node's availability based on latency:
-    - ICMP
-    - SSH
-* Configurable latency threshold parameter(s) to determine whether we consider
-  a node "available"
 * Organize how generation of missing keys is handled.
