@@ -70,7 +70,12 @@ configured_groups({ok, GroupsJsonBin}, Group) ->
     try ejson:decode(GroupsJsonBin) of
         {Groups} ->
             Nodes = case Group of
-                all    -> lists:append([Nodes || {_G, Nodes} <- Groups]);
+                all ->
+                    % Efficiency Guide recommends lists:append/1 over
+                    % lists:flatten/1 for input lists of only one level deep:
+                    % http://www.erlang.org/doc/efficiency_guide/listHandling.html#id63241
+                    lists:append([Nodes || {_G, Nodes} <- Groups]);
+
                 _Other ->
                     GroupBin = list_to_binary(atom_to_list(Group)),
                     proplists:get_value(GroupBin, Groups)
