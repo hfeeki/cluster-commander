@@ -1,3 +1,7 @@
 language: erlang
+notifications:
+    recipients:
+    - siraaj@khandkar.net
+
 otp_release:
   - R15B
