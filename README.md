@@ -89,7 +89,7 @@ Bootstrap
 
 ### Prerequisites
 
-* Erlang R13+ (developing on R14B03, testing on R14B02-04, R15B)
+* Erlang R15B
 * Git
 * GNU Make (not REALLY needed, but simpler to build if you have it)
 
